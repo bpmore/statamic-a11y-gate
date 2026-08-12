@@ -1,0 +1,12 @@
+{
+    "name": "heading-multiple-h1",
+    "why": "Two competing page titles.",
+    "portability": "portable",
+    "findings": [
+        {
+            "rule": "heading-multiple-h1",
+            "severity": "error",
+            "wcag": "Heading structure"
+        }
+    ]
+}

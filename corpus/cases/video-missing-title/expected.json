@@ -1,0 +1,12 @@
+{
+    "name": "video-missing-title",
+    "why": "An embedded frame with no accessible name. Pure HTML, and it lives inside a family that is otherwise host-dependent.",
+    "portability": "portable",
+    "findings": [
+        {
+            "rule": "video-missing-title",
+            "severity": "error",
+            "wcag": "WCAG 4.1.2"
+        }
+    ]
+}

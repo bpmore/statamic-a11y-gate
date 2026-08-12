@@ -1,0 +1,12 @@
+{
+    "name": "button-empty",
+    "why": "A button with no accessible name at all.",
+    "portability": "portable",
+    "findings": [
+        {
+            "rule": "button-empty",
+            "severity": "error",
+            "wcag": "WCAG 4.1.2"
+        }
+    ]
+}

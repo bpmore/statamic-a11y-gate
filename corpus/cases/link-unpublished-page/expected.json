@@ -1,0 +1,12 @@
+{
+    "name": "link-unpublished-page",
+    "why": "A link pointing at a page that is not published. Needs host markup.",
+    "portability": "host-markup",
+    "findings": [
+        {
+            "rule": "link-unpublished-page",
+            "severity": "warn",
+            "wcag": "Link check"
+        }
+    ]
+}

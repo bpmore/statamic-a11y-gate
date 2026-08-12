@@ -1,0 +1,12 @@
+{
+    "name": "figure-text-missing",
+    "why": "A figure with no text version of what it shows. Needs host markup.",
+    "portability": "host-markup",
+    "findings": [
+        {
+            "rule": "figure-text-missing",
+            "severity": "error",
+            "wcag": "Figure check"
+        }
+    ]
+}

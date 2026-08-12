@@ -1,0 +1,12 @@
+{
+    "name": "link-unclear",
+    "why": "The classic: link text that names no destination.",
+    "portability": "portable",
+    "findings": [
+        {
+            "rule": "link-unclear",
+            "severity": "error",
+            "wcag": "WCAG 2.4.4"
+        }
+    ]
+}

@@ -1,0 +1,12 @@
+{
+    "name": "link-vague",
+    "why": "Longer than a banned phrase, and still every word is generic. Warning, not error: \"Learn more about the weir\" names a destination and passes clean, so this tier must not block.",
+    "portability": "portable",
+    "findings": [
+        {
+            "rule": "link-vague",
+            "severity": "warn",
+            "wcag": "WCAG 2.4.4"
+        }
+    ]
+}
