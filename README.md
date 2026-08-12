@@ -106,7 +106,14 @@ than left for a buyer to discover.
 
 ## Licence
 
-Source-available and proprietary, modelled on Statamic's own. Read it in
-`LICENSE.md`: it is five plain conditions and one clause that is not
-boilerplate, which says outright that nothing this software produces is a
-conformance claim.
+**Free.** No price, no licence key, no per-site limit. Run it on as many sites as
+you like.
+
+The licence is still proprietary, and `LICENSE.md` says why in the condition
+itself: these rules are a fork of the accessibility engine behind another
+product by the same author, so free to use is the intent and free to take is
+not. Reading the code to learn from it is expected.
+
+One clause is not boilerplate: nothing this software produces is a claim of
+conformance with anything, and a page it allows has not been proven
+accessible.
