@@ -61,72 +61,79 @@
             return { state, check };
         },
 
+        // No panel or header of its own. A field is already drawn inside the
+        // publish form's own card and given the display name from the blueprint,
+        // so wrapping this in `ui-panel` produced two nested cards and the word
+        // "Accessibility" twice.
+        //
+        // Badge text is kept to a few words on purpose: `ui-badge` is
+        // `inline-flex whitespace-nowrap`, so a sentence in one does not wrap, it
+        // runs out of the sidebar. The sentence belongs in `ui-description`,
+        // which does wrap.
+        //
+        // Every button and badge sits in its own `div`. Both are `inline-flex`,
+        // and `space-y` only puts margin between block-level children, so without
+        // the wrappers the result badge lands on the same line as the button and
+        // reads as part of it.
+        //
         // Checked on a button rather than on every keystroke. A check renders the
         // whole page through the site's templates, and firing that on each
         // character typed would make the editor feel broken and hammer the site.
         template: `
-            <ui-panel>
-                <ui-panel-header>
-                    <ui-heading text="Accessibility" />
+            <div class="space-y-3">
+                <div>
                     <ui-button
                         size="sm"
-                        variant="ghost"
                         :text="state.checking ? 'Checking' : 'Check this page'"
                         :disabled="state.checking"
                         @click="check"
                     />
-                </ui-panel-header>
+                </div>
 
-                <div class="p-4 space-y-4">
-                    <ui-skeleton v-if="state.checking" class="h-16 w-full" />
+                <ui-skeleton v-if="state.checking" class="h-16 w-full" />
 
-                    <ui-description v-else-if="state.failed" :text="state.failed" />
+                <ui-description v-else-if="state.failed" :text="state.failed" />
 
-                    <template v-else-if="state.result">
-                        <template v-if="state.result.outcome === 'could-not-check'">
-                            <ui-badge color="red" text="The checks could not run" />
-                            <ui-description :text="state.result.reason + '. Nothing is known about this page either way.'" />
-                        </template>
-
-                        <ui-description
-                            v-else-if="state.result.outcome === 'not-applicable'"
-                            :text="'Not checked: ' + state.result.reason + '.'"
-                        />
-
-                        <template v-else>
-                            <div v-if="state.result.errors.length">
-                                <ui-badge color="red" :text="state.result.errors.length + ' to fix before publishing'" />
-                                <ul class="mt-3 space-y-3">
-                                    <li v-for="(finding, i) in state.result.errors" :key="'e' + i">
-                                        <ui-heading size="sm" :text="finding.cta" />
-                                        <ui-description :text="finding.message" />
-                                        <ui-description v-if="finding.pointer" :text="finding.pointer" />
-                                    </li>
-                                </ul>
-                            </div>
-
-                            <ui-badge v-else color="emerald" text="Nothing found that would stop a publish" />
-
-                            <div v-if="state.result.warnings.length">
-                                <ui-badge color="amber" :text="state.result.warnings.length + ' worth a look'" />
-                                <ul class="mt-3 space-y-3">
-                                    <li v-for="(finding, i) in state.result.warnings" :key="'w' + i">
-                                        <ui-heading size="sm" :text="finding.cta" />
-                                        <ui-description :text="finding.message" />
-                                    </li>
-                                </ul>
-                            </div>
-                        </template>
-
-                        <ui-description :text="state.result.limits" />
+                <template v-else-if="state.result">
+                    <template v-if="state.result.outcome === 'could-not-check'">
+                        <div><ui-badge color="red" text="Could not check" /></div>
+                        <ui-description :text="'The checks could not run: ' + state.result.reason + '. Nothing is known about this page either way.'" />
                     </template>
 
                     <ui-description
-                        v-else
-                        text="This checks the page as it stands in this form, including changes you have not saved."
+                        v-else-if="state.result.outcome === 'not-applicable'"
+                        :text="'Not checked: ' + state.result.reason + '.'"
                     />
-                </div>
-            </ui-panel>
+
+                    <template v-else>
+                        <div v-if="state.result.errors.length" class="space-y-3">
+                            <div><ui-badge color="red" :text="state.result.errors.length === 1 ? '1 to fix' : state.result.errors.length + ' to fix'" /></div>
+                            <div v-for="(finding, i) in state.result.errors" :key="'e' + i">
+                                <ui-heading size="sm" :text="finding.cta" />
+                                <ui-description :text="finding.message" />
+                                <ui-description v-if="finding.pointer" :text="finding.pointer" />
+                            </div>
+                        </div>
+
+                        <div v-else><ui-badge color="emerald" text="Nothing to fix" /></div>
+
+                        <div v-if="state.result.warnings.length" class="space-y-3">
+                            <div><ui-badge color="amber" :text="state.result.warnings.length === 1 ? '1 to look at' : state.result.warnings.length + ' to look at'" /></div>
+                            <div v-for="(finding, i) in state.result.warnings" :key="'w' + i">
+                                <ui-heading size="sm" :text="finding.cta" />
+                                <ui-description :text="finding.message" />
+                            </div>
+                        </div>
+                    </template>
+
+                    <ui-description :text="state.result.limits" />
+                </template>
+
+                <ui-description
+                    v-else
+                    text="Checks this page as it stands here, including changes you have not saved."
+                />
+            </div>
         `,
     });
 })();
