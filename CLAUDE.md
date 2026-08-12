@@ -30,6 +30,26 @@ rules here exist to protect that.
 - PHP 8.4. Composer. PSR-4. A Statamic addon is an ordinary Laravel package.
 - The checker itself must stay framework-free: no Laravel container, no Eloquent,
   no facades in the rules. It takes HTML and returns findings.
+- Statamic 6, verified against `statamic/cms v6.27.1`. The gate hangs off
+  `EntrySaving`, which halts the save when a listener returns `false`. There is
+  no `EntryPublishing` event, so the addon decides for itself what counts as
+  publishing.
+- Control-panel UI comes from Statamic's own component library at
+  `ui.statamic.dev`. Never hand-roll a widget: a bespoke control inside an
+  accessibility product is the worst possible place to invent one.
+
+## THIS REPOSITORY IS GOING PUBLIC
+
+Write every commit, comment and document as though a customer, a competitor and
+an auditor will all read it, because once this is listed they can.
+
+- The rules are readable in any element inspector anyway. Nothing here is
+  protected by being unpublished, so nothing should be written as if it were.
+- Statamic's licence check is a control-panel banner, not a block, verified in
+  source. Never write copy, pricing or code that assumes an unlicensed install is
+  prevented. It is not.
+- What is sold is the listing, the updates, the support and a defensible answer
+  about where the tool came from. Not access to the code.
 
 ## TESTING
 
