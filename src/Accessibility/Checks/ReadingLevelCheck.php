@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Bpmore\A11yGate\Accessibility\Checks;
 
 use Bpmore\A11yGate\Accessibility\AccessibilityStandard;
+use Bpmore\A11yGate\Accessibility\Coverage;
 use Bpmore\A11yGate\Accessibility\ReadingLevel;
 use Bpmore\A11yGate\Accessibility\Violation;
 use DOMXPath;
@@ -28,6 +29,11 @@ final class ReadingLevelCheck extends RuleCheck
     public static function key(): string
     {
         return 'a11y.text.reading_level';
+    }
+
+    public static function name(): string
+    {
+        return 'Plain-language summaries';
     }
 
     public static function rules(): array
@@ -55,5 +61,39 @@ final class ReadingLevelCheck extends RuleCheck
         }
 
         return $violations;
+    }
+
+    public static function needsOptIn(): bool
+    {
+        return true;
+    }
+
+    /**
+     * Full where the site stamps a grade, nothing to report on a site that has
+     * not integrated this, and `none` on a site that has but did not stamp this
+     * page.
+     *
+     * This is the check the opt-in setting was added for. A summary is just more
+     * text on the finished page and nothing marks out which words were meant to
+     * be the plain ones, so on a site with no summaries there is no page where
+     * this could ever say anything useful.
+     */
+    public function coverage(DOMXPath $xpath, array $optedIn = []): ?Coverage
+    {
+        $stamped = $xpath->query('//*[@data-windrow-reading-grade]');
+
+        if ($stamped !== false && $stamped->length > 0) {
+            return Coverage::full(self::key(), self::name());
+        }
+
+        if (! in_array(self::key(), $optedIn, true)) {
+            return null;
+        }
+
+        return Coverage::none(
+            self::key(),
+            self::name(),
+            'A plain-language summary is just more text on the finished page, and nothing on this page was marked up as one.',
+        );
     }
 }

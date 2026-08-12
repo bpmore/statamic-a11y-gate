@@ -76,6 +76,23 @@
         // the wrappers the result badge lands on the same line as the button and
         // reads as part of it.
         //
+        // Everything here is written for the person writing the page, and the
+        // test for whether a line belongs is whether they could do something
+        // about it. "4 of 5 checks ran in full" fails that test, and so does
+        // "a size set in a stylesheet needs a real browser": true, worth an
+        // auditor knowing, and not theirs to fix from an entry screen. Both are
+        // still in the response this panel receives, and neither is drawn.
+        //
+        // What is drawn is a gap in their own content that only they can settle,
+        // which today means one thing: whether the video they embedded has
+        // captions.
+        //
+        // Nothing here explains the tool. That account was a paragraph under
+        // every result, then a link under every result, and both were the same
+        // answer to the same question nobody asked: an author pressing a button
+        // wants to know about their page. The page under Tools says it properly,
+        // and somebody who wants it goes and reads it.
+        //
         // Checked on a button rather than on every keystroke. A check renders the
         // whole page through the site's templates, and firing that on each
         // character typed would make the editor feel broken and hammer the site.
@@ -126,7 +143,10 @@
                         </div>
                     </template>
 
-                    <ui-description :text="state.result.limits" />
+                    <div v-if="state.result.notices.length" class="space-y-2">
+                        <ui-description v-for="(notice, i) in state.result.notices" :key="'n' + i" :text="notice" />
+                    </div>
+
                 </template>
 
                 <ui-description

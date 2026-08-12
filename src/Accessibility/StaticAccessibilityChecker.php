@@ -25,19 +25,49 @@ use DOMXPath;
 final class StaticAccessibilityChecker
 {
     /**
-     * @return array<int, Violation>
+     * The findings, and how much of the page each family could see while
+     * looking. Everything that shows a result to a person should call this.
      */
-    public function check(string $html, ?AccessibilityStandard $standard = null): array
+    /**
+     * @param  array<int, string>  $optedIn  keys of the opt-in checks this site stamps for
+     */
+    public function report(string $html, ?AccessibilityStandard $standard = null, array $optedIn = []): CheckReport
     {
         $xpath = $this->xpath($html);
 
         $violations = [];
+        $coverage = [];
 
         foreach (CheckPack::all() as $check) {
+            // Every check still runs, including the opt-in ones a site has not
+            // integrated. They find nothing without their markup, and on the day
+            // a site starts stamping without changing a setting, its findings
+            // arrive rather than being quietly withheld. Only the coverage line
+            // is opt-in, because that is the part that would otherwise repeat
+            // itself on every page forever.
             $violations = [...$violations, ...$check->run($xpath, $standard)];
+
+            if ($entry = $check->coverage($xpath, $optedIn)) {
+                $coverage[] = $entry;
+            }
         }
 
-        return $violations;
+        return new CheckReport($violations, $coverage);
+    }
+
+    /**
+     * The findings alone.
+     *
+     * Kept because the shared conformance corpus is about findings and nothing
+     * else: coverage is this project's own reporting and Windrow has none yet,
+     * so a corpus that demanded it would be unanswerable on the other side.
+     * Nothing that shows a result to a person should use this.
+     *
+     * @return array<int, Violation>
+     */
+    public function check(string $html, ?AccessibilityStandard $standard = null): array
+    {
+        return $this->report($html, $standard)->violations;
     }
 
     private function xpath(string $html): DOMXPath

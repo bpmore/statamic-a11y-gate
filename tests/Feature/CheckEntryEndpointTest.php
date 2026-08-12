@@ -69,11 +69,59 @@ it('reports a clean page as clean without claiming it is accessible', function (
     expect($response->json('errors'))->toBe([]);
     expect($response->json('refuses'))->toBeFalse();
 
-    // The sentence a customer reads comes from the server, so it cannot drift
-    // from what this project is willing to defend.
-    $limits = $response->json('limits');
-    expect($limits)->toContain('has not been proven accessible');
-    expect(str_contains(strtolower($limits), 'compliant'))->toBeFalse('the panel must never use the word compliant');
+    // Nothing explaining the tool comes back with a result. That account was a
+    // paragraph under every result, then a link under every result, and it is a
+    // page under Tools now. An author pressing a button is asking about their
+    // page.
+    expect($response->json('guide_url'))->toBeNull();
+});
+
+it('sends coverage with a clean result, which is where it matters most', function () {
+    // A clean page is the case where "how much of this was looked at" carries
+    // the most weight, so the panel gets the same coverage on a page with no
+    // findings as on a page full of them.
+    $entry = savedPage('<p>The footbridge.</p>');
+
+    $response = $this->actingAs($this->user)
+        ->postJson(cp_route('a11y-gate.check'), [
+            'reference' => $entry->reference(),
+            'values' => ['body' => '<p>The footbridge over the weir.</p>'],
+        ]);
+
+    $response->assertOk();
+
+    expect($response->json('errors'))->toBe([]);
+
+    // Nothing for the author: this page has no video, so there is no gap in
+    // their own content to tell them about.
+    expect($response->json('notices'))->toBe([]);
+
+    // Everything for whoever audits the addon, still sent, still not drawn.
+    expect($response->json('coverage_summary'))->toContain('checks ran in full');
+    expect($response->json('coverage'))->not->toBe([]);
+
+    // Every entry that did not run in full has to say why, or the list is a
+    // count with nothing behind it.
+    foreach ($response->json('coverage') as $check) {
+        if ($check['extent'] !== 'full') {
+            expect($check['limit'])->not->toBe('');
+        }
+    }
+});
+
+it('tells the author about a video whose captions it could not check', function () {
+    $entry = savedPage('<p>The footbridge.</p>');
+
+    $response = $this->actingAs($this->user)
+        ->postJson(cp_route('a11y-gate.check'), [
+            'reference' => $entry->reference(),
+            'values' => ['body' => '<iframe title="The weir in flood" src="/v"></iframe>'],
+        ]);
+
+    $response->assertOk();
+
+    expect($response->json('errors'))->toBe([]);
+    expect($response->json('notices.0'))->toContain('Only you can confirm');
 });
 
 it('separates warnings from errors, because only one of them stops a publish', function () {

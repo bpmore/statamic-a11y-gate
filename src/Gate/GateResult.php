@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Bpmore\A11yGate\Gate;
 
+use Bpmore\A11yGate\Accessibility\CheckReport;
+use Bpmore\A11yGate\Accessibility\Coverage;
 use Bpmore\A11yGate\Accessibility\Violation;
 
 /**
@@ -26,11 +28,16 @@ final class GateResult
 
     /**
      * @param  array<int, Violation>  $violations
+     * @param  array<int, Coverage>  $coverage
      */
     private function __construct(
         public readonly string $outcome,
         public readonly array $violations,
         public readonly string $reason,
+        public readonly array $coverage = [],
+        public readonly string $coverageSummary = '',
+        /** @var array<int, string> gaps in the author's own content, in their words */
+        public readonly array $notices = [],
     ) {}
 
     /**
@@ -43,11 +50,23 @@ final class GateResult
     }
 
     /**
-     * @param  array<int, Violation>  $violations
+     * A checked page carries its coverage, not just its findings.
+     *
+     * There is no constructor here that takes findings on their own, on purpose.
+     * A caller that wanted to report a clean page without saying how much of it
+     * was looked at would have to add one, and adding it would be a visible
+     * decision rather than an omission.
      */
-    public static function checked(array $violations): self
+    public static function checked(CheckReport $report): self
     {
-        return new self(self::CHECKED, $violations, '');
+        return new self(
+            self::CHECKED,
+            $report->violations,
+            '',
+            $report->coverage,
+            $report->summary(),
+            $report->notices(),
+        );
     }
 
     /** The page could not be produced, so nothing about it is known. */

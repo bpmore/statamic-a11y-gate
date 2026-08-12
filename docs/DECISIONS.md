@@ -9,6 +9,149 @@ read alongside that one.
 
 ---
 
+## 2026-08-12: Say what the reader can act on, and say the rest where it belongs
+
+The rule in `CLAUDE.md` that everything else rests on: a check that could not run
+must say so, because a silent zero is indistinguishable from a pass. Until this
+change the addon broke that rule on every page it checked.
+
+**Three extents, not two, and each one exists to stop a specific lie.**
+
+- `full`: the check saw everything it judges. **A page with no images is a full
+  pass for the image rule**, not a gap. That is why there is no fourth extent
+  called "nothing to judge": it sounds more precise, and it would make a clean
+  page look like a hole.
+- `partial`: it ran, and part of what it judges was invisible here.
+- `none`: it could not run at all, because what it reads is not in this page.
+
+**Coverage is about the page in front of the author, not about Statamic in
+general, and the first version got that wrong.** It reported all seven families
+on every page, so a plain blog post with no video and no figures was told that
+captions, transcripts, figure text and footnotes had not been checked. Reading
+the live panel, the owner asked the obvious question: does an author care, if
+there are no videos on the page?
+
+They do not, and the rule I had already written said so. A page with no images is
+a full pass for the image check because there was nothing there to miss. The same
+sentence applies to a page with no video, and applying it to one and not the
+other was an inconsistency, not a policy.
+
+So coverage now turns on what the document contains:
+
+- **Video, audio and figures** is full on a page with no media, and partial on a
+  page with any, where the hole is real and specific: the embed title was
+  checked and its captions cannot be.
+- **Touch target size** is full on a page with no controls, and partial on a page
+  with any.
+
+**And two checks left the per-page report entirely.** Links-to-unpublished and
+reading level read markup that leaves no trace in a finished page, so on a site
+that has not integrated them there is no page where they could ever say anything
+useful. They are a setting, `opt_in_checks`, named in the config file with what
+each one reads, which is the one place a standing "this was not checked" notice
+gets read at all.
+
+**The checks still run.** Only the coverage line is opt-in. A site that starts
+stamping before it edits a config file gets its findings, and gets told the check
+ran, rather than silence. That distinction is the whole reason this was a
+reporting change and not a switch that turns checks off.
+
+On hada.farm, live, a real blog post now reads: *4 of 5 checks ran in full, 1 ran
+partly.* Before the correction the same page read *3 of 7 in full, 2 partly, 2
+could not run here*, and four of those five lines were about things the page did
+not contain.
+
+**The line a warning has to earn.** A notice that appears on every page whatever
+it contains is the one people learn to scroll past, and they take the real
+warning with them when they go. That is a worse failure for this product than
+saying slightly less, because the whole thing is sold on the reader believing
+what it says.
+
+**And then the whole thing was pointed at the wrong reader, which took a third
+pass to see.** With the noise gone, the panel still said *"4 of 5 checks ran in
+full, 1 ran partly"* and, behind a disclosure, *"a size set in a stylesheet needs
+a real browser"*. The owner asked how that helps somebody writing a page. It does
+not. It is an auditor's number and a theme author's problem, put in front of a
+person who can change neither from an entry screen.
+
+**So the audiences were split, and the test for which side a line falls on is
+whether the reader could do anything about it.**
+
+- **The author sees** what to fix, and gaps in *their own content* that only they
+  can settle. Today that is one sentence, on a page carrying media: "Captions
+  were not checked. Only you can confirm this video or recording has them."
+- **The standing limits moved off the result entirely**, after the same question
+  was asked of them: does a sentence about theme stylesheets, printed under every
+  scan, mean anything to somebody writing a page? It does not. They are a page
+  under Tools now, linked from the panel as "What this can and cannot check",
+  and the panel shows the link rather than the lecture. That page is also where
+  the sentence a buyer's lawyer will read now lives, in exactly one place: a page
+  it finds nothing wrong with has not been proven accessible.
+- **The auditor sees the counts**, in the data the check endpoint returns and in
+  this log. Not drawn in the panel, not in the refusal.
+
+`CLAUDE.md` says a check that could not run must say so. It does not say it must
+be said in an auditor's words to a person writing a blog post, on every entry,
+forever. Said once, plainly, where it will be read, is the same honesty and it
+survives contact with a real reader.
+
+**The corpus does not pin any of this, and that is a stated gap rather than an
+oversight.** Coverage is new behaviour that Windrow does not have yet, so a
+corpus demanding it would be unanswerable on the other side, and the corpus's own
+rule is that it holds both projects to the same statements. `check()` still
+returns findings alone and the corpus still runs against it, untouched. When
+Windrow implements coverage, the expectations go into the corpus in one commit in
+both repositories. Until then the two projects agree about findings and are
+silent about coverage, which is the arrangement working rather than failing.
+
+**Mutation-tested, ten run, ten killed**, though one survived first time and is
+worth naming. The kills: a host-markup check claiming full coverage, target size
+claiming full, the coverage line dropped from the refusal, the endpoint sending
+an empty summary, a family quietly missing from the list, media reporting full
+with a video on the page, target size reporting full with controls on the page,
+an opt-in check reporting when the site never opted in, and an opt-in check
+staying silent when it did.
+
+**The survivor:** emptying the opt-in list where the settings are read broke no
+test at all, because every test that cared passed the list directly to the
+checker. The setting was a config key nothing proved was read. Closed with a test
+on `GateSettings`, which is exactly the seam a mutation is for finding.
+
+**Rejected.** *Per-rule coverage* rather than per-family, which is more precise
+and produces seventeen lines an author has to read to learn one thing. *A single
+count* with no reasons, which tells somebody they have a problem and nothing
+about what it is. *Keeping the opt-in checks in the per-page report*, which is
+the version that was built first and which put four lines about absent things in
+front of an author on every entry. *Keeping the count behind a disclosure*, which
+was the second version: better than a wall of text, and still an auditor's
+sentence in an author's panel.
+
+**A fourth pass, on how it looked rather than what it said.** The guide page was
+plain HTML with borrowed Tailwind classes, and beside Statamic's own utilities it
+read as a document dropped on the page: no header, no cards, and a blank space in
+the Tools list where every other entry had an icon.
+
+Both were the same mistake as reaching for a hand-rolled widget, and both were
+fixed by reading the build rather than guessing. **A utility view is compiled as
+a Vue template**, not printed as HTML: `DynamicHtmlRenderer` does
+`defineComponent({ template: html })`, so `ui-header` and `ui-card-panel` resolve
+inside a Blade file exactly as they do in the control panel's own pages. And a
+named icon is looked up in Statamic's set, where `shield` does not exist, which
+is why nothing was drawn. `clipboard-check` does.
+
+Tests hold both now, because both failed silently: an icon that is not there
+renders as nothing, and a page with the wrong chrome renders perfectly well.
+
+**Worth naming, because it is the pattern rather than the incident.** This
+feature was wrong four times and each time the code was correct and the tests
+passed. Noisy on absent content, then noisy behind a toggle, then addressed to
+the wrong person, then dressed in its own styles beside a control panel that
+ships its own. Every correction came from somebody looking at the screen and
+asking what a reader would do with what they saw, which is a question no test in
+this repository can ask.
+
+---
+
 ## 2026-08-12: Run against a real site, which found a bug the whole suite had passed over
 
 The gate was switched to refuse mode on hada.farm (Statamic 6.27.1) and pointed

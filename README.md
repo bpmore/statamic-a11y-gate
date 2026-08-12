@@ -19,8 +19,8 @@ the entry sidebar, the button runs the check, and the result comes back.
 the exact findings this project must produce for each, identical to the copy in
 Windrow. `composer test` runs it, and the suite fails if any rule has no case.
 
-Still to come: reporting which of the seven check families could run at all. The
-design lives in the Windrow repo at `docs/plans/statamic-addon.md`.
+Every result says how much of the page it could see. The design lives in the
+Windrow repo at `docs/plans/statamic-addon.md`.
 
 ## Adding the panel
 
@@ -71,12 +71,35 @@ state the save would leave behind:
 
 ## Honest limits
 
-Four checks read only the rendered HTML and work on any site: heading order, link
-purpose, image alt text, and target size.
+**The author is told two things and no more:** what to fix, and where the tool
+could not see something in *their own content* that only they can settle. Today
+that second one means one thing:
 
-Three more need the site to mark up what it knows: whether a video has captions,
-whether a link points somewhere unpublished, and the reading grade of a plain
-language summary. Those are opt-in and documented, not magic.
+> Captions were not checked. Only you can confirm this video or recording has
+> them.
+
+A page with no video says nothing about captions, the same way a page with no
+images says nothing about descriptions. There was nothing there to miss.
+
+**Everything else lives on one page under Tools**, "Accessibility Gate". It says
+what runs, what cannot run and why, which two checks a developer can switch on,
+and what a clean result does not mean. The result panel does not link to it: an
+author pressing a button is asking about their page, and somebody who wants to
+know what the tool is worth goes and reads it once.
+
+**What the author is never shown**, because they cannot act on it: which checks
+ran and how far. That is an auditor's number. It stays in the data the check
+endpoint returns, where a report can be built on it.
+
+Two checks are off unless your templates opt in, and they are named in
+`config/a11y-gate.php`:
+
+- Links to a page that is not published yet.
+- The reading grade of a plain-language summary.
+
+Neither leaves a trace in the finished page, so neither can be checked without
+the site marking it up. Findings still arrive either way: a page that carries the
+markup is checked whether or not the setting mentions it.
 
 A browser pass with axe catches more than any of this. That is stated here rather
 than left for a buyer to discover.

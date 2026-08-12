@@ -25,7 +25,7 @@ use Statamic\Fields\Fieldtype;
  */
 class AccessibilityPanel extends Fieldtype
 {
-    protected $icon = 'shield';
+    protected $icon = 'clipboard-check';
 
     protected static $title = 'Accessibility';
 

@@ -8,6 +8,7 @@ use Bpmore\A11yGate\Accessibility\StaticAccessibilityChecker;
 use Bpmore\A11yGate\Gate\EntryRenderer;
 use Bpmore\A11yGate\Gate\GateSettings;
 use Bpmore\A11yGate\Gate\PublishGate;
+use Statamic\Facades\Utility;
 use Statamic\Providers\AddonServiceProvider;
 
 /**
@@ -33,6 +34,28 @@ class ServiceProvider extends AddonServiceProvider
     protected $scripts = [
         __DIR__.'/../resources/js/a11y-panel.js',
     ];
+
+    protected $viewNamespace = 'a11y-gate';
+
+    /**
+     * A page under Tools that says what the addon checks and what it cannot.
+     *
+     * It exists because that explanation was being printed under every result,
+     * on every entry, forever. A sentence repeated that often is a sentence
+     * nobody reads, and the person it was aimed at could not act on any of it.
+     * Somebody who wants to know what the tool is worth comes looking once.
+     */
+    public function bootAddon()
+    {
+        Utility::extend(fn () => Utility::register(
+            Utility::make('a11y-gate')
+                ->title('Accessibility Gate')
+                ->navTitle('Accessibility Gate')
+                ->icon('clipboard-check')
+                ->description('What this checks before a publish, and what it cannot.')
+                ->view('a11y-gate::utilities.gate')
+        ));
+    }
 
     public function register()
     {

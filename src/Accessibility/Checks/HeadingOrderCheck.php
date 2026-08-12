@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Bpmore\A11yGate\Accessibility\Checks;
 
 use Bpmore\A11yGate\Accessibility\AccessibilityStandard;
+use Bpmore\A11yGate\Accessibility\Coverage;
 use Bpmore\A11yGate\Accessibility\Violation;
 use DOMXPath;
 
@@ -21,6 +22,11 @@ final class HeadingOrderCheck extends RuleCheck
     public static function key(): string
     {
         return 'a11y.heading.order';
+    }
+
+    public static function name(): string
+    {
+        return 'Heading structure';
     }
 
     public static function rules(): array
@@ -64,5 +70,15 @@ final class HeadingOrderCheck extends RuleCheck
         }
 
         return $violations;
+    }
+
+    /**
+     * Always full. Headings are ordinary markup and every page has an outline,
+     * even when that outline is empty: a page with no h1 is a finding, not a
+     * blind spot.
+     */
+    public function coverage(DOMXPath $xpath, array $optedIn = []): ?Coverage
+    {
+        return Coverage::full(self::key(), self::name());
     }
 }

@@ -39,6 +39,36 @@ return [
 
     /*
     |---------------------------------------------------------------------------
+    | Opt-in checks
+    |---------------------------------------------------------------------------
+    |
+    | Two checks cannot work on rendered HTML alone, because what they look for
+    | leaves no trace in the finished page. They are off unless your templates
+    | stamp the attribute they read, and they are listed here rather than
+    | repeated on every entry, which is the only place a standing "this was not
+    | checked" notice would ever be read.
+    |
+    | 'a11y.link.unpublished'   reads data-windrow-unpublished-link="true"
+    |                           on anything wrapping a link to a page that is
+    |                           not live yet. A link to a draft looks like any
+    |                           other link once the page is built.
+    |
+    | 'a11y.text.reading_level' reads data-windrow-reading-grade="9.4" on a
+    |                           plain-language summary. On the finished page a
+    |                           summary is just more text, and nothing marks out
+    |                           which words were meant to be the plain ones.
+    |
+    | Add a key here once your templates stamp it. Findings arrive either way:
+    | a page that carries the markup is checked whether or not this list mentions
+    | it. What this controls is whether an entry that carries none of it is told
+    | so.
+    |
+    */
+
+    'opt_in_checks' => [],
+
+    /*
+    |---------------------------------------------------------------------------
     | Standard
     |---------------------------------------------------------------------------
     |

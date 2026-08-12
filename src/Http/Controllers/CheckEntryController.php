@@ -65,11 +65,17 @@ class CheckEntryController extends CpController
             'errors' => array_map($this->finding(...), $result->errors()),
             'warnings' => array_map($this->finding(...), $result->warnings()),
 
-            // Sent from the server rather than written into the component, so
-            // that the sentence a customer reads and the sentence this project
-            // is willing to defend are the same string. Nothing here says the
-            // page is accessible, compliant, or a proportion of either.
-            'limits' => 'This reads the rendered page. It cannot see anything a stylesheet does, it cannot tell a good description from a bad one, and a page it finds nothing wrong with has not been proven accessible.',
+            // What the panel shows: gaps in the author's own content that only
+            // they can settle.
+            'notices' => $result->notices,
+
+            // What the panel does not show, and keeps sending anyway. Which
+            // checks ran and how far is what somebody auditing this addon needs,
+            // and it is meaningless to the person writing the page. Kept in the
+            // response so a report can be built on it without a second endpoint.
+            'coverage_summary' => $result->coverageSummary,
+            'coverage' => array_map(fn ($c) => $c->toArray(), $result->coverage),
+
         ];
     }
 

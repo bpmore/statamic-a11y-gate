@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Bpmore\A11yGate\Accessibility\Checks;
 
 use Bpmore\A11yGate\Accessibility\AccessibilityStandard;
+use Bpmore\A11yGate\Accessibility\Coverage;
 use Bpmore\A11yGate\Accessibility\Violation;
 use DOMElement;
 use DOMXPath;
@@ -33,6 +34,11 @@ final class TargetSizeCheck extends RuleCheck
     public static function key(): string
     {
         return 'a11y.target.size';
+    }
+
+    public static function name(): string
+    {
+        return 'Touch target size';
     }
 
     public static function rules(): array
@@ -94,5 +100,30 @@ final class TargetSizeCheck extends RuleCheck
         }
 
         return false;
+    }
+
+    /**
+     * Full on a page with no controls, and partial on a page with any, because
+     * it reads sizes written into the markup and nearly every site sizes its
+     * buttons in a stylesheet.
+     *
+     * The first half is the point. A page with no buttons and no links has no
+     * touch target this rule could have missed, and reporting a gap there would
+     * be noise an author has to learn to ignore, which is how they come to
+     * ignore the real one.
+     */
+    public function coverage(DOMXPath $xpath, array $optedIn = []): ?Coverage
+    {
+        $controls = $xpath->query('//a|//button|//*[@role="button"]|//*[@role="link"]');
+
+        if ($controls === false || $controls->length === 0) {
+            return Coverage::full(self::key(), self::name());
+        }
+
+        return Coverage::partial(
+            self::key(),
+            self::name(),
+            'Only sizes written into the page itself can be measured. A size set in a stylesheet needs a real browser, which this does not use.',
+        );
     }
 }

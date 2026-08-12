@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Bpmore\A11yGate\Accessibility\Checks;
 
 use Bpmore\A11yGate\Accessibility\AccessibilityStandard;
+use Bpmore\A11yGate\Accessibility\Coverage;
 use Bpmore\A11yGate\Accessibility\Violation;
 use DOMNode;
 use DOMXPath;
@@ -30,6 +31,11 @@ final class MediaAlternativesCheck extends RuleCheck
     public static function key(): string
     {
         return 'a11y.media.alternatives';
+    }
+
+    public static function name(): string
+    {
+        return 'Video, audio and figures';
     }
 
     public static function rules(): array
@@ -116,5 +122,37 @@ final class MediaAlternativesCheck extends RuleCheck
         }
 
         return '';
+    }
+
+    /**
+     * Full on a page with no media at all, and partial on a page with any.
+     *
+     * One of its five rules reads ordinary markup: an embed needs a title, and
+     * that is checked everywhere. The other four need the site to say what it
+     * knows, because a page cannot show whether a video at YouTube carries
+     * captions or whether a footnote lost its reference.
+     *
+     * So a page carrying a video has a real hole in it and is told so. A page
+     * with no video, no audio and no figures has nothing this rule could have
+     * missed, and saying otherwise would be the kind of standing warning people
+     * learn to scroll past.
+     *
+     * Partial rather than full even where the site does stamp, because a checker
+     * cannot confirm that everything which needed marking got marked.
+     */
+    public function coverage(DOMXPath $xpath, array $optedIn = []): ?Coverage
+    {
+        $media = $xpath->query('//iframe|//video|//audio|//figure|//object|//embed');
+
+        if ($media === false || $media->length === 0) {
+            return Coverage::full(self::key(), self::name());
+        }
+
+        return Coverage::partial(
+            self::key(),
+            self::name(),
+            'Embed titles were checked. Captions, transcripts, figure text and footnotes are only checked on sites that mark them up, and this one does not.',
+            'Captions were not checked. Only you can confirm this video or recording has them.',
+        );
     }
 }

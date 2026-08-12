@@ -76,6 +76,6 @@ final class PublishGate
             return GateResult::couldNotCheck($e->getMessage());
         }
 
-        return GateResult::checked($this->checker->check($html, $this->settings->standard));
+        return GateResult::checked($this->checker->report($html, $this->settings->standard, $this->settings->optedIn));
     }
 }
