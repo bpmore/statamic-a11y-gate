@@ -1,0 +1,59 @@
+# CLAUDE.md
+
+Non-negotiables for any model working in this repository. Rules, not
+documentation. Obey them without asking for confirmation.
+
+This is a commercial addon whose entire value is that its claims are true. Most
+rules here exist to protect that.
+
+## THE PRODUCT
+
+- The gate REFUSES a publish. It does not report, score, or advise. If a change
+  would turn a refusal into a warning, stop and ask.
+- Never claim conformance. The addon says what ran and what it found. "Compliant",
+  "fully accessible", and any percentage are forbidden in code, copy, and output.
+- Never cite a WCAG success criterion a check cannot establish. A house rule gets
+  a plain name, not a number.
+- A check that could not run must say so. A silent zero is indistinguishable from
+  a pass, and shipping that would make every other claim here worthless.
+
+## THE RULES ARE NOT COPIED
+
+- The check rules come from one place. If this repo ever contains a second
+  implementation of a rule that Windrow also has, they will drift, and a
+  conformance claim that depends on which copy ran is worse than no addon.
+- Where that one place lives is an open question in `docs/DECISIONS.md`. Do not
+  resolve it by writing rules here.
+
+## STACK
+
+- PHP 8.4. Composer. PSR-4. A Statamic addon is an ordinary Laravel package.
+- The checker itself must stay framework-free: no Laravel container, no Eloquent,
+  no facades in the rules. It takes HTML and returns findings.
+
+## TESTING
+
+- Mutation-test a check before trusting it: break the thing it guards and confirm
+  the check fails. A test that passes against broken code is not a test.
+- `expect($x)->not->toContain($needle, "message")` is vacuously true. `toContain`
+  takes a list of needles, not a failure message. Same for `toBeNull()`. Use
+  `in_array(...)` or a boolean with `toBeTrue($message)`.
+- A loop over a possibly-empty array asserts nothing. Assert the empty case
+  directly.
+
+## WRITING
+
+- No em dashes anywhere: not in code comments, commit messages, docs, or
+  user-facing copy. Use colons, commas, parentheses, or two sentences.
+- Comments say why, and name the failure that motivated the rule.
+- Commit messages and PR bodies say why, and name what was checked and what was
+  not.
+
+## PROCESS
+
+- Branch, work, run the tests, open a PR. Never push to main directly.
+- Never push or merge unless asked.
+- Read `docs/DECISIONS.md` before choosing an approach. Add an entry when your
+  change settles a question, including the alternatives you turned down.
+- The design lives in the Windrow repo at `docs/plans/statamic-addon.md`. If this
+  repo and that plan disagree, stop and ask rather than picking one.
