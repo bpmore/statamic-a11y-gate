@@ -9,6 +9,91 @@ read alongside that one.
 
 ---
 
+## 2026-08-12: The gate refuses by throwing, and publishing means the state the save leaves behind
+
+The addon exists: a service provider, a config file and one listener. Installing
+it into a Statamic site now refuses a save that would leave a published entry
+with an accessibility error.
+
+**The refusal throws a `ValidationException` rather than returning `false`. That
+was the open implementation question and it is settled.** Returning false does
+stop the save, verified by running it. What it cannot do is say why: the control
+panel's save endpoint answers `'saved' => false` with nothing attached, and the
+publish action turns that into a red "Couldn't publish entry" toast. An author
+would be told the editor is broken rather than told their page has a problem,
+which is the failure this product exists to prevent.
+
+**A correction to an earlier entry, which was wrong in a way that mattered.** It
+recorded the compiled control-panel JavaScript as absent from the vendor package,
+and left what an author sees on a refused save as unverified. It ships, at
+`resources/dist/build/assets`. Read out of it: the entry publish form's
+`handleAxiosError` takes `message` and `errors` off a 422 and raises the message
+as a red toast. That is what makes the exception the better answer, and it was
+knowable all along.
+
+**What the author sees today is one line, and the addon says so rather than
+implying more.** Laravel builds the 422 `message` from the first validation
+error, so the summary reaches the toast; the remaining findings arrive under a
+key that matches no field in the blueprint and nothing renders them. The first
+line is written to be useful alone ("This entry was not saved. 3 accessibility
+problems have to be fixed first."). The panel that lists all of them is the next
+piece of work. **Not verified in a browser:** the reading is from the shipped
+JavaScript, not from watching a refusal happen in a control panel.
+
+The cost of throwing, named because it is real: a refusal is now an exception
+everywhere, including a script or an import that saves entries outside the
+control panel. Accepted. A silent `false` in a deploy script is how a broken page
+reaches production with nobody told.
+
+**What counts as publishing: the state the save would leave behind.** There is no
+publishing event, so an entry that will be live when this save finishes is
+checked and a draft is not. Verified in source rather than assumed: Statamic's
+publish path (`Publishable::publish()`, and `publishWorkingCopy()` when revisions
+are on) sets published and calls `save()`, so both dispatch `EntrySaving` and
+both arrive at the gate. A useful consequence with revisions enabled: working
+copies save freely and only the publish is gated.
+
+Re-saving an already live page is checked too. A page that a later edit breaks is
+exactly as broken as one published broken.
+
+**A page that cannot be rendered refuses the save.** `GateResult` has three
+outcomes, not two, because "nothing was wrong" and "nothing could be checked" are
+different answers and a gate that returned an empty list for both would be
+indistinguishable from one that passed a page it never rendered.
+
+**Two things found by running it that reading would not have caught.**
+
+`substitute()` fatals on a brand new entry: it indexes by id and an entry being
+created has none until `EntryRepository::save()` assigns one. The renderer now
+assigns it first, the same way and with the same generator Statamic uses moments
+later. If the gate then refuses, the entry carries an id and is never written,
+and nothing reads it.
+
+The gate cannot use the control panel's own request. That request is a PATCH to a
+control-panel URL, so templates asking for the request would render the page as
+though the visitor were in the control panel. A front-end request is bound for
+the duration of the render and put back afterwards.
+
+**Mutation-tested, seven run, six killed:** the listener returning instead of
+throwing, "could not check" no longer refusing, warnings refusing like errors,
+drafts being gated, warn mode refusing anyway, and the collection filter ignored.
+
+**One survived, and the honest answer is that this suite cannot kill it.**
+Deleting `substitute()` from the renderer leaves every test green, because in a
+booted test the repository hands back the same instance either way and the line
+has nothing to correct. On a real site it does: the render spike watched the
+saved value render without it. So the evidence for that line is the spike, the
+test that looked like it covered it now says plainly that it does not, and the
+gap is closed by a browser or by nothing.
+
+**Rejected.** *Returning `false` and adding a banner elsewhere*, which needs a
+place to put the banner that does not exist yet, and leaves the refusal itself
+mute in the meantime. *Gating on the entry becoming published rather than being
+published*, which sounds narrower and would let a live page be broken by any edit
+after the first.
+
+---
+
 ## 2026-08-12: The checker is here, the corpus is enforced, and one hole in it is now known
 
 The first executable code in this repository. It is the checker and nothing else:

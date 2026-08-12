@@ -3,14 +3,16 @@
     "description": "Refuses to publish a Statamic entry that fails the accessibility checks it can actually run.",
     "keywords": ["statamic", "accessibility", "a11y", "wcag"],
     "license": "proprietary",
-    "type": "library",
+    "type": "statamic-addon",
     "require": {
         "php": "^8.4",
         "ext-dom": "*",
         "ext-libxml": "*",
-        "ext-mbstring": "*"
+        "ext-mbstring": "*",
+        "statamic/cms": "^6.27"
     },
     "require-dev": {
+        "orchestra/testbench": "^11.0",
         "pestphp/pest": "^4.0"
     },
     "suggest": {
@@ -28,6 +30,17 @@
     },
     "scripts": {
         "test": "pest"
+    },
+    "extra": {
+        "statamic": {
+            "name": "Accessibility Gate",
+            "slug": "a11y-gate"
+        },
+        "laravel": {
+            "providers": [
+                "Bpmore\\A11yGate\\ServiceProvider"
+            ]
+        }
     },
     "config": {
         "allow-plugins": {
