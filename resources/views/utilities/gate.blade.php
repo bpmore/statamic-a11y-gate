@@ -20,9 +20,28 @@
             not saved and you are told what to fix.
         </p>
         <p>
-            Warnings do not stop a publish. They are worth a look and they are not
-            worth blocking your work over.
+            Anything that would fail WCAG 2.2 AA stops the publish. There are three
+            exceptions, and each one is an exception for a reason rather than a
+            softening.
         </p>
+        <ul class="list-disc space-y-2 ps-5">
+            <li>
+                <strong>A link that goes nowhere.</strong> Broken, and no
+                accessibility standard covers it, and a page half-written usually
+                has one. You are told; you are not stopped.
+            </li>
+            <li>
+                <strong>A link to a page that is not published yet.</strong> If two
+                pages link to each other, blocking both means neither can ever go
+                live. Somebody staging a launch would be stuck with no way out.
+            </li>
+            <li>
+                <strong>A plain-language summary that reads too hard.</strong> The
+                score counts sentence length and syllables. It cannot tell jargon
+                made of short words from plain English, so blocking on it would be
+                blocking on a guess.
+            </li>
+        </ul>
     </section>
 
     <section class="space-y-3">
