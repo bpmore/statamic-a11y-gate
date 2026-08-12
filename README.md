@@ -7,18 +7,36 @@ language saying what is wrong and what to do about it.
 
 ## Status
 
-**The checker works. The addon does not exist yet.** There is no service
-provider, no listener, and nothing to install into a Statamic site. What is here
-is the engine: HTML in, findings out, framework-free, with the shared conformance
-corpus enforced against it.
+**The gate works. The panel does not exist yet.** Install this addon and a save
+that would leave a published entry with an accessibility error is refused, with
+the reason attached. What is missing is the control-panel panel that lists every
+finding: today the author is told how many problems there are and shown the
+first one.
 
 **`corpus/` is now enforced.** It is the shared conformance corpus: 19 pages and
 the exact findings this project must produce for each, identical to the copy in
 Windrow. `composer test` runs it, and the suite fails if any rule has no case.
 
-Still to come, in the order the design calls for: reporting which checks could
-not run, then the `EntrySaving` gate and the control-panel panel. The design
-lives in the Windrow repo at `docs/plans/statamic-addon.md`.
+Still to come, in the order the design calls for: the control-panel panel, and
+reporting which of the seven check families could run at all. The design lives in
+the Windrow repo at `docs/plans/statamic-addon.md`.
+
+## How it decides what counts as publishing
+
+Statamic has no publishing event. The entry events are Creating, Saving, Saved,
+Created, Deleting, Deleted and ScheduleReached, checked against
+`statamic/cms v6.27.1`. So the addon decides for itself, and it decides on the
+state the save would leave behind:
+
+- **An entry that will be live when the save finishes is checked.** That covers
+  the publish button as well as the save button, because Statamic's publish path
+  sets published and calls save.
+- **A draft is not checked.** Neither is an entry in a collection you did not ask
+  it to gate, or one with no page of its own.
+- **Re-saving a live page is checked**, deliberately. A page that a later edit
+  breaks is exactly as broken as one published broken.
+- **If the page cannot be rendered, the save is refused** and says so. A check
+  that could not run is not a check that passed.
 
 ## What it does
 
