@@ -36,6 +36,8 @@ final class GateResult
         public readonly string $reason,
         public readonly array $coverage = [],
         public readonly string $coverageSummary = '',
+        /** @var array<int, string> gaps in the author's own content, in their words */
+        public readonly array $notices = [],
     ) {}
 
     /**
@@ -63,6 +65,7 @@ final class GateResult
             '',
             $report->coverage,
             $report->summary(),
+            $report->notices(),
         );
     }
 

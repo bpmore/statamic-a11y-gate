@@ -131,10 +131,13 @@ final class RefuseUnlessAccessible
                 : "There are also {$warnings} warnings, which do not stop this save.";
         }
 
-        // Last, and never omitted. A refusal that listed problems without saying
-        // how much of the page was examined would invite the reading "and
-        // nothing else is wrong", which is false on nearly every page here.
-        $lines[] = $result->coverageSummary;
+        // Gaps in the author's own content, and nothing else. The count of which
+        // checks ran is an auditor's number: it is in the panel's data and in the
+        // docs, and it was in this message until somebody read it as an author
+        // and asked what they were supposed to do with it.
+        foreach ($result->notices as $notice) {
+            $lines[] = $notice;
+        }
 
         return $lines;
     }

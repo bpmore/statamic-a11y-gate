@@ -71,31 +71,29 @@ state the save would leave behind:
 
 ## Honest limits
 
-**Every result says how much of the page was actually looked at**, and it says it
-about that page rather than in general. On a typical blog post:
+**The author is told two things and no more:** what to fix, and where the tool
+could not see something in *their own content* that only they can settle. Today
+that second one means one thing:
 
-> 4 of 5 checks ran in full, 1 ran partly.
+> Captions were not checked. Only you can confirm this video or recording has
+> them.
 
-That line is in the refusal and in the panel, on a clean page as loudly as on a
-broken one. A clean page is where it matters most, because that is where "nothing
-found" is most easily read as "nothing wrong".
+A page with no video says nothing about captions, the same way a page with no
+images says nothing about descriptions. There was nothing there to miss.
 
-**What "partly" depends on is what is on the page.**
+**The standing limits are one sentence, always shown:**
 
-| Check | When it is short of full |
-|---|---|
-| Heading structure | never |
-| Link and button text | never |
-| Image descriptions | never |
-| Video, audio and figures | when the page has any: embed titles are checked, captions and transcripts cannot be |
-| Touch target size | when the page has any control: only sizes written into the page can be measured, not stylesheets |
+> This reads the finished page. It cannot see sizes or colours set in your theme,
+> it cannot tell a good description from a bad one, and a page it finds nothing
+> wrong with has not been proven accessible.
 
-A page with no video is fully checked for captions, in the same way a page with
-no images is fully checked for descriptions. There was nothing there to miss, and
-a standing notice saying otherwise is the line people learn to scroll past.
+**What the author is not shown**, because they cannot act on it: which of the
+checks ran and how far. That number matters to whoever is auditing this addon and
+means nothing to somebody writing a page, so it stays in the data the check
+endpoint returns, where a report can be built on it.
 
-**Two checks are off unless your templates opt in**, and they are named in
-`config/a11y-gate.php` rather than repeated on every entry:
+Two checks are off unless your templates opt in, and they are named in
+`config/a11y-gate.php`:
 
 - Links to a page that is not published yet.
 - The reading grade of a plain-language summary.

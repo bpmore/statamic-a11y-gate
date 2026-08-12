@@ -91,6 +91,12 @@ it('sends coverage with a clean result, which is where it matters most', functio
     $response->assertOk();
 
     expect($response->json('errors'))->toBe([]);
+
+    // Nothing for the author: this page has no video, so there is no gap in
+    // their own content to tell them about.
+    expect($response->json('notices'))->toBe([]);
+
+    // Everything for whoever audits the addon, still sent, still not drawn.
     expect($response->json('coverage_summary'))->toContain('checks ran in full');
     expect($response->json('coverage'))->not->toBe([]);
 
@@ -101,6 +107,21 @@ it('sends coverage with a clean result, which is where it matters most', functio
             expect($check['limit'])->not->toBe('');
         }
     }
+});
+
+it('tells the author about a video whose captions it could not check', function () {
+    $entry = savedPage('<p>The footbridge.</p>');
+
+    $response = $this->actingAs($this->user)
+        ->postJson(cp_route('a11y-gate.check'), [
+            'reference' => $entry->reference(),
+            'values' => ['body' => '<iframe title="The weir in flood" src="/v"></iframe>'],
+        ]);
+
+    $response->assertOk();
+
+    expect($response->json('errors'))->toBe([]);
+    expect($response->json('notices.0'))->toContain('Only you can confirm');
 });
 
 it('separates warnings from errors, because only one of them stops a publish', function () {

@@ -60,18 +60,41 @@ it('says what is wrong and what to do about it', function () {
     }
 });
 
-it('tells the author how much of the page was actually checked', function () {
-    // A refusal that listed problems and stopped would invite the reading "and
-    // nothing else is wrong". Four of the seven families are blind or
-    // half-blind without markup a Statamic site does not produce, so the count
-    // goes in the refusal itself rather than somewhere an author might not look.
+it('tells the author about a gap in their own content, and nothing else', function () {
+    // A refusal names what the author can act on. The count of which checks ran
+    // is an auditor's number and was in this message until somebody read it as
+    // an author and asked what they were supposed to do with it.
+    $entry = gatePage(
+        '<html lang="en"><body><h1>The weir</h1><img src="/a.jpg">'
+        .'<iframe title="The weir in flood" src="/v"></iframe></body></html>'
+    );
+
+    try {
+        $entry->save();
+        $this->fail('the gate allowed a page with a missing image description');
+    } catch (ValidationException $e) {
+        $lines = implode(' ', $e->errors()['a11y_gate']);
+
+        expect($lines)->toContain('Only you can confirm');
+        expect(str_contains($lines, 'checks ran in full'))
+            ->toBeFalse('the refusal must not count checks at an author');
+    }
+});
+
+it('says nothing about coverage when there is nothing the author could do', function () {
+    // A page with no video has no captions to confirm, so a refusal about a
+    // missing image description says exactly that and stops.
     $entry = gatePage('<html lang="en"><body><h1>The weir</h1><img src="/a.jpg"></body></html>');
 
     try {
         $entry->save();
         $this->fail('the gate allowed a page with a missing image description');
     } catch (ValidationException $e) {
-        expect(end($e->errors()['a11y_gate']))->toContain('checks ran in full');
+        $lines = implode(' ', $e->errors()['a11y_gate']);
+
+        expect($lines)->toContain('Add a description');
+        expect(str_contains($lines, 'Only you can confirm'))
+            ->toBeFalse('a page with no video must not be told about captions');
     }
 });
 

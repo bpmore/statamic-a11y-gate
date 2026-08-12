@@ -9,7 +9,7 @@ read alongside that one.
 
 ---
 
-## 2026-08-12: Every result says how much of THIS page it could see
+## 2026-08-12: Say what the reader can act on, and say the rest where it belongs
 
 The rule in `CLAUDE.md` that everything else rests on: a check that could not run
 must say so, because a silent zero is indistinguishable from a pass. Until this
@@ -67,10 +67,29 @@ warning with them when they go. That is a worse failure for this product than
 saying slightly less, because the whole thing is sold on the reader believing
 what it says.
 
-**Where it appears.** In the refusal, as the last line, always. In the panel,
-with the reason for every check that was not full. **On a clean page as loudly as
-on a broken one**, because a clean page is exactly where "nothing found" gets
-read as "nothing wrong".
+**And then the whole thing was pointed at the wrong reader, which took a third
+pass to see.** With the noise gone, the panel still said *"4 of 5 checks ran in
+full, 1 ran partly"* and, behind a disclosure, *"a size set in a stylesheet needs
+a real browser"*. The owner asked how that helps somebody writing a page. It does
+not. It is an auditor's number and a theme author's problem, put in front of a
+person who can change neither from an entry screen.
+
+**So the audiences were split, and the test for which side a line falls on is
+whether the reader could do anything about it.**
+
+- **The author sees** what to fix, and gaps in *their own content* that only they
+  can settle. Today that is one sentence, on a page carrying media: "Captions
+  were not checked. Only you can confirm this video or recording has them."
+- **The author also sees the standing limits, once**, in one always-visible
+  sentence covering theme sizes and colours, judging a description, and the
+  refusal to call anything accessible.
+- **The auditor sees the counts**, in the data the check endpoint returns and in
+  this log. Not drawn in the panel, not in the refusal.
+
+`CLAUDE.md` says a check that could not run must say so. It does not say it must
+be said in an auditor's words to a person writing a blog post, on every entry,
+forever. Said once, plainly, where it will be read, is the same honesty and it
+survives contact with a real reader.
 
 **The corpus does not pin any of this, and that is a stated gap rather than an
 oversight.** Coverage is new behaviour that Windrow does not have yet, so a
@@ -99,7 +118,16 @@ and produces seventeen lines an author has to read to learn one thing. *A single
 count* with no reasons, which tells somebody they have a problem and nothing
 about what it is. *Keeping the opt-in checks in the per-page report*, which is
 the version that was built first and which put four lines about absent things in
-front of an author on every entry.
+front of an author on every entry. *Keeping the count behind a disclosure*, which
+was the second version: better than a wall of text, and still an auditor's
+sentence in an author's panel.
+
+**Worth naming, because it is the pattern rather than the incident.** This
+feature was wrong three times and each time the code was correct and the tests
+passed. Noisy on absent content, then noisy behind a toggle, then addressed to
+the wrong person. Every correction came from somebody looking at the screen and
+asking what a reader would do with what they saw, which is a question no test in
+this repository can ask.
 
 ---
 

@@ -44,7 +44,31 @@ final class CheckReport
     }
 
     /**
-     * One sentence an author can read, and the sentence this product is sold on
+     * The gaps worth telling the person writing the page about: things in their
+     * own content that only they can settle.
+     *
+     * Deliberately much shorter than the coverage list. Everything else in there
+     * is either a standing limit of the tool or a matter for whoever set the site
+     * up, and putting those in front of an author on every entry is how the one
+     * line that matters gets scrolled past.
+     *
+     * @return array<int, string>
+     */
+    public function notices(): array
+    {
+        $notices = [];
+
+        foreach ($this->coverage as $entry) {
+            if ($entry->notice !== '') {
+                $notices[] = $entry->notice;
+            }
+        }
+
+        return $notices;
+    }
+
+    /**
+     * One sentence an auditor can read, and the sentence this product is sold on
      * being willing to say. It counts checks; it never scores the page.
      */
     public function summary(): string

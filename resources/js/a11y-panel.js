@@ -58,14 +58,7 @@
                 }
             }
 
-            // The checks that could not fully run, which is what the disclosure
-            // holds. Computed here rather than filtered in the template so the
-            // count in the label and the list inside it cannot disagree.
-            const incomplete = Vue.computed(
-                () => (state.result?.coverage ?? []).filter((c) => c.extent !== 'full'),
-            );
-
-            return { state, check, incomplete };
+            return { state, check };
         },
 
         // No panel or header of its own. A field is already drawn inside the
@@ -83,19 +76,21 @@
         // the wrappers the result badge lands on the same line as the button and
         // reads as part of it.
         //
-        // The reasons sit in a native `details`, and that is the accessibility
-        // decision in this file. A disclosure built out of a div and a click
-        // handler needs `aria-expanded`, `aria-controls`, a focusable trigger,
-        // Enter and Space handling and a sensible reading order, and every one
-        // of those is a thing to get wrong inside an accessibility product.
-        // `details` and `summary` are the browser's own: keyboard operable,
-        // announced as a disclosure with its state, and working before any
-        // JavaScript loads. Statamic's kit ships no disclosure component, so the
-        // choice was the platform's or ours, and it should never be ours.
+        // Everything here is written for the person writing the page, and the
+        // test for whether a line belongs is whether they could do something
+        // about it. "4 of 5 checks ran in full" fails that test, and so does
+        // "a size set in a stylesheet needs a real browser": true, worth an
+        // auditor knowing, and not theirs to fix from an entry screen. Both are
+        // still in the response this panel receives, and neither is drawn.
         //
-        // The count stays outside it. An author who never opens this still reads
-        // that four checks did not run in full, which is the sentence the whole
-        // feature exists to put in front of them.
+        // What is drawn is a gap in their own content that only they can settle,
+        // which today means one thing: whether the video they embedded has
+        // captions.
+        //
+        // The standing limits of the tool are one always-visible sentence from
+        // the server rather than a line per check per page, because a warning
+        // that appears whatever the page contains is the one people learn to
+        // scroll past.
         //
         // Checked on a button rather than on every keystroke. A check renders the
         // whole page through the site's templates, and firing that on each
@@ -147,19 +142,8 @@
                         </div>
                     </template>
 
-                    <div v-if="state.result.coverage_summary" class="space-y-2">
-                        <ui-heading size="sm" :text="state.result.coverage_summary" />
-
-                        <details v-if="incomplete.length" class="text-sm">
-                            <summary class="cursor-pointer text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200">
-                                {{ incomplete.length === 1 ? 'Why one check did not run in full' : 'Why ' + incomplete.length + ' checks did not run in full' }}
-                            </summary>
-                            <div class="mt-2 space-y-2">
-                                <div v-for="(check, i) in incomplete" :key="'c' + i">
-                                    <ui-description :text="check.name + ': ' + check.limit" />
-                                </div>
-                            </div>
-                        </details>
+                    <div v-if="state.result.notices.length" class="space-y-2">
+                        <ui-description v-for="(notice, i) in state.result.notices" :key="'n' + i" :text="notice" />
                     </div>
 
                     <ui-description :text="state.result.limits" />

@@ -40,8 +40,23 @@ final class Coverage
         public readonly string $check,
         public readonly string $name,
         public readonly string $extent,
-        /** Empty when the extent is full. Written for an author, not a developer. */
+        /**
+         * Why it fell short, for whoever is auditing the tool. Empty when the
+         * extent is full.
+         */
         public readonly string $limit,
+        /**
+         * What to tell the person writing the page, or empty when there is
+         * nothing they could do about it.
+         *
+         * Most limits have no notice, and that is the point. "A size set in a
+         * stylesheet needs a real browser" is true, is worth an auditor knowing,
+         * and is not the page author's to fix: they did not write the theme and
+         * cannot change it from the entry screen. A notice is for a gap in
+         * *their content* that only they can settle, which today means one
+         * thing: whether the video they embedded has captions.
+         */
+        public readonly string $notice = '',
     ) {}
 
     public static function full(string $check, string $name): self
@@ -49,14 +64,14 @@ final class Coverage
         return new self($check, $name, self::FULL, '');
     }
 
-    public static function partial(string $check, string $name, string $limit): self
+    public static function partial(string $check, string $name, string $limit, string $notice = ''): self
     {
-        return new self($check, $name, self::PARTIAL, $limit);
+        return new self($check, $name, self::PARTIAL, $limit, $notice);
     }
 
-    public static function none(string $check, string $name, string $limit): self
+    public static function none(string $check, string $name, string $limit, string $notice = ''): self
     {
-        return new self($check, $name, self::NONE, $limit);
+        return new self($check, $name, self::NONE, $limit, $notice);
     }
 
     public function ran(): bool
@@ -74,6 +89,7 @@ final class Coverage
             'name' => $this->name,
             'extent' => $this->extent,
             'limit' => $this->limit,
+            'notice' => $this->notice,
         ];
     }
 }

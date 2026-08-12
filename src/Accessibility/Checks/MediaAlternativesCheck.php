@@ -152,6 +152,7 @@ final class MediaAlternativesCheck extends RuleCheck
             self::key(),
             self::name(),
             'Embed titles were checked. Captions, transcripts, figure text and footnotes are only checked on sites that mark them up, and this one does not.',
+            'Captions were not checked. Only you can confirm this video or recording has them.',
         );
     }
 }
