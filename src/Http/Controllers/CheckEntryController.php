@@ -75,7 +75,7 @@ class CheckEntryController extends CpController
             // that the sentence a customer reads and the sentence this project
             // is willing to defend are the same string. Nothing here says the
             // page is accessible, compliant, or a proportion of either.
-            'limits' => 'This reads the rendered page. It cannot see anything a stylesheet does, it cannot tell a good description from a bad one, and a page it finds nothing wrong with has not been proven accessible.',
+            'limits' => 'This reads the rendered page. It cannot tell a good description from a bad one, and a page it finds nothing wrong with has not been proven accessible.',
         ];
     }
 
