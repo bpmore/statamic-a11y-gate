@@ -6,27 +6,31 @@ The source of this software is published so that it can be installed with
 Composer, inspected by the people who rely on it, and audited by the people they
 answer to. Publishing the source is not a grant of ownership.
 
+**This software is free.** There is nothing to buy, no licence key, and no
+limit on how many sites you run it on. It is not, however, public domain, and
+the difference matters: see condition 1.
+
 Permission is granted to any person obtaining a copy of this software (the
-"Software") to use, copy and modify it, subject to the conditions below.
+"Software") to use, copy and modify it, on any number of sites, subject to the
+conditions below.
 
-1. **One licence, one production site.** Each purchased licence covers the
-   Software running in no more than one production environment at a time. Local,
-   development, staging and continuous integration environments are unlimited and
-   need no licence. Try it for as long as you like before you buy.
+1. **Not for resale or reuse in another product.** The Software, in whole or in
+   part, may not be redistributed, resold, sublicensed, or reused as the basis of
+   another product without written permission.
 
-2. **Do not alter the licensing features.** Anything to do with licence
-   validation, edition restrictions or update eligibility is not to be altered
-   or circumvented.
+   This is the condition the whole licence exists for, and it is worth saying why
+   rather than leaving it to be guessed at. These rules are a deliberate fork of
+   the accessibility engine behind another product by the same author. Giving the
+   addon away permissively would give that engine away too, to anyone including a
+   competitor selling against it. Free to use is the intent. Free to take is not.
 
-3. **Not for resale or reuse.** The Software, in whole or in part, may not be
-   redistributed, resold, sublicensed, or reused as the basis of another product
-   without written permission. Reading the code to learn from it is expected.
-   Shipping it as your own is not.
+   Reading the code to learn from it is expected and encouraged. Shipping it as
+   your own is not.
 
-4. **Keep the notice.** This licence and the copyright notice stay with any copy
+2. **Keep the notice.** This licence and the copyright notice stay with any copy
    or substantial portion of the Software.
 
-5. **Follow the law.** Use of the Software must not break any applicable law or
+3. **Follow the law.** Use of the Software must not break any applicable law or
    regulation, nor infringe anyone else's rights.
 
 Failing any of these conditions ends the permission granted here, immediately and
@@ -62,7 +66,8 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ---
 
-*This licence was drafted by reading Statamic's own, which is the norm this
-addon is sold alongside. It has not been reviewed by a lawyer. Have one read it
-before the first sale, particularly the conformance disclaimer, which is the
-clause most likely to be tested.*
+*This licence was drafted by reading Statamic's own, which is the norm this addon
+is listed alongside. It has not been reviewed by a lawyer. The conformance
+disclaimer is the clause most likely to be tested, and giving the software away
+does not make that less true: a free tool that somebody relied on is still a tool
+somebody relied on.*
