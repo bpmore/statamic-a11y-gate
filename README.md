@@ -12,9 +12,9 @@ would leave a published entry with an accessibility error is refused, with the
 reason attached. Add the Accessibility field to a blueprint and an author can
 check the page before pressing publish, including changes they have not saved.
 
-**Not yet watched in a browser.** The panel's code is written against the control
-panel's own source rather than against guesses, and the endpoint behind it is
-tested, but nobody has seen it draw.
+**Seen in a real control panel**, on hada.farm: the field renders in the entry
+sidebar. What has not been watched yet is the round trip, an author pressing
+Check this page and the findings coming back.
 
 **`corpus/` is now enforced.** It is the shared conformance corpus: 19 pages and
 the exact findings this project must produce for each, identical to the copy in

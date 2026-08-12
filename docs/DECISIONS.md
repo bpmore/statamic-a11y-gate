@@ -80,13 +80,17 @@ with no fields processes submitted values to nothing, silently. The first versio
 of the test passed while checking an unchanged page. It now loads a real
 blueprint fixture, and the comment says why.
 
-**What is still unverified, and it is the visible half.** Nobody has watched the
-panel render. The browser extension was unavailable, so every claim about the
-component rests on the control panel's own unminified source: the registration
-API, the inject key, the prop names, the global helpers. Each was read rather
-than guessed, which is a good deal better than the version of this that shipped
-on inference, and it is still not the same as seeing it draw. The field is
-installed on hada.farm's blog blueprint and can be looked at.
+**It renders, confirmed by a person looking at it.** The field appears in the
+entry sidebar on hada.farm. That settles the half that could not be settled from
+source: the component registers, resolves under the name the fieldtype's handle
+implies, and mounts with the injected publish context available, because a
+failure in any of those would have thrown before anything drew.
+
+**What is still unverified is the round trip.** Nobody has pressed Check this
+page and watched findings come back. The endpoint is tested and the mechanism was
+proven on this site through PHP, so what remains untested is the browser half of
+the call: the axios instance, the CSRF header, and `cp_url`. That is one click,
+and until somebody does it this stays written down rather than assumed.
 
 **Rejected.** *A dashboard widget listing every entry with problems*, which needs
 to render every page in the site to answer and is not the question an author has
