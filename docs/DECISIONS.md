@@ -29,6 +29,55 @@ Not decisions. Things that must be answered before they are decided by accident.
 
 ---
 
+## 2026-08-12: An unsaved entry can be rendered, and here is exactly how
+
+**Answered by running it** against a real Statamic 6 / Laravel 13 site
+(hada.farm), not by reading documentation. This was the spike that gated the
+whole design.
+
+**The recipe, three lines:**
+
+```php
+$entry->setSupplement($field, $unsavedValue);  // not set(): set() is not what Live Preview uses
+$entry->repository()->substitute($entry);      // so lookups during render return THIS instance
+$html = $entry->toResponse($request)->getContent();
+```
+
+Verified: the unsaved value appears in the rendered HTML, 27,960 bytes came back
+through the site's own templates, and the entry on disk was untouched.
+
+**Why each line is needed, learned by watching it fail.**
+
+`set()` mutates the entry and reaches augmentation correctly, and the rendered
+page still showed the SAVED value. `toResponse` resolves the entry again during
+rendering rather than trusting the instance it was called on.
+
+`setSupplement` is what Statamic's own `PreviewController::edit` uses to apply
+unsaved form values, so it is the supported shape rather than a trick.
+
+`substitute()` is the missing piece, and it is lifted from
+`Statamic\Tokens\Handlers\LivePreview`, which does exactly this when a Live
+Preview token arrives. Registering the instance with its repository is what makes
+the re-resolution during rendering return the modified entry.
+
+**No token, no cache, no CP request needed.** Live Preview wraps this in a token
+so a browser can request the front end, but the addon runs inside the same
+process as the save, so it can substitute directly and skip all of that.
+
+**A trap worth writing down, because it cost most of the spike.** The first three
+attempts reported failure against a page whose template is a hardcoded landing
+page that never outputs `{{ title }}`. The mechanism was working by attempt two
+and the fixture could not show it. Any test of this must use an entry whose
+template actually renders the field being changed, and should assert the
+mechanism against a field it has confirmed appears in the output.
+
+**What this does not yet prove:** that rendering is safe to do inside a save
+lifecycle hook, that it is fast enough to sit in front of a publish, and what
+happens when a template throws for a half-complete entry. Those are the next
+questions, and none of them are blocking in the way this one was.
+
+---
+
 ## 2026-08-12: Named for what it does, not for who made it
 
 **Decision.** `statamic-a11y-gate`, and the Marketplace listing reads
