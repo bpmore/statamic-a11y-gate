@@ -1,0 +1,12 @@
+{
+    "name": "link-empty",
+    "why": "A link with no accessible name at all.",
+    "portability": "portable",
+    "findings": [
+        {
+            "rule": "link-empty",
+            "severity": "error",
+            "wcag": "WCAG 2.4.4"
+        }
+    ]
+}

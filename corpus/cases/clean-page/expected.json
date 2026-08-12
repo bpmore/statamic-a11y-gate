@@ -1,0 +1,6 @@
+{
+    "name": "clean-page",
+    "why": "A page with nothing wrong. The half of a corpus that catches a rule firing where it should not.",
+    "portability": "portable",
+    "findings": []
+}

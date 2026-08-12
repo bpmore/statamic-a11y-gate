@@ -1,0 +1,12 @@
+{
+    "name": "heading-missing-h1",
+    "why": "Content with no top-level heading. A house rule, not a WCAG criterion.",
+    "portability": "portable",
+    "findings": [
+        {
+            "rule": "heading-missing-h1",
+            "severity": "error",
+            "wcag": "Heading structure"
+        }
+    ]
+}

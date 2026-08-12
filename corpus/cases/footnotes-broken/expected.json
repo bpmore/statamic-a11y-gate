@@ -1,0 +1,12 @@
+{
+    "name": "footnotes-broken",
+    "why": "A footnote reference that resolves to nothing, so the author's words vanish. Needs host markup.",
+    "portability": "host-markup",
+    "findings": [
+        {
+            "rule": "footnotes-broken",
+            "severity": "error",
+            "wcag": "Footnote check"
+        }
+    ]
+}

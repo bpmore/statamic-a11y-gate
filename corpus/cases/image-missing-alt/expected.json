@@ -1,0 +1,12 @@
+{
+    "name": "image-missing-alt",
+    "why": "An image with no alt attribute.",
+    "portability": "portable",
+    "findings": [
+        {
+            "rule": "image-missing-alt",
+            "severity": "error",
+            "wcag": "WCAG 1.1.1"
+        }
+    ]
+}

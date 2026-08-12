@@ -1,0 +1,12 @@
+{
+    "name": "audio-transcript-missing",
+    "why": "Audio with no transcript on the page. Needs host markup.",
+    "portability": "host-markup",
+    "findings": [
+        {
+            "rule": "audio-transcript-missing",
+            "severity": "error",
+            "wcag": "WCAG 1.2.1"
+        }
+    ]
+}

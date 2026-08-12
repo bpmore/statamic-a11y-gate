@@ -11,6 +11,15 @@ Nothing works yet. This repo was created on 2026-08-12 and currently holds
 decisions, not code. The design lives in the Windrow repo at
 `docs/plans/statamic-addon.md`.
 
+**`corpus/` is here and is not yet enforced**, because there is no test suite to
+enforce it with. It is the shared conformance corpus: 19 pages and the exact
+findings this addon must produce for each, identical to the copy in Windrow.
+Stating that it is unenforced rather than letting its presence imply otherwise is
+the same rule this product applies to its own checks, and it would be a poor
+start to break it in the README.
+
+The first code written here runs it.
+
 ## What it does
 
 - Renders the entry through the site's own templates and checks the HTML.

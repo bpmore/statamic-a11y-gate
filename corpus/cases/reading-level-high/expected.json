@@ -1,0 +1,12 @@
+{
+    "name": "reading-level-high",
+    "why": "Prose above the reading grade the site targets. Needs host markup.",
+    "portability": "host-markup",
+    "findings": [
+        {
+            "rule": "reading-level-high",
+            "severity": "warn",
+            "wcag": "Reading level (guide)"
+        }
+    ]
+}

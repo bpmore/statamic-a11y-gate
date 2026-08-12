@@ -1,0 +1,12 @@
+{
+    "name": "video-captions-unconfirmed",
+    "why": "The author has not attested that captions exist. Needs host markup.",
+    "portability": "host-markup",
+    "findings": [
+        {
+            "rule": "video-captions-unconfirmed",
+            "severity": "error",
+            "wcag": "WCAG 1.2.2"
+        }
+    ]
+}

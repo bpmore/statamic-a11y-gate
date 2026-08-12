@@ -1,0 +1,12 @@
+{
+    "name": "link-goes-nowhere",
+    "why": "A link with a placeholder href. Warning, never an error: it must not block a publish.",
+    "portability": "portable",
+    "findings": [
+        {
+            "rule": "link-goes-nowhere",
+            "severity": "warn",
+            "wcag": "Link check"
+        }
+    ]
+}

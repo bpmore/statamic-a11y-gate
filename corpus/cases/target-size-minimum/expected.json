@@ -1,0 +1,12 @@
+{
+    "name": "target-size-minimum",
+    "why": "A tap target below the minimum. Fires on INLINE styles only: see the note in the case file.",
+    "portability": "host-styling",
+    "findings": [
+        {
+            "rule": "target-size-minimum",
+            "severity": "error",
+            "wcag": "WCAG 2.5.8"
+        }
+    ]
+}
