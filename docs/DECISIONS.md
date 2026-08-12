@@ -9,7 +9,56 @@ read alongside that one.
 
 ---
 
-## 2026-08-13: Free, and still proprietary, because the licence never protected the revenue
+## 2026-08-12: The whole-site scan, and why the grouping is the feature
+
+`php please a11y:check` renders every published page and groups the findings by
+how many pages each one is on.
+
+**The grouping is the only thing here that the panel could not already do.** A
+problem on one page is something somebody wrote. The same problem on every page
+came from a template. The first costs an author an afternoon; the second is one
+fix worth every page at once, so it sorts to the top. Everything else in this
+command is a loop and a printer.
+
+**The grouping key is the rule plus the pointer, and both halves earn their
+place.** On the rule alone, every undescribed image on a site collapses into one
+line reading "12 pages", which is true and useless. With the page included,
+nothing groups at all. The pointer is the text or the file that tripped the rule,
+so one card grid on forty pages becomes one line and forty different images stay
+forty lines. Both are correct.
+
+**It says "every page" only when that is literally true of the pages scanned.**
+That phrase is what turns a list of findings into a decision about the theme, and
+it has to be earned. Everything else is a count. The step from "on all 38 pages"
+to "so it is in your layout" is left to the reader, because a checker reading
+HTML cannot see a template and should not claim to.
+
+**A command, not a screen.** The reader is a developer, it can exit non-zero so a
+release can be stopped by it, and rendering several hundred pages inside a web
+request is how you meet a timeout. On hada.farm it read 38 pages and found the
+same four problems the panel finds one page at a time, which is the check that
+matters: the scan calls `PublishGate::examine()` rather than reimplementing
+anything, because two ways of checking a page is two sets of answers.
+
+**A page that could not be rendered fails the run.** Same fail-closed rule as the
+gate. A build that went green because four pages failed to render would be worse
+than no check at all, so those pages are named and counted separately, never
+folded into the clean total.
+
+**Mutation-tested, five run, five killed:** grouping on the rule alone,
+unreadable pages no longer failing the run, warnings failing the run, the sort
+order reversed, and unreadable pages skipped silently.
+
+**Rejected.** *A control-panel screen*, which is the same work behind a request
+timeout and aimed at somebody who cannot act on it anyway. *Labelling findings
+"template" or "content"*, which is an inference this cannot support: it never
+sees a template, only a page count. *A second addon for it*, closed by the market
+entry above: at these install volumes, two listings split a handful of users into
+two smaller handfuls and re-create the forked-rules problem.
+
+---
+
+## 2026-08-12: Free, and still proprietary, because the licence never protected the revenue
 
 **Decision.** The addon ships free. No price, no licence key, no per-site limit.
 The licence stays proprietary: the no-reuse clause and the conformance disclaimer
@@ -60,6 +109,8 @@ likely to think is a mistake in a free product.
 
 **Still true, and worth saying plainly:** free to use is the intent, free to take
 is not.
+
+---
 
 ---
 
