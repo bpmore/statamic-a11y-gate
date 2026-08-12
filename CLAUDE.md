@@ -76,8 +76,7 @@ an auditor will all read it, because once this is listed they can.
   add a licence check: there is nothing to check.
 - **The licence is still proprietary, and the no-reuse clause is the point.** This
   codebase is a fork of Windrow's accessibility engine. A permissive licence would
-  give that engine away, including to A11yamic, who sell against it on the same
-  marketplace at $35 a site. Free to use is the intent. Free to take is not.
+  give that engine away. Free to use is the intent. Free to take is not.
 - Nothing here carries the Windrow name. The listing reads "Accessibility Gate",
   under the author's own name, and somebody evaluating it should not need to know
   what Windrow is.
