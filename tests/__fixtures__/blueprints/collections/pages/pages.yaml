@@ -1,0 +1,14 @@
+title: Pages
+tabs:
+  main:
+    sections:
+      -
+        fields:
+          -
+            handle: title
+            field:
+              type: text
+          -
+            handle: body
+            field:
+              type: textarea

@@ -21,6 +21,19 @@ class ServiceProvider extends AddonServiceProvider
 {
     protected $config = true;
 
+    protected $fieldtypes = [
+        Fieldtypes\AccessibilityPanel::class,
+    ];
+
+    /**
+     * A plain script, not a Vite entry point, because Statamic ships the Vue
+     * build that compiles templates at runtime. See the panel's own file: this
+     * addon needs no npm and no build step.
+     */
+    protected $scripts = [
+        __DIR__.'/../resources/js/a11y-panel.js',
+    ];
+
     public function register()
     {
         parent::register();

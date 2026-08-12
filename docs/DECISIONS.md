@@ -9,6 +9,97 @@ read alongside that one.
 
 ---
 
+## 2026-08-12: The panel, built once the control panel stopped being guesswork
+
+The panel is built: a fieldtype, one plain script, and the endpoint behind it.
+`POST cp/a11y-gate/check` takes the publish container's own reference
+(`entry::<id>`) and the form's current values, applies them the way Statamic's
+own `PreviewController` does, renders, checks, and answers with the findings
+split into the ones that refuse a publish and the ones that do not.
+
+**Checking unsaved values is the whole point and it is proven.** A panel that
+answered from the file on disk would be at its most wrong exactly when it
+matters: after an author has broken the page and before they press publish. The
+test for it fails if the supplements are not applied, checked by mutation.
+
+**The three unknowns that stopped the component are answered, and none of them
+needed a browser.** `vendor/statamic/cms/resources/dist-dev` ships the control
+panel's build unminified, with `//#region resources/js/...` markers naming every
+source file. Everything below was read there.
+
+1. **Registering a component.** `Statamic.$components.register(name, component)`
+   calls `app.component(name, component)`, and queues the registration when the
+   app has not booted yet. So `accessibility_panel-fieldtype` resolves the same
+   way `text-fieldtype` does.
+2. **Reading the form's current values.** The publish container provides a
+   context, and `window.__STATAMIC__.ui.injectPublishContext()` returns it.
+   Among what it carries: `values` (a ref to the form as it stands),
+   `visibleValues`, `meta`, `site`, `blueprint` and `reference`.
+3. **Knowing which entry.** That same `reference`, which is `entry::<id>`, and
+   which the endpoint now takes directly rather than making the browser parse an
+   id out of it.
+
+**And a fourth thing, which removed a whole toolchain.** Statamic aliases Vue to
+`vue/dist/vue.esm-bundler.js` and puts it on `window.Vue`, so the runtime
+template compiler is present and a plain script with a `template` string
+compiles. A `package.json` and a `vite.config.js` were written and then deleted:
+this addon needs no npm and no build step. The panel is one file, loaded as an
+ordinary deferred script.
+
+The panel is built from `ui-panel`, `ui-badge`, `ui-heading`, `ui-description`,
+`ui-button` and `ui-skeleton`, all globally resolvable, with prop names read out
+of each component's source rather than guessed. Nothing is hand-rolled, which is
+the rule for this product in particular.
+
+**Run against a real site, which is the part no unit test could do.** The addon
+was installed into hada.farm (Statamic 6.27.1, real templates, real content) from
+a path repository, in warn mode so nothing could be refused.
+
+- A real blog entry rendered through the site's own templates in **265ms** and
+  came back as 28,148 bytes with one h1 and one image. Fast enough to sit in
+  front of a save, and proof the render survives a real template stack rather
+  than a fixture.
+- Supplementing that entry with a second h1 and an image with no description
+  produced exactly those two errors. That is the panel's whole mechanism, end to
+  end, on a live site.
+- **The mutation that the test suite could not kill was run there too, and it
+  survived that as well.** Removing `substitute()` changed nothing: the
+  repository hands back the same in-memory instance either way. The line stays as
+  insurance against a repository that would not, and the renderer now says
+  plainly that it is unproven instead of implying it was measured. The earlier
+  entry claiming the spike proved that specific line has been narrowed to what
+  the spike actually showed, which was about `setSupplement` rather than about
+  `substitute`.
+
+**Rejected on the way:** a shipped Statamic 6 addon in the same vendor directory
+builds its control-panel UI as a Blade widget with inline styles. Not copied: it
+is hand-rolling, and the rule against it exists for this product in particular.
+
+**The limit that made the endpoint's tests worth writing carefully.** A blueprint
+with no fields processes submitted values to nothing, silently. The first version
+of the test passed while checking an unchanged page. It now loads a real
+blueprint fixture, and the comment says why.
+
+**It renders, confirmed by a person looking at it.** The field appears in the
+entry sidebar on hada.farm. That settles the half that could not be settled from
+source: the component registers, resolves under the name the fieldtype's handle
+implies, and mounts with the injected publish context available, because a
+failure in any of those would have thrown before anything drew.
+
+**What is still unverified is the round trip.** Nobody has pressed Check this
+page and watched findings come back. The endpoint is tested and the mechanism was
+proven on this site through PHP, so what remains untested is the browser half of
+the call: the axios instance, the CSRF header, and `cp_url`. That is one click,
+and until somebody does it this stays written down rather than assumed.
+
+**Rejected.** *A dashboard widget listing every entry with problems*, which needs
+to render every page in the site to answer and is not the question an author has
+in front of them. *A panel that checks the saved version only*, which is buildable
+without any of the three unknowns above and was turned down because it is stale
+in exactly the case it exists for.
+
+---
+
 ## 2026-08-12: The gate refuses by throwing, and publishing means the state the save leaves behind
 
 The addon exists: a service provider, a config file and one listener. Installing

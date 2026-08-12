@@ -22,12 +22,20 @@ use Throwable;
  * site, not by reading documentation, and the reasoning is in the decision log
  * under the render spike.
  *
- * `substitute()` is the one that is easy to leave out and impossible to notice
- * missing: `toResponse()` re-resolves the entry during rendering rather than
- * trusting the instance it was called on, so without it the page comes back
- * showing the SAVED values and the gate passes changes it never saw. It is
- * lifted from Statamic's own Live Preview token handler, which does exactly this
- * for the same reason.
+ * `substitute()` registers this instance with its repository, so that lookups
+ * during rendering return it rather than whatever is on disk. It is lifted from
+ * Statamic's own Live Preview token handler, which does exactly this.
+ *
+ * **Whether it is load-bearing is honestly unknown, and it stays.** Removing it
+ * changes nothing in the test suite, and nothing on a real Statamic 6 site with
+ * a file-backed Stache either: both were tried, and the unsaved values rendered
+ * anyway, because the repository hands back the same in-memory instance it was
+ * given. What it protects against is a repository that does not: a different
+ * driver, a cleared cache, a lookup by URI rather than by id. The line is one
+ * call, the failure it would prevent is the gate silently checking the old
+ * version of the page, and that failure is invisible when it happens. Keeping an
+ * unproven line is the cheaper mistake here, and saying so is better than
+ * implying it was measured.
  */
 final class EntryRenderer
 {
