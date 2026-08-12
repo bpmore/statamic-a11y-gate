@@ -9,6 +9,98 @@ read alongside that one.
 
 ---
 
+## 2026-08-12: What the market actually looks like, counted rather than assumed
+
+The commercial reasoning in this file was written before anybody looked. Here is
+what is there, with numbers, and it changes what this project is for.
+
+**The platform.** `statamic/cms` has 3,834,308 installs all time and 146,814 a
+month. 4,867 GitHub stars. A real ecosystem, and a small one.
+
+**The marketplace.** 475 addons listed. In the first 60, **17 carry a price**,
+which is 28%. Observed prices: $10, $15, $25, $35, $40, $49, $59, $75, $79, $99,
+and one at $199. A free tier alongside a paid one is the house style, not an
+exception: Advanced SEO is $0 to $75, Mapbox $0 to $15, Lead Insights $0 to $40.
+That settles the editions question in favour of one package with two editions
+rather than two packages.
+
+**How many people pay, which is the number nobody publishes.** Packagist install
+counts for recently listed paid addons:
+
+| Addon | Price | Listed | Installs |
+|---|---|---|---|
+| Linkwise | $49 | 26 May 2026 | 8 |
+| Postmaster | $99 | 24 July 2026 | 26 |
+| Advanced SEO | $0 to $75 | established | 19,166 all time, 763 a month, mostly the free tier |
+
+Installs are a proxy rather than a sales figure, and it is the best one
+available: selling on the marketplace requires publication to Packagist, so a
+paid addon that sells shows up here. **A new paid Statamic addon gets installs in
+the tens.**
+
+### The competitor, which did not exist when this project started
+
+**A11yamic**, by 30Bit, **$35 per site**, first published 8 July 2026, at v1.0.1,
+Statamic 6 only. It ships:
+
+- live checks in Bard and Markdown as the author types
+- an alt-text manager with coverage percentages
+- **a page audit running axe-core in the browser**
+- **findings split into template and content**
+- an accessibility statement generator citing WCAG 2.1 AA, EAA and EN 301 549
+- per-rule off, warn or **block**, enforced server side
+- a dashboard score widget
+
+Two of those are things this project had filed as its own future work: the
+browser pass was the argument for a *second* product, and the template-versus-
+content split was the shape the starter-kit scan was going to take. Both are
+already in somebody's $35 addon.
+
+**Its Packagist installs: 1 total, 0 in the last month**, five weeks after
+listing. So the space is unproven rather than crowded, which cuts both ways: no
+competitor has demonstrated demand either.
+
+### What this changes
+
+**There is no revenue case here, and pretending otherwise would infect the
+product.** At $35 and observed volumes, a strong first year is a few hundred
+dollars. Any decision justified by "it will sell better" is being justified by a
+number nobody has. This is a dogfood tool for two real sites, a portfolio piece
+with an unusually defensible engineering story, and a wedge into the work that
+does pay, which is services.
+
+**The one addon question is closed.** At these volumes, splitting the work across
+two listings splits a handful of installs into two smaller handfuls, and
+re-creates the forked-rules problem this project was founded to manage.
+
+**The differentiators that survive are the refusals, and they are narrow.**
+A11yamic ships a site score and a generated conformance statement. `CLAUDE.md`
+forbids both: a score is a claim automated checking cannot support, and nothing
+this produces is a statement of conformance. That is a real difference and it
+sells to exactly one buyer, the one who has been burned by an overlay or has to
+defend a claim to somebody hostile. It is not a mass-market pitch and should
+never be dressed as one.
+
+**Where the money would be, if it is anywhere.** Craft has a larger paid plugin
+market and nearly all of the work here transfers. The build-time CLI reaches
+every static site rather than one CMS. Both were already in the Windrow plan's
+"where else this goes" section, and this is the first evidence that they matter
+more than the Statamic listing does.
+
+**Rejected.** *Racing A11yamic on features*, which means adding a score and a
+statement generator, which means breaking the two rules this project is built on
+to compete for a market worth a few hundred dollars. *Abandoning the addon*,
+because two sites use it, the engine is the shared asset, and the listing costs
+nothing to keep.
+
+**What was not checked.** Whether A11yamic's single install is real: a paid addon
+could reach buyers some other way, though the marketplace requires Packagist.
+Nothing about Craft's plugin economics was measured, only asserted from
+reputation. And no potential buyer has been asked anything at all, which is the
+cheapest research left and the only kind that would settle it.
+
+---
+
 ## 2026-08-12: Say what the reader can act on, and say the rest where it belongs
 
 The rule in `CLAUDE.md` that everything else rests on: a check that could not run
@@ -652,7 +744,14 @@ being able to see it is maintained.
 
 **What is actually being sold**, stated plainly so pricing never drifts from it:
 the listing, the updates, the support, and a defensible answer when somebody asks
-where the accessibility tool came from. Not access to the code. Statamic's
+where the accessibility tool came from. Not access to the code.
+
+> **Revisited on the same day, with numbers.** A later entry counts the market
+> this paragraph assumes: paid Statamic addons install in the tens, and a direct
+> competitor listed five weeks ago at $35 already ships the browser pass and the
+> template-versus-content split. The reasoning above is still right about *what*
+> is sold; it is wrong about how much that is worth. See "What the market
+> actually looks like". Statamic's
 licence check is a control-panel banner and nothing more, verified in source, so
 any plan that assumes the code is withheld was never going to work.
 
