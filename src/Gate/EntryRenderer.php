@@ -70,7 +70,24 @@ final class EntryRenderer
         $request = Request::create($url, 'GET');
         $previous = $this->app->bound('request') ? $this->app->make('request') : null;
 
+        // A draft has no public page: `DataResponse::handleDraft()` throws a 404
+        // unless the request carries a Live Preview token for this exact entry.
+        // Found by watching the panel report "could not check" on a draft, which
+        // is the state an author most wants checked: before it goes live.
+        //
+        // Statamic's answer is a token, and this is not one. A token means a
+        // write to the token store and a stored copy of the entry, both of which
+        // exist so a *browser* can request the front end. This renders in the
+        // same process, so the published flag on the in-memory instance is
+        // flipped for the length of the render and put back afterwards. Nothing
+        // is saved, nothing is cached, and there is no token to clean up.
+        $wasPublished = $entry->published();
+
         try {
+            if (! $wasPublished) {
+                $entry->published(true);
+            }
+
             // The current request during a save is the control panel's PATCH.
             // Templates that ask for the request would otherwise render the page
             // as though the visitor were at a control-panel URL, so the front-end
@@ -81,8 +98,21 @@ final class EntryRenderer
             $status = $response->getStatusCode();
             $html = (string) $response->getContent();
         } catch (Throwable $e) {
-            throw new CouldNotRender('the page threw while rendering: '.$e->getMessage(), previous: $e);
+            // The class, not just the message. Statamic's NotFoundHttpException
+            // carries no message at all, so reporting the message alone produced
+            // "the page threw while rendering: ." on screen, which told an author
+            // nothing and told whoever had to debug it less.
+            //
+            // Not covered by a test, and that is a gap rather than an oversight:
+            // the test harness renders an undefined tag to an empty string rather
+            // than throwing, so nothing in it produces a message-less throw. This
+            // was seen on a real control panel and fixed from there.
+            $reason = $e->getMessage() !== '' ? $e->getMessage() : $e::class;
+
+            throw new CouldNotRender('the page threw while rendering: '.$reason, previous: $e);
         } finally {
+            $entry->published($wasPublished);
+
             if ($previous !== null) {
                 $this->app->instance('request', $previous);
             }

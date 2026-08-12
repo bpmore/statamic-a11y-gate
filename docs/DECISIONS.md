@@ -9,6 +9,76 @@ read alongside that one.
 
 ---
 
+## 2026-08-12: Run against a real site, which found a bug the whole suite had passed over
+
+The gate was switched to refuse mode on hada.farm (Statamic 6.27.1) and pointed
+at a deliberately broken scratch entry. **It refused the publish, and the entry
+was still a draft on disk afterwards.** The message an author would be handed:
+
+> This entry was not saved. 3 accessibility problems have to be fixed first.
+
+followed by the three problems in plain language with the fix for each. That
+closes the question the earlier entry left open about whether a refusal carries
+its reason on a real site rather than in a test.
+
+**Then every published page on the site was checked: 38 pages, 4 findings, 3
+pages affected.** Worth writing down because the number that matters commercially
+is not how much a gate finds, it is how much it finds wrongly. A gate that lit up
+thirty pages on the day it was installed would be switched off that afternoon.
+
+The four are real:
+
+- Three links whose text is a bare domain (`eiaeo.app`, `seedfile.app`,
+  `pacewell.app`). That is what WCAG 2.4.4 is about, and the check is right.
+- One heading jumping to h3.
+
+**And one false positive, found on the scratch page.** A link whose text is the
+title of another post on the site, *"Link Text That Leads Somewhere: No More
+Click Here Dead Ends"*, was reported as `link-unclear`. The text is about as
+descriptive as link text gets. It failed because `banned_substrings` contains
+"click here" and the rule flags any name that *contains* it, on the reasoning
+that "click here to read the report" is still "click here".
+
+**Not fixed here, on purpose.** That rule is ported from Windrow and both
+projects answer to the shared corpus, so changing when it fires is a corpus
+change, in its own commit, in both repositories, with the reason written down.
+Fixing it quietly on one side is the exact divergence the corpus exists to
+prevent. It is recorded as a known false positive until that happens.
+
+Worth noting how narrow it is: the post whose title that is checks clean. The
+finding only appears on pages that *link* to it, which is what makes this kind of
+false positive hard to spot in a fixture and easy to spot on a real site.
+
+**And a real bug, which every test in this project had passed straight over.**
+The panel on a draft answered "could not check: the page threw while rendering".
+`DataResponse::handleDraft()` throws a 404 for an unpublished entry unless the
+request carries a Live Preview token, so the panel was useless in the one place
+it is worth the most: before the page goes live. Every fixture entry in the suite
+was published, so nothing ever reached that branch.
+
+Statamic's answer is a token. This is not one, deliberately: a token means a
+write to the token store and a stored copy of the entry, and both exist so a
+*browser* can request the front end. The addon renders in the same process, so
+the published flag on the in-memory instance is flipped for the length of the
+render and put back in a `finally`. Nothing is saved, nothing is cached, and
+there is no token to clean up. A test now covers the draft path and asserts the
+flag comes back, on the instance and on disk, and both halves are
+mutation-checked.
+
+**The screenshot also showed a second defect in one line of copy.** The failure
+read "the page threw while rendering: ." because Statamic's
+`NotFoundHttpException` carries no message and only `getMessage()` was reported.
+It names the exception class when the message is empty. **That fix has no test**,
+and the comment beside it says so: the harness renders an undefined tag to an
+empty string rather than throwing, so nothing in it can produce a message-less
+throw.
+
+Both of these were found by a person looking at a screen, after the suite was
+green and after the same entry had been checked successfully from the command
+line. Worth recording as the argument for doing this at all.
+
+---
+
 ## 2026-08-12: The panel, built once the control panel stopped being guesswork
 
 The panel is built: a fieldtype, one plain script, and the endpoint behind it.
