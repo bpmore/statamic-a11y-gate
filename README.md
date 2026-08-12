@@ -7,18 +7,18 @@ language saying what is wrong and what to do about it.
 
 ## Status
 
-Nothing works yet. This repo was created on 2026-08-12 and currently holds
-decisions, not code. The design lives in the Windrow repo at
-`docs/plans/statamic-addon.md`.
+**The checker works. The addon does not exist yet.** There is no service
+provider, no listener, and nothing to install into a Statamic site. What is here
+is the engine: HTML in, findings out, framework-free, with the shared conformance
+corpus enforced against it.
 
-**`corpus/` is here and is not yet enforced**, because there is no test suite to
-enforce it with. It is the shared conformance corpus: 19 pages and the exact
-findings this addon must produce for each, identical to the copy in Windrow.
-Stating that it is unenforced rather than letting its presence imply otherwise is
-the same rule this product applies to its own checks, and it would be a poor
-start to break it in the README.
+**`corpus/` is now enforced.** It is the shared conformance corpus: 19 pages and
+the exact findings this project must produce for each, identical to the copy in
+Windrow. `composer test` runs it, and the suite fails if any rule has no case.
 
-The first code written here runs it.
+Still to come, in the order the design calls for: reporting which checks could
+not run, then the `EntrySaving` gate and the control-panel panel. The design
+lives in the Windrow repo at `docs/plans/statamic-addon.md`.
 
 ## What it does
 
@@ -49,4 +49,7 @@ than left for a buyer to discover.
 
 ## Licence
 
-Undecided. See `docs/DECISIONS.md`.
+Source-available and proprietary, modelled on Statamic's own. Read it in
+`LICENSE.md`: it is five plain conditions and one clause that is not
+boilerplate, which says outright that nothing this software produces is a
+conformance claim.
