@@ -65,6 +65,12 @@ class CheckEntryController extends CpController
             'errors' => array_map($this->finding(...), $result->errors()),
             'warnings' => array_map($this->finding(...), $result->warnings()),
 
+            // Sent whether or not anything was found, and the panel shows it
+            // whether or not anything was found. A clean result is the case
+            // where "how much of this was actually looked at" matters most.
+            'coverage_summary' => $result->coverageSummary,
+            'coverage' => array_map(fn ($c) => $c->toArray(), $result->coverage),
+
             // Sent from the server rather than written into the component, so
             // that the sentence a customer reads and the sentence this project
             // is willing to defend are the same string. Nothing here says the

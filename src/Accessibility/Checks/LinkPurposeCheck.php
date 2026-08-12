@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Bpmore\A11yGate\Accessibility\Checks;
 
 use Bpmore\A11yGate\Accessibility\AccessibilityStandard;
+use Bpmore\A11yGate\Accessibility\Coverage;
 use Bpmore\A11yGate\Accessibility\AccessibleName;
 use Bpmore\A11yGate\Accessibility\LinkTextVocabulary;
 use Bpmore\A11yGate\Accessibility\Violation;
@@ -35,6 +36,11 @@ final class LinkPurposeCheck extends RuleCheck
     public static function key(): string
     {
         return 'a11y.link.purpose';
+    }
+
+    public static function name(): string
+    {
+        return 'Link and button text';
     }
 
     public static function rules(): array
@@ -194,5 +200,14 @@ final class LinkPurposeCheck extends RuleCheck
         }
 
         return str_starts_with(strtolower($href), 'javascript:');
+    }
+
+    /**
+     * Always full. An accessible name is read from the markup, and a page with
+     * no links has nothing this rule could have missed.
+     */
+    public function coverage(DOMXPath $xpath): Coverage
+    {
+        return Coverage::full(self::key(), self::name());
     }
 }

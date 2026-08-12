@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Bpmore\A11yGate\Accessibility\Checks;
 
 use Bpmore\A11yGate\Accessibility\AccessibilityStandard;
+use Bpmore\A11yGate\Accessibility\Coverage;
 use Bpmore\A11yGate\Accessibility\Violation;
 use DOMNode;
 use DOMXPath;
@@ -30,6 +31,11 @@ final class MediaAlternativesCheck extends RuleCheck
     public static function key(): string
     {
         return 'a11y.media.alternatives';
+    }
+
+    public static function name(): string
+    {
+        return 'Video, audio and figures';
     }
 
     public static function rules(): array
@@ -116,5 +122,25 @@ final class MediaAlternativesCheck extends RuleCheck
         }
 
         return '';
+    }
+
+    /**
+     * Always partial. One of its five rules reads ordinary markup: an embed
+     * needs a title, and that is checked everywhere. The other four need the
+     * site to say what it knows, because a page cannot show whether a video at
+     * YouTube carries captions or whether a footnote lost its reference.
+     *
+     * Partial rather than none even when the site marks nothing up, because the
+     * embed title rule genuinely ran, and partial rather than full even when it
+     * marks something up, because a checker cannot confirm that everything which
+     * needed marking got marked.
+     */
+    public function coverage(DOMXPath $xpath): Coverage
+    {
+        return Coverage::partial(
+            self::key(),
+            self::name(),
+            'Embed titles were checked. Captions, transcripts, figure text and footnotes are only checked on sites that mark them up, and this one does not.',
+        );
     }
 }

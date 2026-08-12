@@ -76,6 +76,33 @@ it('reports a clean page as clean without claiming it is accessible', function (
     expect(str_contains(strtolower($limits), 'compliant'))->toBeFalse('the panel must never use the word compliant');
 });
 
+it('sends coverage with a clean result, which is where it matters most', function () {
+    // A clean page is the case where "how much of this was looked at" carries
+    // the most weight, so the panel gets the same coverage on a page with no
+    // findings as on a page full of them.
+    $entry = savedPage('<p>The footbridge.</p>');
+
+    $response = $this->actingAs($this->user)
+        ->postJson(cp_route('a11y-gate.check'), [
+            'reference' => $entry->reference(),
+            'values' => ['body' => '<p>The footbridge over the weir.</p>'],
+        ]);
+
+    $response->assertOk();
+
+    expect($response->json('errors'))->toBe([]);
+    expect($response->json('coverage_summary'))->toContain('could not run here');
+    expect($response->json('coverage'))->toHaveCount(7);
+
+    // Every entry that did not run in full has to say why, or the list is a
+    // count with nothing behind it.
+    foreach ($response->json('coverage') as $check) {
+        if ($check['extent'] !== 'full') {
+            expect($check['limit'])->not->toBe('');
+        }
+    }
+});
+
 it('separates warnings from errors, because only one of them stops a publish', function () {
     $entry = savedPage('<p>The footbridge.</p>');
 

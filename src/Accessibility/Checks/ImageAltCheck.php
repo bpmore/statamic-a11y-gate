@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Bpmore\A11yGate\Accessibility\Checks;
 
 use Bpmore\A11yGate\Accessibility\AccessibilityStandard;
+use Bpmore\A11yGate\Accessibility\Coverage;
 use Bpmore\A11yGate\Accessibility\Violation;
 use DOMXPath;
 
@@ -21,6 +22,11 @@ final class ImageAltCheck extends RuleCheck
     public static function key(): string
     {
         return 'a11y.media.alt_missing';
+    }
+
+    public static function name(): string
+    {
+        return 'Image descriptions';
     }
 
     public static function rules(): array
@@ -55,5 +61,15 @@ final class ImageAltCheck extends RuleCheck
         }
 
         return $violations;
+    }
+
+    /**
+     * Always full for what it claims to judge, which is whether a description
+     * exists. Whether an existing description is any good is a different rule
+     * that this checker does not have and does not pretend to.
+     */
+    public function coverage(DOMXPath $xpath): Coverage
+    {
+        return Coverage::full(self::key(), self::name());
     }
 }

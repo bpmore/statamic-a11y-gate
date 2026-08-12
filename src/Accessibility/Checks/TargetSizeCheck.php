@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Bpmore\A11yGate\Accessibility\Checks;
 
 use Bpmore\A11yGate\Accessibility\AccessibilityStandard;
+use Bpmore\A11yGate\Accessibility\Coverage;
 use Bpmore\A11yGate\Accessibility\Violation;
 use DOMElement;
 use DOMXPath;
@@ -33,6 +34,11 @@ final class TargetSizeCheck extends RuleCheck
     public static function key(): string
     {
         return 'a11y.target.size';
+    }
+
+    public static function name(): string
+    {
+        return 'Touch target size';
     }
 
     public static function rules(): array
@@ -94,5 +100,21 @@ final class TargetSizeCheck extends RuleCheck
         }
 
         return false;
+    }
+
+    /**
+     * Always partial, whatever the page contains, and this is the honest half of
+     * a rule that would otherwise look thorough. It reads sizes written into the
+     * markup. Nearly every site sizes its buttons in a stylesheet, and a
+     * stylesheet is invisible to a pass over HTML, so a page where this finds
+     * nothing has mostly not been checked.
+     */
+    public function coverage(DOMXPath $xpath): Coverage
+    {
+        return Coverage::partial(
+            self::key(),
+            self::name(),
+            'Only sizes written into the page itself can be measured. A size set in a stylesheet needs a real browser, which this does not use.',
+        );
     }
 }

@@ -126,6 +126,13 @@
                         </div>
                     </template>
 
+                    <div v-if="state.result.coverage_summary" class="space-y-2">
+                        <ui-heading size="sm" :text="state.result.coverage_summary" />
+                        <div v-for="(check, i) in state.result.coverage.filter(c => c.extent !== 'full')" :key="'c' + i">
+                            <ui-description :text="check.name + ': ' + check.limit" />
+                        </div>
+                    </div>
+
                     <ui-description :text="state.result.limits" />
                 </template>
 

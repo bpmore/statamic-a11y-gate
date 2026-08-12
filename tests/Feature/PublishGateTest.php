@@ -60,6 +60,21 @@ it('says what is wrong and what to do about it', function () {
     }
 });
 
+it('tells the author how much of the page was actually checked', function () {
+    // A refusal that listed problems and stopped would invite the reading "and
+    // nothing else is wrong". Four of the seven families are blind or
+    // half-blind without markup a Statamic site does not produce, so the count
+    // goes in the refusal itself rather than somewhere an author might not look.
+    $entry = gatePage('<html lang="en"><body><h1>The weir</h1><img src="/a.jpg"></body></html>');
+
+    try {
+        $entry->save();
+        $this->fail('the gate allowed a page with a missing image description');
+    } catch (ValidationException $e) {
+        expect(end($e->errors()['a11y_gate']))->toContain('could not run here');
+    }
+});
+
 it('lets a clean page through', function () {
     $entry = gatePage('<html lang="en"><body><h1>The weir</h1><p>The footbridge.</p></body></html>');
 

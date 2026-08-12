@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Bpmore\A11yGate\Accessibility\Checks;
 
 use Bpmore\A11yGate\Accessibility\AccessibilityStandard;
+use Bpmore\A11yGate\Accessibility\Coverage;
 use Bpmore\A11yGate\Accessibility\ReadingLevel;
 use Bpmore\A11yGate\Accessibility\Violation;
 use DOMXPath;
@@ -28,6 +29,11 @@ final class ReadingLevelCheck extends RuleCheck
     public static function key(): string
     {
         return 'a11y.text.reading_level';
+    }
+
+    public static function name(): string
+    {
+        return 'Plain-language summaries';
     }
 
     public static function rules(): array
@@ -55,5 +61,23 @@ final class ReadingLevelCheck extends RuleCheck
         }
 
         return $violations;
+    }
+
+    /**
+     * Full only where the site stamps a grade, and nothing at all otherwise. By
+     * the time the page exists the summary is just more text on it, and nothing
+     * marks out which words were meant to be the plain ones.
+     */
+    public function coverage(DOMXPath $xpath): Coverage
+    {
+        $stamped = $xpath->query('//*[@data-windrow-reading-grade]');
+
+        return $stamped !== false && $stamped->length > 0
+            ? Coverage::full(self::key(), self::name())
+            : Coverage::none(
+                self::key(),
+                self::name(),
+                'A plain-language summary is just more text on the finished page, so this is only checked on sites that mark those summaries up.',
+            );
     }
 }

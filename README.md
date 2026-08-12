@@ -71,12 +71,27 @@ state the save would leave behind:
 
 ## Honest limits
 
-Four checks read only the rendered HTML and work on any site: heading order, link
-purpose, image alt text, and target size.
+**Every result says how much of the page was actually looked at.** On an ordinary
+Statamic site that reads:
 
-Three more need the site to mark up what it knows: whether a video has captions,
-whether a link points somewhere unpublished, and the reading grade of a plain
-language summary. Those are opt-in and documented, not magic.
+> 3 of 7 checks ran in full, 2 ran partly, 2 could not run here.
+
+That line is in the refusal and in the panel, on a clean page as loudly as on a
+broken one. A clean page is where it matters most, because that is where "nothing
+found" is most easily read as "nothing wrong".
+
+| Check | Here |
+|---|---|
+| Heading structure | full |
+| Link and button text | full |
+| Image descriptions | full |
+| Video, audio and figures | partly: embed titles only. Captions, transcripts, figure text and footnotes need the site to mark them up |
+| Touch target size | partly: only sizes written into the page. A size set in a stylesheet needs a real browser |
+| Links to unpublished pages | not here: needs the site to mark those links up |
+| Plain-language summaries | not here: needs the site to mark those summaries up |
+
+The last two become full checks on a site that opts in to stamping the
+attributes. That is a documented integration, not magic.
 
 A browser pass with axe catches more than any of this. That is stated here rather
 than left for a buyer to discover.

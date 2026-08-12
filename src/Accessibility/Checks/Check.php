@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Bpmore\A11yGate\Accessibility\Checks;
 
 use Bpmore\A11yGate\Accessibility\AccessibilityStandard;
+use Bpmore\A11yGate\Accessibility\Coverage;
 use Bpmore\A11yGate\Accessibility\Violation;
 use DOMXPath;
 
@@ -20,6 +21,18 @@ interface Check
 {
     /** Stable identifier: 'a11y.link.purpose'. Never renamed. */
     public static function key(): string;
+
+    /** What this family is called when an author is told whether it ran. */
+    public static function name(): string;
+
+    /**
+     * How much of what this check judges it could see in this document.
+     *
+     * Every check has to answer, including the ones that always work. A check
+     * that could opt out of saying would be a check that stays quiet when it is
+     * blind, and a quiet blind check looks exactly like a clean page.
+     */
+    public function coverage(DOMXPath $xpath): Coverage;
 
     /**
      * The rules this check can raise, by their `Violation::rule` value.

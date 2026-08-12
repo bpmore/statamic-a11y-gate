@@ -9,6 +9,64 @@ read alongside that one.
 
 ---
 
+## 2026-08-12: Every result now says how much of the page it could see
+
+The rule in `CLAUDE.md` that everything else rests on: a check that could not run
+must say so, because a silent zero is indistinguishable from a pass. Until this
+change the addon broke that rule on every page it checked.
+
+**Three extents, not two, and each one exists to stop a specific lie.**
+
+- `full`: the check saw everything it judges. **A page with no images is a full
+  pass for the image rule**, not a gap. That is why there is no fourth extent
+  called "nothing to judge": it sounds more precise, and it would make a clean
+  page look like a hole.
+- `partial`: it ran, and part of what it judges was invisible here.
+- `none`: it could not run at all, because what it reads is not in this page.
+
+**Two of the four are permanently partial, whatever the page contains, and that
+is the honest half of rules that would otherwise look thorough.** Touch target
+size reads sizes written into the markup, and nearly every site sizes its buttons
+in a stylesheet. Media alternatives checks embed titles everywhere and can say
+nothing about captions, transcripts, figure text or footnotes without host
+markup. Neither is ever full: a checker cannot confirm that everything which
+needed marking got marked.
+
+**The other two read the page rather than holding an opinion about Statamic.**
+Links-to-unpublished and reading level report `none` when the attribute is
+absent and `full` when the site stamps it. A fixed "not available on Statamic"
+would have been as blind as the thing it describes, and a test pins the upgrade.
+
+On hada.farm, live: *3 of 7 checks ran in full, 2 ran partly, 2 could not run
+here.*
+
+**Where it appears.** In the refusal, as the last line, always. In the panel,
+with the reason for every check that was not full. **On a clean page as loudly as
+on a broken one**, because a clean page is exactly where "nothing found" gets
+read as "nothing wrong".
+
+**The corpus does not pin any of this, and that is a stated gap rather than an
+oversight.** Coverage is new behaviour that Windrow does not have yet, so a
+corpus demanding it would be unanswerable on the other side, and the corpus's own
+rule is that it holds both projects to the same statements. `check()` still
+returns findings alone and the corpus still runs against it, untouched. When
+Windrow implements coverage, the expectations go into the corpus in one commit in
+both repositories. Until then the two projects agree about findings and are
+silent about coverage, which is the arrangement working rather than failing.
+
+**Mutation-tested, five run, five killed:** a host-markup check claiming full
+coverage, target size claiming full, the coverage line dropped from the refusal,
+the endpoint sending an empty summary, and a family quietly missing from the
+list. That last one is the mutation that matters: a check added later that
+forgets to declare coverage is a check that goes quiet without saying so.
+
+**Rejected.** *Per-rule coverage* rather than per-family, which is more precise
+and produces seventeen lines an author has to read to learn one thing. *A single
+"4 of 7" count* with no reasons, which tells somebody they have a problem and
+nothing about what it is.
+
+---
+
 ## 2026-08-12: Run against a real site, which found a bug the whole suite had passed over
 
 The gate was switched to refuse mode on hada.farm (Statamic 6.27.1) and pointed

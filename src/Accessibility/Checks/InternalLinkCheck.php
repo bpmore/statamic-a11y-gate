@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Bpmore\A11yGate\Accessibility\Checks;
 
 use Bpmore\A11yGate\Accessibility\AccessibilityStandard;
+use Bpmore\A11yGate\Accessibility\Coverage;
 use Bpmore\A11yGate\Accessibility\Violation;
 use DOMXPath;
 
@@ -26,6 +27,11 @@ final class InternalLinkCheck extends RuleCheck
         return 'a11y.link.unpublished';
     }
 
+    public static function name(): string
+    {
+        return 'Links to unpublished pages';
+    }
+
     public static function rules(): array
     {
         return ['link-unpublished-page'];
@@ -43,5 +49,23 @@ final class InternalLinkCheck extends RuleCheck
         }
 
         return $violations;
+    }
+
+    /**
+     * Full only where the site stamps the attribute, and nothing at all
+     * otherwise. Once the HTML exists, a link to a draft looks like any other
+     * link, so with no stamp there is no question this rule can answer.
+     */
+    public function coverage(DOMXPath $xpath): Coverage
+    {
+        $stamped = $xpath->query('//*[@data-windrow-unpublished-link]');
+
+        return $stamped !== false && $stamped->length > 0
+            ? Coverage::full(self::key(), self::name())
+            : Coverage::none(
+                self::key(),
+                self::name(),
+                'A link to an unpublished page looks like any other link once the page is built, so this is only checked on sites that mark those links up.',
+            );
     }
 }

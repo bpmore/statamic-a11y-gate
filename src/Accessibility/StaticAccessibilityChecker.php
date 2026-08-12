@@ -25,19 +25,37 @@ use DOMXPath;
 final class StaticAccessibilityChecker
 {
     /**
-     * @return array<int, Violation>
+     * The findings, and how much of the page each family could see while
+     * looking. Everything that shows a result to a person should call this.
      */
-    public function check(string $html, ?AccessibilityStandard $standard = null): array
+    public function report(string $html, ?AccessibilityStandard $standard = null): CheckReport
     {
         $xpath = $this->xpath($html);
 
         $violations = [];
+        $coverage = [];
 
         foreach (CheckPack::all() as $check) {
             $violations = [...$violations, ...$check->run($xpath, $standard)];
+            $coverage[] = $check->coverage($xpath);
         }
 
-        return $violations;
+        return new CheckReport($violations, $coverage);
+    }
+
+    /**
+     * The findings alone.
+     *
+     * Kept because the shared conformance corpus is about findings and nothing
+     * else: coverage is this project's own reporting and Windrow has none yet,
+     * so a corpus that demanded it would be unanswerable on the other side.
+     * Nothing that shows a result to a person should use this.
+     *
+     * @return array<int, Violation>
+     */
+    public function check(string $html, ?AccessibilityStandard $standard = null): array
+    {
+        return $this->report($html, $standard)->violations;
     }
 
     private function xpath(string $html): DOMXPath

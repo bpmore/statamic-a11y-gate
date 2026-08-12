@@ -131,6 +131,11 @@ final class RefuseUnlessAccessible
                 : "There are also {$warnings} warnings, which do not stop this save.";
         }
 
+        // Last, and never omitted. A refusal that listed problems without saying
+        // how much of the page was examined would invite the reading "and
+        // nothing else is wrong", which is false on nearly every page here.
+        $lines[] = $result->coverageSummary;
+
         return $lines;
     }
 
