@@ -43,7 +43,7 @@ it('checks the values in the form, not the ones on disk', function () {
 
     $response = $this->actingAs($this->user)
         ->postJson(cp_route('a11y-gate.check'), [
-            'entry' => $entry->id(),
+            'reference' => $entry->reference(),
             'values' => ['body' => '<img src="/a.jpg">'],
         ]);
 
@@ -60,7 +60,7 @@ it('reports a clean page as clean without claiming it is accessible', function (
 
     $response = $this->actingAs($this->user)
         ->postJson(cp_route('a11y-gate.check'), [
-            'entry' => $entry->id(),
+            'reference' => $entry->reference(),
             'values' => ['body' => '<p>The footbridge over the weir.</p>'],
         ]);
 
@@ -81,7 +81,7 @@ it('separates warnings from errors, because only one of them stops a publish', f
 
     $response = $this->actingAs($this->user)
         ->postJson(cp_route('a11y-gate.check'), [
-            'entry' => $entry->id(),
+            'reference' => $entry->reference(),
             'values' => ['body' => '<a href="#">Read the report</a>'],
         ]);
 
@@ -107,12 +107,12 @@ it('refuses to check an entry for somebody who cannot view it', function () {
     $nobody->save();
 
     $this->actingAs($nobody)
-        ->postJson(cp_route('a11y-gate.check'), ['entry' => $entry->id()])
+        ->postJson(cp_route('a11y-gate.check'), ['reference' => $entry->reference()])
         ->assertForbidden();
 });
 
 it('404s on an entry that does not exist', function () {
     $this->actingAs($this->user)
-        ->postJson(cp_route('a11y-gate.check'), ['entry' => 'nope'])
+        ->postJson(cp_route('a11y-gate.check'), ['reference' => 'entry::nope'])
         ->assertNotFound();
 });

@@ -75,11 +75,11 @@ it('checks the values being saved, not the ones already on disk', function () {
     // exactly the trap that hid the render spike's result for three attempts.
     //
     // **What this does NOT prove, checked by mutation:** deleting
-    // `substitute()` from the renderer leaves this test green. In a booted test
-    // the repository hands back the same instance either way, so the line has
-    // nothing to correct. On a real site it does: the spike watched the saved
-    // value render without it. The evidence for that line is the spike, recorded
-    // in the decision log, and not this file.
+    // `substitute()` from the renderer leaves this test green, and leaves a real
+    // Statamic 6 site answering correctly too, which was tried afterwards. The
+    // repository hands back the same in-memory instance either way. That line is
+    // kept as insurance against a repository that would not, and the renderer
+    // says plainly that it is unproven rather than implying this test covers it.
     test()->viewShouldReturnRaw('default', '<html lang="en"><body><h1>The weir</h1>{{ body }}</body></html>');
 
     $entry = Entry::make()

@@ -9,10 +9,11 @@ read alongside that one.
 
 ---
 
-## 2026-08-12: The panel's server half, and the front-end half stopped on purpose
+## 2026-08-12: The panel, built once the control panel stopped being guesswork
 
-The endpoint the panel will ask is built and tested: `POST cp/a11y-gate/check`
-takes an entry id and the form's current values, applies them the way Statamic's
+The panel is built: a fieldtype, one plain script, and the endpoint behind it.
+`POST cp/a11y-gate/check` takes the publish container's own reference
+(`entry::<id>`) and the form's current values, applies them the way Statamic's
 own `PreviewController` does, renders, checks, and answers with the findings
 split into the ones that refuse a publish and the ones that do not.
 
@@ -21,50 +22,76 @@ answered from the file on disk would be at its most wrong exactly when it
 matters: after an author has broken the page and before they press publish. The
 test for it fails if the supplements are not applied, checked by mutation.
 
-**The Vue component is not in this change, and that is a decision rather than an
-unfinished job.** Three things the component needs could not be established from
-the shipped control-panel bundle:
+**The three unknowns that stopped the component are answered, and none of them
+needed a browser.** `vendor/statamic/cms/resources/dist-dev` ships the control
+panel's build unminified, with `//#region resources/js/...` markers naming every
+source file. Everything below was read there.
 
-1. Whether `Statamic.$components.register` still registers a global component in
-   version 6, or only manages runtime instances. Fieldtypes are resolved by
-   name (`{type}-fieldtype`), so the two are not interchangeable.
-2. How a fieldtype reads the publish form's current values. Version 5's store is
-   gone and version 6 uses composables that a plain addon script cannot import.
-3. How a fieldtype learns which entry it is on. Nothing in the bundle shows an
-   id reaching a field, and parsing it out of the URL is the kind of guess that
-   breaks on a routing change with no test to catch it.
+1. **Registering a component.** `Statamic.$components.register(name, component)`
+   calls `app.component(name, component)`, and queues the registration when the
+   app has not booted yet. So `accessibility_panel-fieldtype` resolves the same
+   way `text-fieldtype` does.
+2. **Reading the form's current values.** The publish container provides a
+   context, and `window.__STATAMIC__.ui.injectPublishContext()` returns it.
+   Among what it carries: `values` (a ref to the form as it stands),
+   `visibleValues`, `meta`, `site`, `blueprint` and `reference`.
+3. **Knowing which entry.** That same `reference`, which is `entry::<id>`, and
+   which the endpoint now takes directly rather than making the browser parse an
+   id out of it.
 
-Each of those is answerable in five minutes with a browser and unanswerable by
-reading minified JavaScript, which is what stopping is for. `CLAUDE.md` says a
-bespoke control inside an accessibility product is the worst possible place to
-invent one, and inventing three integration points at once to avoid admitting a
-gap would be exactly that.
+**And a fourth thing, which removed a whole toolchain.** Statamic aliases Vue to
+`vue/dist/vue.esm-bundler.js` and puts it on `window.Vue`, so the runtime
+template compiler is present and a plain script with a `template` string
+compiles. A `package.json` and a `vite.config.js` were written and then deleted:
+this addon needs no npm and no build step. The panel is one file, loaded as an
+ordinary deferred script.
 
-**What was learned and is worth keeping**, because it changes what the component
-will be:
+The panel is built from `ui-panel`, `ui-badge`, `ui-heading`, `ui-description`,
+`ui-button` and `ui-skeleton`, all globally resolvable, with prop names read out
+of each component's source rather than guessed. Nothing is hand-rolled, which is
+the rule for this product in particular.
 
-- Statamic aliases Vue to `vue/dist/vue.esm-bundler.js`, which includes the
-  runtime template compiler. A plain script with a `template` string compiles, so
-  this addon needs **no npm, no vite and no build step**. A `package.json` and a
-  `vite.config.js` were written and then deleted on finding this.
-- The component library is globally resolvable: `ui-panel`, `ui-badge`,
-  `ui-button`, `ui-status-indicator`, `ui-heading`, `ui-description`,
-  `ui-skeleton` and about thirty more. Nothing has to be hand-rolled.
-- Addon scripts load as ordinary deferred `<script>` tags through
-  `Statamic::availableScripts`, or as Vite entry points. The first is enough.
-- A shipped Statamic 6 addon in the same vendor directory builds its
-  control-panel UI as a Blade widget with inline styles. That route was rejected
-  rather than copied: it is hand-rolling, and the rule against it exists.
+**Run against a real site, which is the part no unit test could do.** The addon
+was installed into hada.farm (Statamic 6.27.1, real templates, real content) from
+a path repository, in warn mode so nothing could be refused.
+
+- A real blog entry rendered through the site's own templates in **265ms** and
+  came back as 28,148 bytes with one h1 and one image. Fast enough to sit in
+  front of a save, and proof the render survives a real template stack rather
+  than a fixture.
+- Supplementing that entry with a second h1 and an image with no description
+  produced exactly those two errors. That is the panel's whole mechanism, end to
+  end, on a live site.
+- **The mutation that the test suite could not kill was run there too, and it
+  survived that as well.** Removing `substitute()` changed nothing: the
+  repository hands back the same in-memory instance either way. The line stays as
+  insurance against a repository that would not, and the renderer now says
+  plainly that it is unproven instead of implying it was measured. The earlier
+  entry claiming the spike proved that specific line has been narrowed to what
+  the spike actually showed, which was about `setSupplement` rather than about
+  `substitute`.
+
+**Rejected on the way:** a shipped Statamic 6 addon in the same vendor directory
+builds its control-panel UI as a Blade widget with inline styles. Not copied: it
+is hand-rolling, and the rule against it exists for this product in particular.
 
 **The limit that made the endpoint's tests worth writing carefully.** A blueprint
 with no fields processes submitted values to nothing, silently. The first version
 of the test passed while checking an unchanged page. It now loads a real
 blueprint fixture, and the comment says why.
 
+**What is still unverified, and it is the visible half.** Nobody has watched the
+panel render. The browser extension was unavailable, so every claim about the
+component rests on the control panel's own unminified source: the registration
+API, the inject key, the prop names, the global helpers. Each was read rather
+than guessed, which is a good deal better than the version of this that shipped
+on inference, and it is still not the same as seeing it draw. The field is
+installed on hada.farm's blog blueprint and can be looked at.
+
 **Rejected.** *A dashboard widget listing every entry with problems*, which needs
 to render every page in the site to answer and is not the question an author has
 in front of them. *A panel that checks the saved version only*, which is buildable
-today without any of the three unknowns and was turned down because it is stale
+without any of the three unknowns above and was turned down because it is stale
 in exactly the case it exists for.
 
 ---

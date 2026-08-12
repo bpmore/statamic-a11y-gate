@@ -8,7 +8,8 @@ use Bpmore\A11yGate\Accessibility\Violation;
 use Bpmore\A11yGate\Gate\GateResult;
 use Bpmore\A11yGate\Gate\PublishGate;
 use Illuminate\Http\Request;
-use Statamic\Facades\Entry;
+use Statamic\Contracts\Entries\Entry;
+use Statamic\Facades\Data;
 use Statamic\Http\Controllers\CP\CpController;
 use Statamic\Support\Arr;
 
@@ -25,9 +26,12 @@ class CheckEntryController extends CpController
 {
     public function __invoke(Request $request, PublishGate $gate)
     {
-        $entry = Entry::find($request->input('entry'));
+        // A reference ("entry::abc123") rather than a bare id, because that is
+        // what the publish container already holds and hands to the panel. No
+        // parsing in the browser, and no second format to keep in step.
+        $entry = Data::find((string) $request->input('reference'));
 
-        abort_if($entry === null, 404);
+        abort_if(! $entry instanceof Entry, 404);
 
         // The same permission Statamic requires to open the entry. Rendering a
         // page is cheap to ask for and this endpoint takes arbitrary values, so

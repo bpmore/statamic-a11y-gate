@@ -7,19 +7,36 @@ language saying what is wrong and what to do about it.
 
 ## Status
 
-**The gate works. The panel does not exist yet.** Install this addon and a save
-that would leave a published entry with an accessibility error is refused, with
-the reason attached. What is missing is the control-panel panel that lists every
-finding: today the author is told how many problems there are and shown the
-first one.
+**The gate works and the panel is built.** Install this addon and a save that
+would leave a published entry with an accessibility error is refused, with the
+reason attached. Add the Accessibility field to a blueprint and an author can
+check the page before pressing publish, including changes they have not saved.
+
+**Not yet watched in a browser.** The panel's code is written against the control
+panel's own source rather than against guesses, and the endpoint behind it is
+tested, but nobody has seen it draw.
 
 **`corpus/` is now enforced.** It is the shared conformance corpus: 19 pages and
 the exact findings this project must produce for each, identical to the copy in
 Windrow. `composer test` runs it, and the suite fails if any rule has no case.
 
-Still to come, in the order the design calls for: the control-panel panel, and
-reporting which of the seven check families could run at all. The design lives in
-the Windrow repo at `docs/plans/statamic-addon.md`.
+Still to come: reporting which of the seven check families could run at all. The
+design lives in the Windrow repo at `docs/plans/statamic-addon.md`.
+
+## Adding the panel
+
+It is a field. Put it wherever it belongs in a blueprint, usually the sidebar:
+
+```yaml
+-
+  handle: a11y_panel
+  field:
+    type: accessibility_panel
+    display: Accessibility
+```
+
+It stores nothing in the entry. Findings change every time the page does, so a
+copy of them in the content directory would be wrong by the next save.
 
 ## How it decides what counts as publishing
 
