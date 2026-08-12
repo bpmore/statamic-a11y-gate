@@ -81,11 +81,11 @@ that second one means one thing:
 A page with no video says nothing about captions, the same way a page with no
 images says nothing about descriptions. There was nothing there to miss.
 
-**Everything else lives on one page under Tools**, linked from the panel as
-"What this can and cannot check". It says what runs, what cannot run and why,
-which two checks a developer can switch on, and what a clean result does not
-mean. Written for a person who has come looking once, not printed under every
-result forever.
+**Everything else lives on one page under Tools**, "Accessibility Gate". It says
+what runs, what cannot run and why, which two checks a developer can switch on,
+and what a clean result does not mean. The result panel does not link to it: an
+author pressing a button is asking about their page, and somebody who wants to
+know what the tool is worth goes and reads it once.
 
 **What the author is never shown**, because they cannot act on it: which checks
 ran and how far. That is an auditor's number. It stays in the data the check

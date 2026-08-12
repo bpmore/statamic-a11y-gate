@@ -76,12 +76,6 @@ class CheckEntryController extends CpController
             'coverage_summary' => $result->coverageSummary,
             'coverage' => array_map(fn ($c) => $c->toArray(), $result->coverage),
 
-            // A door rather than a lecture. The full account of what this checks
-            // and what it cannot lives on one page under Tools, because a
-            // paragraph printed under every result on every entry is a paragraph
-            // nobody reads, and the person writing the page could not act on any
-            // of it anyway.
-            'guide_url' => cp_route('utilities.index').'/a11y-gate',
         ];
     }
 

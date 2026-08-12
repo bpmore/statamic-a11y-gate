@@ -69,10 +69,11 @@ it('reports a clean page as clean without claiming it is accessible', function (
     expect($response->json('errors'))->toBe([]);
     expect($response->json('refuses'))->toBeFalse();
 
-    // The full account of what this checks and what it cannot is a page under
-    // Tools, and the panel links to it. It used to be a paragraph printed under
-    // every result, which an author could not act on and would stop reading.
-    expect($response->json('guide_url'))->toContain('utilities/a11y-gate');
+    // Nothing explaining the tool comes back with a result. That account was a
+    // paragraph under every result, then a link under every result, and it is a
+    // page under Tools now. An author pressing a button is asking about their
+    // page.
+    expect($response->json('guide_url'))->toBeNull();
 });
 
 it('sends coverage with a clean result, which is where it matters most', function () {

@@ -87,10 +87,11 @@
         // which today means one thing: whether the video they embedded has
         // captions.
         //
-        // The standing limits of the tool are a link, not a paragraph. They were
-        // a paragraph, printed under every result on every entry, and an author
-        // cannot act on any of it. One page under Tools says it properly, and
-        // this is the door to it.
+        // Nothing here explains the tool. That account was a paragraph under
+        // every result, then a link under every result, and both were the same
+        // answer to the same question nobody asked: an author pressing a button
+        // wants to know about their page. The page under Tools says it properly,
+        // and somebody who wants it goes and reads it.
         //
         // Checked on a button rather than on every keystroke. A check renders the
         // whole page through the site's templates, and firing that on each
@@ -146,12 +147,6 @@
                         <ui-description v-for="(notice, i) in state.result.notices" :key="'n' + i" :text="notice" />
                     </div>
 
-                    <p class="text-sm">
-                        <a
-                            :href="state.result.guide_url"
-                            class="text-blue-600 dark:text-blue-400 underline"
-                        >What this can and cannot check</a>
-                    </p>
                 </template>
 
                 <ui-description
