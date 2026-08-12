@@ -9,7 +9,7 @@ read alongside that one.
 
 ---
 
-## 2026-08-12: Run against every published page on a real site, and the first false positive
+## 2026-08-12: Run against a real site, which found a bug the whole suite had passed over
 
 The gate was switched to refuse mode on hada.farm (Statamic 6.27.1) and pointed
 at a deliberately broken scratch entry. **It refused the publish, and the entry
@@ -48,6 +48,34 @@ prevent. It is recorded as a known false positive until that happens.
 Worth noting how narrow it is: the post whose title that is checks clean. The
 finding only appears on pages that *link* to it, which is what makes this kind of
 false positive hard to spot in a fixture and easy to spot on a real site.
+
+**And a real bug, which every test in this project had passed straight over.**
+The panel on a draft answered "could not check: the page threw while rendering".
+`DataResponse::handleDraft()` throws a 404 for an unpublished entry unless the
+request carries a Live Preview token, so the panel was useless in the one place
+it is worth the most: before the page goes live. Every fixture entry in the suite
+was published, so nothing ever reached that branch.
+
+Statamic's answer is a token. This is not one, deliberately: a token means a
+write to the token store and a stored copy of the entry, and both exist so a
+*browser* can request the front end. The addon renders in the same process, so
+the published flag on the in-memory instance is flipped for the length of the
+render and put back in a `finally`. Nothing is saved, nothing is cached, and
+there is no token to clean up. A test now covers the draft path and asserts the
+flag comes back, on the instance and on disk, and both halves are
+mutation-checked.
+
+**The screenshot also showed a second defect in one line of copy.** The failure
+read "the page threw while rendering: ." because Statamic's
+`NotFoundHttpException` carries no message and only `getMessage()` was reported.
+It names the exception class when the message is empty. **That fix has no test**,
+and the comment beside it says so: the harness renders an undefined tag to an
+empty string rather than throwing, so nothing in it can produce a message-less
+throw.
+
+Both of these were found by a person looking at a screen, after the suite was
+green and after the same entry had been checked successfully from the command
+line. Worth recording as the argument for doing this at all.
 
 ---
 
