@@ -34,13 +34,22 @@ The one thing that must not fork is the answers.
   undocumented disagreement is the failure this whole arrangement exists to
   prevent.
 
-## THE RULES ARE NOT COPIED
+## THE RULES ARE COPIED, AND THAT IS THE RISK BEING MANAGED
 
-- The check rules come from one place. If this repo ever contains a second
-  implementation of a rule that Windrow also has, they will drift, and a
-  conformance claim that depends on which copy ran is worse than no addon.
-- Where that one place lives is an open question in `docs/DECISIONS.md`. Do not
-  resolve it by writing rules here.
+This section used to say the opposite: that the rules come from one place and
+must never be reimplemented here. That was written while the question was open.
+It was settled the other way, on purpose, and the reasoning is in
+`docs/DECISIONS.md` under the fork entry. Rewritten rather than deleted, because
+the danger it named has not gone anywhere.
+
+- This repo holds its own copy of every rule. Two copies drift, and a
+  conformance claim that depends on which copy ran is worse than no addon. That
+  is the cost of the fork and it is paid by the corpus above, not by wishing.
+- So a rule change here is never finished at the rule. Either the corpus agrees
+  and the change was a refactor, or the corpus must change too, in its own
+  commit, in both repositories, with the reason written down.
+- Port a rule verbatim before improving it. A rule tidied on the way across is
+  how the two projects start answering differently on the first day.
 
 ## STACK
 

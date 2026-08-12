@@ -9,6 +9,73 @@ read alongside that one.
 
 ---
 
+## 2026-08-12: The checker is here, the corpus is enforced, and one hole in it is now known
+
+The first executable code in this repository. It is the checker and nothing else:
+no service provider, no listener, nothing installable into a Statamic site yet.
+The README says so.
+
+**The corpus runs, and it is the reason this was the first thing built.** All 19
+cases, all 17 rules, green. The loader and every assertion are close to a copy of
+Windrow's `ConformanceCorpusTest`, deliberately: the point of a shared corpus is
+that both suites hold their project to the same statements, and a tidier rewrite
+on one side is how the two quietly stop asking the same question.
+
+**The rules were ported verbatim, and the deletions are the interesting part.**
+Windrow's `Violation` carries `blockUid`, `fieldKey` and `breakpoint` so its
+editor can highlight the block and focus the control behind an issue. A Statamic
+entry rendered through the site's own templates has none of those, so all three
+could only ever be empty strings here. They are dropped, along with `FieldTarget`
+and the `blockMeta()` walk that fed them. The corpus pins none of it, so this
+costs no agreement: an always-empty field is just an invitation to write code
+that pretends to read it.
+
+Two `config()` reads became constructor arguments, because the checker must stay
+framework-free. The link-text word lists are now `LinkTextVocabulary`, whose
+defaults are Windrow's current config values byte for byte. That class is where
+the two projects would drift first and most quietly, because `link-unclear` and
+`link-vague` are the only rules whose verdict depends on a list rather than on
+the markup. `AccessibilityStandard` lost its registry, its `extends` chain and
+its axe tag lists, keeping the one field a check actually reads: target size, 24
+at AA and 44 at AAA.
+
+The `data-windrow-*` attribute names were **not** renamed, though nothing in
+Statamic stamps them. The corpus fixtures use those names, and renaming them here
+would fork the corpus to no purpose.
+
+**Mutation-tested, eight run, eight killed, but not on the first attempt.**
+Killed: the pack reordered, a family deleted from the pack, a blocking rule
+downgraded to a warning, a WCAG number cited for a heading rule that cannot
+establish one, the corpus directory hidden, the skipped-heading comparison moved
+off by one.
+
+**One survived, and it found a hole in the shared corpus rather than in this
+port.** Deleting the entire `alt=""` clause from `ImageAltCheck`, so that only a
+missing attribute is reported, left the corpus suite green. Every image fixture
+in `corpus/` either omits the attribute or fills it in, so nothing reaches the
+branch. `alt=""` is the distinction that matters most in practice: it is what an
+editor saves before a description is written, and it is also how a genuinely
+decorative image opts out. Both forks are unguarded for it today.
+
+Closed here with `tests/Unit/ImageAltCheckTest.php`, which kills that mutation
+and a second one that ignores the decorative opt-out. **That is the local fix,
+not the real one.** The real one is a corpus case added to both repositories in
+one change, and it has not been done. Written down rather than quietly patched,
+because a gap covered on one side only is exactly the asymmetry the corpus
+exists to prevent.
+
+**`composer.json` declares `"type": "library"`, not `"type": "statamic-addon"`.**
+There is no service provider for Statamic to discover, and a package that
+announces itself as an addon while containing none would fail at the first
+install. It flips in the commit that adds the provider.
+
+**Rejected:** *starting with the `EntrySaving` listener*, which is the visible
+half of the product and the half that cannot be trusted without this one.
+Rendering an entry and refusing a save are both verified spikes; a checker whose
+answers nobody has pinned is not.
+
+---
+
 ## 2026-08-12: Open questions, listed rather than assumed
 
 Not decisions. Things that must be answered before they are decided by accident.

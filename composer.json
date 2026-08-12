@@ -1,0 +1,40 @@
+{
+    "name": "bpmore/statamic-a11y-gate",
+    "description": "Refuses to publish a Statamic entry that fails the accessibility checks it can actually run.",
+    "keywords": ["statamic", "accessibility", "a11y", "wcag"],
+    "license": "proprietary",
+    "type": "library",
+    "require": {
+        "php": "^8.4",
+        "ext-dom": "*",
+        "ext-libxml": "*",
+        "ext-mbstring": "*"
+    },
+    "require-dev": {
+        "pestphp/pest": "^4.0"
+    },
+    "suggest": {
+        "ext-intl": "Normalises accented and full-width link text before it is compared, so \"Ｃｌｉｃｋ ｈｅｒｅ\" is caught like \"click here\"."
+    },
+    "autoload": {
+        "psr-4": {
+            "Bpmore\\A11yGate\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Bpmore\\A11yGate\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "pest"
+    },
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        },
+        "sort-packages": true
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
