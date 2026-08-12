@@ -23,9 +23,11 @@ Not decisions. Things that must be answered before they are decided by accident.
 3. **Marketplace requirements.** Listing rules, pricing mechanics, licence-key
    enforcement, and whether a paid addon's repository must be public. To be read
    from Statamic's own documentation, not assumed.
-4. **The spike.** Can an addon render an unsaved entry through the site's own
-   templates? Everything else assumes it can. One afternoon, and if the answer is
-   no the design changes shape.
+4. ~~**The spike.** Can an addon render an unsaved entry through the site's own
+   templates?~~ **Answered on the same day: yes.** The recipe and the three
+   attempts it took to find it are the next entry. Struck rather than deleted, so
+   the record shows this was the question the design hung on rather than
+   suggesting nobody thought to ask.
 
 ---
 
