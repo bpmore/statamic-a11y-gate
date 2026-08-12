@@ -9,6 +9,48 @@ read alongside that one.
 
 ---
 
+## 2026-08-12: Run against every published page on a real site, and the first false positive
+
+The gate was switched to refuse mode on hada.farm (Statamic 6.27.1) and pointed
+at a deliberately broken scratch entry. **It refused the publish, and the entry
+was still a draft on disk afterwards.** The message an author would be handed:
+
+> This entry was not saved. 3 accessibility problems have to be fixed first.
+
+followed by the three problems in plain language with the fix for each. That
+closes the question the earlier entry left open about whether a refusal carries
+its reason on a real site rather than in a test.
+
+**Then every published page on the site was checked: 38 pages, 4 findings, 3
+pages affected.** Worth writing down because the number that matters commercially
+is not how much a gate finds, it is how much it finds wrongly. A gate that lit up
+thirty pages on the day it was installed would be switched off that afternoon.
+
+The four are real:
+
+- Three links whose text is a bare domain (`eiaeo.app`, `seedfile.app`,
+  `pacewell.app`). That is what WCAG 2.4.4 is about, and the check is right.
+- One heading jumping to h3.
+
+**And one false positive, found on the scratch page.** A link whose text is the
+title of another post on the site, *"Link Text That Leads Somewhere: No More
+Click Here Dead Ends"*, was reported as `link-unclear`. The text is about as
+descriptive as link text gets. It failed because `banned_substrings` contains
+"click here" and the rule flags any name that *contains* it, on the reasoning
+that "click here to read the report" is still "click here".
+
+**Not fixed here, on purpose.** That rule is ported from Windrow and both
+projects answer to the shared corpus, so changing when it fires is a corpus
+change, in its own commit, in both repositories, with the reason written down.
+Fixing it quietly on one side is the exact divergence the corpus exists to
+prevent. It is recorded as a known false positive until that happens.
+
+Worth noting how narrow it is: the post whose title that is checks clean. The
+finding only appears on pages that *link* to it, which is what makes this kind of
+false positive hard to spot in a fixture and easy to spot on a real site.
+
+---
+
 ## 2026-08-12: The panel, built once the control panel stopped being guesswork
 
 The panel is built: a fieldtype, one plain script, and the endpoint behind it.
