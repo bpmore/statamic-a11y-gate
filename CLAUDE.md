@@ -71,11 +71,15 @@ an auditor will all read it, because once this is listed they can.
 
 - The rules are readable in any element inspector anyway. Nothing here is
   protected by being unpublished, so nothing should be written as if it were.
-- Statamic's licence check is a control-panel banner, not a block, verified in
-  source. Never write copy, pricing or code that assumes an unlicensed install is
-  prevented. It is not.
-- What is sold is the listing, the updates, the support and a defensible answer
-  about where the tool came from. Not access to the code.
+- **The addon is free. No price, no licence key, no per-site limit, no edition.**
+  Never write copy, a setting, or a code path that implies otherwise, and never
+  add a licence check: there is nothing to check.
+- **The licence is still proprietary, and the no-reuse clause is the point.** This
+  codebase is a fork of Windrow's accessibility engine. A permissive licence would
+  give that engine away. Free to use is the intent. Free to take is not.
+- Nothing here carries the Windrow name. The listing reads "Accessibility Gate",
+  under the author's own name, and somebody evaluating it should not need to know
+  what Windrow is.
 
 ## TESTING
 

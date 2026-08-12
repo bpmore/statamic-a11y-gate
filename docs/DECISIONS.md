@@ -9,6 +9,60 @@ read alongside that one.
 
 ---
 
+## 2026-08-13: Free, and still proprietary, because the licence never protected the revenue
+
+**Decision.** The addon ships free. No price, no licence key, no per-site limit.
+The licence stays proprietary: the no-reuse clause and the conformance disclaimer
+survive, everything about purchasing is struck.
+
+This reverses the pricing half of "Source-available and proprietary, modelled on
+Statamic's own" below, and leaves the licensing half exactly as it was. Recorded
+as its own entry rather than edited into that one, because the reasoning that
+survived is more interesting than the part that did not.
+
+**Why free.** There is not enough money in a Statamic accessibility addon to be
+worth the overhead of selling one. That is a market judgement, not a change of
+heart about the work.
+
+**Why NOT MIT, which is the obvious move for a free addon and is wrong here.**
+
+The mistake is assuming the licence protects addon revenue. There is no addon
+revenue to protect. What the licence protects is the engine: this codebase is a
+deliberate fork of Windrow's accessibility checker, same rules, same structure,
+same corpus. MIT-licensing the addon MIT-licenses that engine, and hands it to
+anyone who wants to build against the product it came from.
+
+That is not a hypothetical. **A11yamic** listed on the Statamic Marketplace on
+2026-07-08 at $35 per site, and already ships live editor checks, an axe-core
+browser audit, template-versus-content splitting, and per-rule blocking. A
+permissive licence would give a direct competitor the rule set for nothing.
+
+**The adoption argument does not apply here either.** Restrictive licences tax
+adoption for libraries a developer embeds in their own product, where the licence
+has to be read, understood and accepted by whoever ships it onward. This is a CMS
+addon installed from a marketplace. Almost nobody reads the licence, and nobody
+is forking it to redistribute.
+
+**Rejected.** *MIT*, for the reason above, and it was the recommendation until
+the engine argument was pointed out. *Apache 2.0*, same problem plus a patent
+grant nobody here needs. *Keeping the paid clauses and simply never charging*,
+which would leave a licence describing a transaction that does not exist and make
+every other sentence in it less believable.
+
+**What changed in the file.** Struck: one-licence-one-site, the try-before-you-buy
+line, and the do-not-circumvent-licensing clause, which guarded a validation
+mechanism that will now never exist. Kept: no resale or reuse in another product,
+keep the notice, follow the law, and the whole conformance disclaimer.
+
+The no-reuse clause gained the reason it exists, written into the licence itself
+rather than left in this log, because that is the one clause a reader is most
+likely to think is a mistake in a free product.
+
+**Still true, and worth saying plainly:** free to use is the intent, free to take
+is not.
+
+---
+
 ## 2026-08-12: What the market actually looks like, counted rather than assumed
 
 The commercial reasoning in this file was written before anybody looked. Here is
