@@ -8,6 +8,7 @@ use Bpmore\A11yGate\Accessibility\StaticAccessibilityChecker;
 use Bpmore\A11yGate\Gate\EntryRenderer;
 use Bpmore\A11yGate\Gate\GateSettings;
 use Bpmore\A11yGate\Gate\PublishGate;
+use Bpmore\A11yGate\Scan\SiteScanner;
 use Statamic\Facades\Utility;
 use Statamic\Providers\AddonServiceProvider;
 
@@ -24,6 +25,10 @@ class ServiceProvider extends AddonServiceProvider
 
     protected $fieldtypes = [
         Fieldtypes\AccessibilityPanel::class,
+    ];
+
+    protected $commands = [
+        Commands\CheckSite::class,
     ];
 
     /**
@@ -66,6 +71,8 @@ class ServiceProvider extends AddonServiceProvider
         $this->app->singleton(GateSettings::class, fn () => GateSettings::fromConfig(
             (array) config('a11y-gate', []),
         ));
+
+        $this->app->bind(SiteScanner::class, fn ($app) => new SiteScanner($app->make(PublishGate::class)));
 
         $this->app->bind(PublishGate::class, fn ($app) => new PublishGate(
             new EntryRenderer($app),

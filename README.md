@@ -37,6 +37,39 @@ It is a field. Put it wherever it belongs in a blueprint, usually the sidebar:
 It stores nothing in the entry. Findings change every time the page does, so a
 copy of them in the content directory would be wrong by the next save.
 
+## Checking a whole site
+
+```
+php please a11y:check
+```
+
+Renders every published page and groups what it finds by how many pages each
+problem is on.
+
+```
+Checked 38 pages.
+
+Must be fixed before publishing
+
+  every page   Use descriptive link text
+    Link text like "click here" or a bare web address doesn't describe where the link goes.
+    Read more
+
+  1 page       Add a description
+    This image has no description, so people using screen readers don't know what it shows.
+    /img/nothing.jpg
+    /blog/first-post
+```
+
+**A problem on one page is something somebody wrote. The same problem on every
+page came from a template.** The first costs an author an afternoon. The second
+is one fix worth every page at once, so it sorts to the top.
+
+It exits non-zero when anything must be fixed, or when a page could not be
+rendered at all, so it can stop a release. `--collection=blog` narrows it.
+`--drafts` includes unpublished entries, which is what a starter kit author
+wants before shipping.
+
 ## How it decides what counts as publishing
 
 Statamic has no publishing event. The entry events are Creating, Saving, Saved,
