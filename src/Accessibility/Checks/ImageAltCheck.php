@@ -68,7 +68,7 @@ final class ImageAltCheck extends RuleCheck
      * exists. Whether an existing description is any good is a different rule
      * that this checker does not have and does not pretend to.
      */
-    public function coverage(DOMXPath $xpath): Coverage
+    public function coverage(DOMXPath $xpath, array $optedIn = []): ?Coverage
     {
         return Coverage::full(self::key(), self::name());
     }

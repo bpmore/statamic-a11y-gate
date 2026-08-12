@@ -19,8 +19,8 @@ the entry sidebar, the button runs the check, and the result comes back.
 the exact findings this project must produce for each, identical to the copy in
 Windrow. `composer test` runs it, and the suite fails if any rule has no case.
 
-Still to come: reporting which of the seven check families could run at all. The
-design lives in the Windrow repo at `docs/plans/statamic-addon.md`.
+Every result says how much of the page it could see. The design lives in the
+Windrow repo at `docs/plans/statamic-addon.md`.
 
 ## Adding the panel
 
@@ -71,27 +71,38 @@ state the save would leave behind:
 
 ## Honest limits
 
-**Every result says how much of the page was actually looked at.** On an ordinary
-Statamic site that reads:
+**Every result says how much of the page was actually looked at**, and it says it
+about that page rather than in general. On a typical blog post:
 
-> 3 of 7 checks ran in full, 2 ran partly, 2 could not run here.
+> 4 of 5 checks ran in full, 1 ran partly.
 
 That line is in the refusal and in the panel, on a clean page as loudly as on a
 broken one. A clean page is where it matters most, because that is where "nothing
 found" is most easily read as "nothing wrong".
 
-| Check | Here |
-|---|---|
-| Heading structure | full |
-| Link and button text | full |
-| Image descriptions | full |
-| Video, audio and figures | partly: embed titles only. Captions, transcripts, figure text and footnotes need the site to mark them up |
-| Touch target size | partly: only sizes written into the page. A size set in a stylesheet needs a real browser |
-| Links to unpublished pages | not here: needs the site to mark those links up |
-| Plain-language summaries | not here: needs the site to mark those summaries up |
+**What "partly" depends on is what is on the page.**
 
-The last two become full checks on a site that opts in to stamping the
-attributes. That is a documented integration, not magic.
+| Check | When it is short of full |
+|---|---|
+| Heading structure | never |
+| Link and button text | never |
+| Image descriptions | never |
+| Video, audio and figures | when the page has any: embed titles are checked, captions and transcripts cannot be |
+| Touch target size | when the page has any control: only sizes written into the page can be measured, not stylesheets |
+
+A page with no video is fully checked for captions, in the same way a page with
+no images is fully checked for descriptions. There was nothing there to miss, and
+a standing notice saying otherwise is the line people learn to scroll past.
+
+**Two checks are off unless your templates opt in**, and they are named in
+`config/a11y-gate.php` rather than repeated on every entry:
+
+- Links to a page that is not published yet.
+- The reading grade of a plain-language summary.
+
+Neither leaves a trace in the finished page, so neither can be checked without
+the site marking it up. Findings still arrive either way: a page that carries the
+markup is checked whether or not the setting mentions it.
 
 A browser pass with axe catches more than any of this. That is stated here rather
 than left for a buyer to discover.

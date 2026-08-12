@@ -91,8 +91,8 @@ it('sends coverage with a clean result, which is where it matters most', functio
     $response->assertOk();
 
     expect($response->json('errors'))->toBe([]);
-    expect($response->json('coverage_summary'))->toContain('could not run here');
-    expect($response->json('coverage'))->toHaveCount(7);
+    expect($response->json('coverage_summary'))->toContain('checks ran in full');
+    expect($response->json('coverage'))->not->toBe([]);
 
     // Every entry that did not run in full has to say why, or the list is a
     // count with nothing behind it.

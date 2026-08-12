@@ -51,21 +51,37 @@ final class InternalLinkCheck extends RuleCheck
         return $violations;
     }
 
+    public static function needsOptIn(): bool
+    {
+        return true;
+    }
+
     /**
-     * Full only where the site stamps the attribute, and nothing at all
-     * otherwise. Once the HTML exists, a link to a draft looks like any other
-     * link, so with no stamp there is no question this rule can answer.
+     * Full where the site stamps the attribute. Nothing to report at all on a
+     * site that has not integrated this, and `none` on a site that has but did
+     * not stamp this page.
+     *
+     * The middle case is the one worth having: a site that says it marks up its
+     * unpublished links, on a page where nothing was marked, has a real gap. A
+     * site that never opted in does not need telling on every entry forever, and
+     * the config file names this check instead.
      */
-    public function coverage(DOMXPath $xpath): Coverage
+    public function coverage(DOMXPath $xpath, array $optedIn = []): ?Coverage
     {
         $stamped = $xpath->query('//*[@data-windrow-unpublished-link]');
 
-        return $stamped !== false && $stamped->length > 0
-            ? Coverage::full(self::key(), self::name())
-            : Coverage::none(
-                self::key(),
-                self::name(),
-                'A link to an unpublished page looks like any other link once the page is built, so this is only checked on sites that mark those links up.',
-            );
+        if ($stamped !== false && $stamped->length > 0) {
+            return Coverage::full(self::key(), self::name());
+        }
+
+        if (! in_array(self::key(), $optedIn, true)) {
+            return null;
+        }
+
+        return Coverage::none(
+            self::key(),
+            self::name(),
+            'A link to an unpublished page looks like any other link once the page is built, and nothing on this page was marked up as one.',
+        );
     }
 }

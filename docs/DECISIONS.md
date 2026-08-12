@@ -9,7 +9,7 @@ read alongside that one.
 
 ---
 
-## 2026-08-12: Every result now says how much of the page it could see
+## 2026-08-12: Every result says how much of THIS page it could see
 
 The rule in `CLAUDE.md` that everything else rests on: a check that could not run
 must say so, because a silent zero is indistinguishable from a pass. Until this
@@ -24,21 +24,48 @@ change the addon broke that rule on every page it checked.
 - `partial`: it ran, and part of what it judges was invisible here.
 - `none`: it could not run at all, because what it reads is not in this page.
 
-**Two of the four are permanently partial, whatever the page contains, and that
-is the honest half of rules that would otherwise look thorough.** Touch target
-size reads sizes written into the markup, and nearly every site sizes its buttons
-in a stylesheet. Media alternatives checks embed titles everywhere and can say
-nothing about captions, transcripts, figure text or footnotes without host
-markup. Neither is ever full: a checker cannot confirm that everything which
-needed marking got marked.
+**Coverage is about the page in front of the author, not about Statamic in
+general, and the first version got that wrong.** It reported all seven families
+on every page, so a plain blog post with no video and no figures was told that
+captions, transcripts, figure text and footnotes had not been checked. Reading
+the live panel, the owner asked the obvious question: does an author care, if
+there are no videos on the page?
 
-**The other two read the page rather than holding an opinion about Statamic.**
-Links-to-unpublished and reading level report `none` when the attribute is
-absent and `full` when the site stamps it. A fixed "not available on Statamic"
-would have been as blind as the thing it describes, and a test pins the upgrade.
+They do not, and the rule I had already written said so. A page with no images is
+a full pass for the image check because there was nothing there to miss. The same
+sentence applies to a page with no video, and applying it to one and not the
+other was an inconsistency, not a policy.
 
-On hada.farm, live: *3 of 7 checks ran in full, 2 ran partly, 2 could not run
-here.*
+So coverage now turns on what the document contains:
+
+- **Video, audio and figures** is full on a page with no media, and partial on a
+  page with any, where the hole is real and specific: the embed title was
+  checked and its captions cannot be.
+- **Touch target size** is full on a page with no controls, and partial on a page
+  with any.
+
+**And two checks left the per-page report entirely.** Links-to-unpublished and
+reading level read markup that leaves no trace in a finished page, so on a site
+that has not integrated them there is no page where they could ever say anything
+useful. They are a setting, `opt_in_checks`, named in the config file with what
+each one reads, which is the one place a standing "this was not checked" notice
+gets read at all.
+
+**The checks still run.** Only the coverage line is opt-in. A site that starts
+stamping before it edits a config file gets its findings, and gets told the check
+ran, rather than silence. That distinction is the whole reason this was a
+reporting change and not a switch that turns checks off.
+
+On hada.farm, live, a real blog post now reads: *4 of 5 checks ran in full, 1 ran
+partly.* Before the correction the same page read *3 of 7 in full, 2 partly, 2
+could not run here*, and four of those five lines were about things the page did
+not contain.
+
+**The line a warning has to earn.** A notice that appears on every page whatever
+it contains is the one people learn to scroll past, and they take the real
+warning with them when they go. That is a worse failure for this product than
+saying slightly less, because the whole thing is sold on the reader believing
+what it says.
 
 **Where it appears.** In the refusal, as the last line, always. In the panel,
 with the reason for every check that was not full. **On a clean page as loudly as
@@ -54,16 +81,25 @@ Windrow implements coverage, the expectations go into the corpus in one commit i
 both repositories. Until then the two projects agree about findings and are
 silent about coverage, which is the arrangement working rather than failing.
 
-**Mutation-tested, five run, five killed:** a host-markup check claiming full
-coverage, target size claiming full, the coverage line dropped from the refusal,
-the endpoint sending an empty summary, and a family quietly missing from the
-list. That last one is the mutation that matters: a check added later that
-forgets to declare coverage is a check that goes quiet without saying so.
+**Mutation-tested, ten run, ten killed**, though one survived first time and is
+worth naming. The kills: a host-markup check claiming full coverage, target size
+claiming full, the coverage line dropped from the refusal, the endpoint sending
+an empty summary, a family quietly missing from the list, media reporting full
+with a video on the page, target size reporting full with controls on the page,
+an opt-in check reporting when the site never opted in, and an opt-in check
+staying silent when it did.
+
+**The survivor:** emptying the opt-in list where the settings are read broke no
+test at all, because every test that cared passed the list directly to the
+checker. The setting was a config key nothing proved was read. Closed with a test
+on `GateSettings`, which is exactly the seam a mutation is for finding.
 
 **Rejected.** *Per-rule coverage* rather than per-family, which is more precise
 and produces seventeen lines an author has to read to learn one thing. *A single
-"4 of 7" count* with no reasons, which tells somebody they have a problem and
-nothing about what it is.
+count* with no reasons, which tells somebody they have a problem and nothing
+about what it is. *Keeping the opt-in checks in the per-page report*, which is
+the version that was built first and which put four lines about absent things in
+front of an author on every entry.
 
 ---
 

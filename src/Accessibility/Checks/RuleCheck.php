@@ -24,6 +24,14 @@ use Bpmore\A11yGate\Accessibility\Violation;
 abstract class RuleCheck implements Check
 {
     /**
+     * Most checks read ordinary markup and need nothing from the host.
+     */
+    public static function needsOptIn(): bool
+    {
+        return false;
+    }
+
+    /**
      * Build a violation, resolving its remediation copy. Every check emits
      * through here, so the shape cannot differ between rule families.
      */

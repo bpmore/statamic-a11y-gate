@@ -125,18 +125,29 @@ final class MediaAlternativesCheck extends RuleCheck
     }
 
     /**
-     * Always partial. One of its five rules reads ordinary markup: an embed
-     * needs a title, and that is checked everywhere. The other four need the
-     * site to say what it knows, because a page cannot show whether a video at
-     * YouTube carries captions or whether a footnote lost its reference.
+     * Full on a page with no media at all, and partial on a page with any.
      *
-     * Partial rather than none even when the site marks nothing up, because the
-     * embed title rule genuinely ran, and partial rather than full even when it
-     * marks something up, because a checker cannot confirm that everything which
-     * needed marking got marked.
+     * One of its five rules reads ordinary markup: an embed needs a title, and
+     * that is checked everywhere. The other four need the site to say what it
+     * knows, because a page cannot show whether a video at YouTube carries
+     * captions or whether a footnote lost its reference.
+     *
+     * So a page carrying a video has a real hole in it and is told so. A page
+     * with no video, no audio and no figures has nothing this rule could have
+     * missed, and saying otherwise would be the kind of standing warning people
+     * learn to scroll past.
+     *
+     * Partial rather than full even where the site does stamp, because a checker
+     * cannot confirm that everything which needed marking got marked.
      */
-    public function coverage(DOMXPath $xpath): Coverage
+    public function coverage(DOMXPath $xpath, array $optedIn = []): ?Coverage
     {
+        $media = $xpath->query('//iframe|//video|//audio|//figure|//object|//embed');
+
+        if ($media === false || $media->length === 0) {
+            return Coverage::full(self::key(), self::name());
+        }
+
         return Coverage::partial(
             self::key(),
             self::name(),

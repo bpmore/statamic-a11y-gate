@@ -71,7 +71,7 @@ it('tells the author how much of the page was actually checked', function () {
         $entry->save();
         $this->fail('the gate allowed a page with a missing image description');
     } catch (ValidationException $e) {
-        expect(end($e->errors()['a11y_gate']))->toContain('could not run here');
+        expect(end($e->errors()['a11y_gate']))->toContain('checks ran in full');
     }
 });
 

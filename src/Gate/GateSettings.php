@@ -21,10 +21,12 @@ final class GateSettings
 
     /**
      * @param  array<int, string>  $collections  handles to gate; empty means every collection
+     * @param  array<int, string>  $optedIn  keys of the opt-in checks this site stamps markup for
      */
     public function __construct(
         public readonly string $mode = self::REFUSE,
         public readonly array $collections = [],
+        public readonly array $optedIn = [],
         public readonly AccessibilityStandard $standard = new AccessibilityStandard('wcag22aa', 'WCAG 2.2 Level AA', 24),
     ) {}
 
@@ -45,6 +47,7 @@ final class GateSettings
         return new self(
             mode: $mode,
             collections: array_values(array_filter((array) ($config['collections'] ?? []))),
+            optedIn: array_values(array_filter((array) ($config['opt_in_checks'] ?? []))),
             standard: ($config['standard'] ?? 'wcag22aa') === 'wcag22aaa'
                 ? AccessibilityStandard::wcag22aaa()
                 : AccessibilityStandard::wcag22aa(),

@@ -63,21 +63,37 @@ final class ReadingLevelCheck extends RuleCheck
         return $violations;
     }
 
+    public static function needsOptIn(): bool
+    {
+        return true;
+    }
+
     /**
-     * Full only where the site stamps a grade, and nothing at all otherwise. By
-     * the time the page exists the summary is just more text on it, and nothing
-     * marks out which words were meant to be the plain ones.
+     * Full where the site stamps a grade, nothing to report on a site that has
+     * not integrated this, and `none` on a site that has but did not stamp this
+     * page.
+     *
+     * This is the check the opt-in setting was added for. A summary is just more
+     * text on the finished page and nothing marks out which words were meant to
+     * be the plain ones, so on a site with no summaries there is no page where
+     * this could ever say anything useful.
      */
-    public function coverage(DOMXPath $xpath): Coverage
+    public function coverage(DOMXPath $xpath, array $optedIn = []): ?Coverage
     {
         $stamped = $xpath->query('//*[@data-windrow-reading-grade]');
 
-        return $stamped !== false && $stamped->length > 0
-            ? Coverage::full(self::key(), self::name())
-            : Coverage::none(
-                self::key(),
-                self::name(),
-                'A plain-language summary is just more text on the finished page, so this is only checked on sites that mark those summaries up.',
-            );
+        if ($stamped !== false && $stamped->length > 0) {
+            return Coverage::full(self::key(), self::name());
+        }
+
+        if (! in_array(self::key(), $optedIn, true)) {
+            return null;
+        }
+
+        return Coverage::none(
+            self::key(),
+            self::name(),
+            'A plain-language summary is just more text on the finished page, and nothing on this page was marked up as one.',
+        );
     }
 }

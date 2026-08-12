@@ -28,7 +28,10 @@ final class StaticAccessibilityChecker
      * The findings, and how much of the page each family could see while
      * looking. Everything that shows a result to a person should call this.
      */
-    public function report(string $html, ?AccessibilityStandard $standard = null): CheckReport
+    /**
+     * @param  array<int, string>  $optedIn  keys of the opt-in checks this site stamps for
+     */
+    public function report(string $html, ?AccessibilityStandard $standard = null, array $optedIn = []): CheckReport
     {
         $xpath = $this->xpath($html);
 
@@ -36,8 +39,17 @@ final class StaticAccessibilityChecker
         $coverage = [];
 
         foreach (CheckPack::all() as $check) {
+            // Every check still runs, including the opt-in ones a site has not
+            // integrated. They find nothing without their markup, and on the day
+            // a site starts stamping without changing a setting, its findings
+            // arrive rather than being quietly withheld. Only the coverage line
+            // is opt-in, because that is the part that would otherwise repeat
+            // itself on every page forever.
             $violations = [...$violations, ...$check->run($xpath, $standard)];
-            $coverage[] = $check->coverage($xpath);
+
+            if ($entry = $check->coverage($xpath, $optedIn)) {
+                $coverage[] = $entry;
+            }
         }
 
         return new CheckReport($violations, $coverage);

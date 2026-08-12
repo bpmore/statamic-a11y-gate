@@ -103,14 +103,23 @@ final class TargetSizeCheck extends RuleCheck
     }
 
     /**
-     * Always partial, whatever the page contains, and this is the honest half of
-     * a rule that would otherwise look thorough. It reads sizes written into the
-     * markup. Nearly every site sizes its buttons in a stylesheet, and a
-     * stylesheet is invisible to a pass over HTML, so a page where this finds
-     * nothing has mostly not been checked.
+     * Full on a page with no controls, and partial on a page with any, because
+     * it reads sizes written into the markup and nearly every site sizes its
+     * buttons in a stylesheet.
+     *
+     * The first half is the point. A page with no buttons and no links has no
+     * touch target this rule could have missed, and reporting a gap there would
+     * be noise an author has to learn to ignore, which is how they come to
+     * ignore the real one.
      */
-    public function coverage(DOMXPath $xpath): Coverage
+    public function coverage(DOMXPath $xpath, array $optedIn = []): ?Coverage
     {
+        $controls = $xpath->query('//a|//button|//*[@role="button"]|//*[@role="link"]');
+
+        if ($controls === false || $controls->length === 0) {
+            return Coverage::full(self::key(), self::name());
+        }
+
         return Coverage::partial(
             self::key(),
             self::name(),
