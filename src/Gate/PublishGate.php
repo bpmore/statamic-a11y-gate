@@ -49,6 +49,20 @@ final class PublishGate
             return GateResult::notApplicable("the collection [{$collection}] is not gated");
         }
 
+        return $this->examine($entry);
+    }
+
+    /**
+     * Check an entry whatever state it is in.
+     *
+     * The panel calls this rather than `inspect()`, because an author editing a
+     * draft wants to see the problems now, not be told the gate is not
+     * interested yet. Deciding whether a save is allowed is `inspect()`'s job and
+     * stays there: two callers, one of which enforces, is exactly the split that
+     * keeps a display from quietly becoming a second gate with different rules.
+     */
+    public function examine(Entry $entry): GateResult
+    {
         try {
             $html = $this->renderer->render($entry);
         } catch (EntryHasNoPage) {

@@ -9,6 +9,66 @@ read alongside that one.
 
 ---
 
+## 2026-08-12: The panel's server half, and the front-end half stopped on purpose
+
+The endpoint the panel will ask is built and tested: `POST cp/a11y-gate/check`
+takes an entry id and the form's current values, applies them the way Statamic's
+own `PreviewController` does, renders, checks, and answers with the findings
+split into the ones that refuse a publish and the ones that do not.
+
+**Checking unsaved values is the whole point and it is proven.** A panel that
+answered from the file on disk would be at its most wrong exactly when it
+matters: after an author has broken the page and before they press publish. The
+test for it fails if the supplements are not applied, checked by mutation.
+
+**The Vue component is not in this change, and that is a decision rather than an
+unfinished job.** Three things the component needs could not be established from
+the shipped control-panel bundle:
+
+1. Whether `Statamic.$components.register` still registers a global component in
+   version 6, or only manages runtime instances. Fieldtypes are resolved by
+   name (`{type}-fieldtype`), so the two are not interchangeable.
+2. How a fieldtype reads the publish form's current values. Version 5's store is
+   gone and version 6 uses composables that a plain addon script cannot import.
+3. How a fieldtype learns which entry it is on. Nothing in the bundle shows an
+   id reaching a field, and parsing it out of the URL is the kind of guess that
+   breaks on a routing change with no test to catch it.
+
+Each of those is answerable in five minutes with a browser and unanswerable by
+reading minified JavaScript, which is what stopping is for. `CLAUDE.md` says a
+bespoke control inside an accessibility product is the worst possible place to
+invent one, and inventing three integration points at once to avoid admitting a
+gap would be exactly that.
+
+**What was learned and is worth keeping**, because it changes what the component
+will be:
+
+- Statamic aliases Vue to `vue/dist/vue.esm-bundler.js`, which includes the
+  runtime template compiler. A plain script with a `template` string compiles, so
+  this addon needs **no npm, no vite and no build step**. A `package.json` and a
+  `vite.config.js` were written and then deleted on finding this.
+- The component library is globally resolvable: `ui-panel`, `ui-badge`,
+  `ui-button`, `ui-status-indicator`, `ui-heading`, `ui-description`,
+  `ui-skeleton` and about thirty more. Nothing has to be hand-rolled.
+- Addon scripts load as ordinary deferred `<script>` tags through
+  `Statamic::availableScripts`, or as Vite entry points. The first is enough.
+- A shipped Statamic 6 addon in the same vendor directory builds its
+  control-panel UI as a Blade widget with inline styles. That route was rejected
+  rather than copied: it is hand-rolling, and the rule against it exists.
+
+**The limit that made the endpoint's tests worth writing carefully.** A blueprint
+with no fields processes submitted values to nothing, silently. The first version
+of the test passed while checking an unchanged page. It now loads a real
+blueprint fixture, and the comment says why.
+
+**Rejected.** *A dashboard widget listing every entry with problems*, which needs
+to render every page in the site to answer and is not the question an author has
+in front of them. *A panel that checks the saved version only*, which is buildable
+today without any of the three unknowns and was turned down because it is stale
+in exactly the case it exists for.
+
+---
+
 ## 2026-08-12: The gate refuses by throwing, and publishing means the state the save leaves behind
 
 The addon exists: a service provider, a config file and one listener. Installing
