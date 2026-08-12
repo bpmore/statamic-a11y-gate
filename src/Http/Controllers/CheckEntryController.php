@@ -76,11 +76,12 @@ class CheckEntryController extends CpController
             'coverage_summary' => $result->coverageSummary,
             'coverage' => array_map(fn ($c) => $c->toArray(), $result->coverage),
 
-            // Sent from the server rather than written into the component, so
-            // that the sentence a customer reads and the sentence this project
-            // is willing to defend are the same string. Nothing here says the
-            // page is accessible, compliant, or a proportion of either.
-            'limits' => 'This reads the finished page. It cannot see sizes or colours set in your theme, it cannot tell a good description from a bad one, and a page it finds nothing wrong with has not been proven accessible.',
+            // A door rather than a lecture. The full account of what this checks
+            // and what it cannot lives on one page under Tools, because a
+            // paragraph printed under every result on every entry is a paragraph
+            // nobody reads, and the person writing the page could not act on any
+            // of it anyway.
+            'guide_url' => cp_route('utilities.index').'/a11y-gate',
         ];
     }
 

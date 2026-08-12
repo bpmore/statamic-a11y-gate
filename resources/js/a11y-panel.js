@@ -87,10 +87,10 @@
         // which today means one thing: whether the video they embedded has
         // captions.
         //
-        // The standing limits of the tool are one always-visible sentence from
-        // the server rather than a line per check per page, because a warning
-        // that appears whatever the page contains is the one people learn to
-        // scroll past.
+        // The standing limits of the tool are a link, not a paragraph. They were
+        // a paragraph, printed under every result on every entry, and an author
+        // cannot act on any of it. One page under Tools says it properly, and
+        // this is the door to it.
         //
         // Checked on a button rather than on every keystroke. A check renders the
         // whole page through the site's templates, and firing that on each
@@ -146,7 +146,12 @@
                         <ui-description v-for="(notice, i) in state.result.notices" :key="'n' + i" :text="notice" />
                     </div>
 
-                    <ui-description :text="state.result.limits" />
+                    <p class="text-sm">
+                        <a
+                            :href="state.result.guide_url"
+                            class="text-blue-600 dark:text-blue-400 underline"
+                        >What this can and cannot check</a>
+                    </p>
                 </template>
 
                 <ui-description

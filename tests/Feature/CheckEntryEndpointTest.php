@@ -69,11 +69,10 @@ it('reports a clean page as clean without claiming it is accessible', function (
     expect($response->json('errors'))->toBe([]);
     expect($response->json('refuses'))->toBeFalse();
 
-    // The sentence a customer reads comes from the server, so it cannot drift
-    // from what this project is willing to defend.
-    $limits = $response->json('limits');
-    expect($limits)->toContain('has not been proven accessible');
-    expect(str_contains(strtolower($limits), 'compliant'))->toBeFalse('the panel must never use the word compliant');
+    // The full account of what this checks and what it cannot is a page under
+    // Tools, and the panel links to it. It used to be a paragraph printed under
+    // every result, which an author could not act on and would stop reading.
+    expect($response->json('guide_url'))->toContain('utilities/a11y-gate');
 });
 
 it('sends coverage with a clean result, which is where it matters most', function () {

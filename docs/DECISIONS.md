@@ -80,9 +80,13 @@ whether the reader could do anything about it.**
 - **The author sees** what to fix, and gaps in *their own content* that only they
   can settle. Today that is one sentence, on a page carrying media: "Captions
   were not checked. Only you can confirm this video or recording has them."
-- **The author also sees the standing limits, once**, in one always-visible
-  sentence covering theme sizes and colours, judging a description, and the
-  refusal to call anything accessible.
+- **The standing limits moved off the result entirely**, after the same question
+  was asked of them: does a sentence about theme stylesheets, printed under every
+  scan, mean anything to somebody writing a page? It does not. They are a page
+  under Tools now, linked from the panel as "What this can and cannot check",
+  and the panel shows the link rather than the lecture. That page is also where
+  the sentence a buyer's lawyer will read now lives, in exactly one place: a page
+  it finds nothing wrong with has not been proven accessible.
 - **The auditor sees the counts**, in the data the check endpoint returns and in
   this log. Not drawn in the panel, not in the refusal.
 
