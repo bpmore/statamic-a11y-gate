@@ -126,10 +126,27 @@ front of an author on every entry. *Keeping the count behind a disclosure*, whic
 was the second version: better than a wall of text, and still an auditor's
 sentence in an author's panel.
 
+**A fourth pass, on how it looked rather than what it said.** The guide page was
+plain HTML with borrowed Tailwind classes, and beside Statamic's own utilities it
+read as a document dropped on the page: no header, no cards, and a blank space in
+the Tools list where every other entry had an icon.
+
+Both were the same mistake as reaching for a hand-rolled widget, and both were
+fixed by reading the build rather than guessing. **A utility view is compiled as
+a Vue template**, not printed as HTML: `DynamicHtmlRenderer` does
+`defineComponent({ template: html })`, so `ui-header` and `ui-card-panel` resolve
+inside a Blade file exactly as they do in the control panel's own pages. And a
+named icon is looked up in Statamic's set, where `shield` does not exist, which
+is why nothing was drawn. `clipboard-check` does.
+
+Tests hold both now, because both failed silently: an icon that is not there
+renders as nothing, and a page with the wrong chrome renders perfectly well.
+
 **Worth naming, because it is the pattern rather than the incident.** This
-feature was wrong three times and each time the code was correct and the tests
+feature was wrong four times and each time the code was correct and the tests
 passed. Noisy on absent content, then noisy behind a toggle, then addressed to
-the wrong person. Every correction came from somebody looking at the screen and
+the wrong person, then dressed in its own styles beside a control panel that
+ships its own. Every correction came from somebody looking at the screen and
 asking what a reader would do with what they saw, which is a question no test in
 this repository can ask.
 

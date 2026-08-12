@@ -66,6 +66,29 @@ it('says why each warning is a warning rather than that warnings do not matter',
     expect($body)->toContain('blocking on a guess');
 });
 
+it('is drawn with the control panel components rather than borrowed styles', function () {
+    // A utility view is compiled as a Vue template rather than printed as HTML,
+    // so Statamic's components resolve here. The first version of this page was
+    // a div with borrowed Tailwind classes and looked like a document dropped
+    // beside the other utilities. Inside an accessibility product, reaching for
+    // your own styles is the same mistake as reaching for your own widgets.
+    $html = view('a11y-gate::utilities.gate')->render();
+
+    expect($html)->toContain('<ui-header');
+    expect($html)->toContain('<ui-card-panel');
+});
+
+it('carries an icon that exists in the control panel icon set', function () {
+    // Named icons are looked up in Statamic's own set, and a name that is not
+    // there renders as nothing at all: the utility sat in the Tools list with a
+    // blank space where every other entry had a mark.
+    $utility = collect(Statamic\Facades\Utility::all())
+        ->first(fn ($u) => $u->handle() === 'a11y-gate');
+
+    expect($utility)->not->toBeNull();
+    expect($utility->icon())->toContain('<svg');
+});
+
 it('names the checks it cannot do, including contrast', function () {
     // The gap a buyer is most likely to assume is covered, because every other
     // accessibility tool checks it. Saying so here is cheaper than saying it in
