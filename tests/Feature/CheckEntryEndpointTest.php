@@ -92,6 +92,41 @@ it('separates warnings from errors, because only one of them stops a publish', f
     expect($response->json('refuses'))->toBeFalse();
 });
 
+it('checks a draft, which is the state an author most wants checked', function () {
+    // Found by watching the panel say "could not check" on a real draft.
+    // `DataResponse::handleDraft()` throws a 404 for an unpublished entry unless
+    // the request carries a Live Preview token, so the panel was useless in the
+    // one place it is worth most: before the page goes live.
+    test()->viewShouldReturnRaw('default', '<html lang="en"><body><h1>The weir</h1>{{ body }}</body></html>');
+
+    $entry = Entry::make()
+        ->collection('pages')
+        ->slug('weir')
+        ->published(false)
+        ->data(['title' => 'The weir', 'body' => '<p>The footbridge.</p>']);
+
+    $entry->save();
+
+    $response = $this->actingAs($this->user)
+        ->postJson(cp_route('a11y-gate.check'), [
+            'reference' => $entry->reference(),
+            'values' => ['body' => '<img src="/a.jpg">'],
+        ]);
+
+    $response->assertOk();
+
+    expect($response->json('outcome'))->toBe('checked');
+    expect($response->json('errors.0.cta'))->toBe('Add a description');
+
+    // The flag is flipped on the in-memory instance to get a page out of a
+    // draft, and it has to go back. An entry left published by a check would be
+    // published by the next save that touched it, without anybody asking.
+    expect($entry->published())->toBeFalse();
+
+    $onDisk = Entry::query()->where('collection', 'pages')->where('slug', 'weir')->first();
+    expect($onDisk->published())->toBeFalse();
+});
+
 it('refuses to check an entry for somebody who cannot view it', function () {
     // The endpoint renders a page from values the caller supplies, so it must
     // not be a way to read an entry the caller has no business reading.
