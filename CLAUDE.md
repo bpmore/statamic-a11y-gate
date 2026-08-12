@@ -17,6 +17,23 @@ rules here exist to protect that.
 - A check that could not run must say so. A silent zero is indistinguishable from
   a pass, and shipping that would make every other claim here worthless.
 
+## THE CONFORMANCE CORPUS IS THE CONTRACT
+
+This codebase is a deliberate fork of Windrow's checker, maintained separately.
+The one thing that must not fork is the answers.
+
+- A directory of HTML fixtures and the exact findings each must produce lives in
+  both projects and is run by both suites. Implementations may diverge freely.
+- **Behaviour diverges only by editing the corpus, in its own commit, with the
+  reason written down.** A rule change that alters a finding and does not touch
+  the corpus is a defect, whichever project it happens in.
+- Adding a check means adding its fixtures first. A check with no corpus entry is
+  a check the other project cannot be held to.
+- When the two projects genuinely must differ, say so in the corpus rather than
+  in silence. A fixture may be marked as expected-to-differ with the reason. An
+  undocumented disagreement is the failure this whole arrangement exists to
+  prevent.
+
 ## THE RULES ARE NOT COPIED
 
 - The check rules come from one place. If this repo ever contains a second

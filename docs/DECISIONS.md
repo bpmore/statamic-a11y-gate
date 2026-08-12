@@ -13,16 +13,15 @@ read alongside that one.
 
 Not decisions. Things that must be answered before they are decided by accident.
 
-1. **Licence.** Undecided, and it gates the repo layout. If the checker is shared
-   with Windrow and this addon is paid, the licence has to permit that
-   arrangement. Answer before the first line of shared code. **Now sharper:**
-   selling on the Marketplace makes this repository public, so the licence is
-   not protecting the source. It is deciding what a competitor may legally do
-   with rules they can already read.
-2. **Where the checker lives.** Windrow's repo is private and an addon must be
-   installable. Either the checker becomes its own package, or this repo carries
-   its own copy, and the second option is the one the plan explicitly forbids
-   because two copies of the rules drift.
+1. ~~**Licence.**~~ **Settled: source-available and proprietary, modelled on
+   Statamic's own.** See `LICENSE.md`. The question got easier twice: once when
+   the repository went public, so the licence stopped protecting the source, and
+   again when the fork removed any need for it to accommodate a shared package.
+   Outstanding: a lawyer has not read it.
+2. ~~**Where the checker lives.**~~ **Settled: this repo carries its own copy.**
+   The option the Windrow plan forbade, chosen deliberately by the owner, with
+   the drift risk answered by a shared conformance corpus rather than ignored.
+   Reasoning in the entry below.
 3. ~~**Marketplace requirements.**~~ **Read, and the answer changed question 1.**
    Selling requires a package on packagist.org, so the repository must be public.
    Licence enforcement is a banner, not a block. Details in the next entry.
@@ -31,6 +30,100 @@ Not decisions. Things that must be answered before they are decided by accident.
    attempts it took to find it are the next entry. Struck rather than deleted, so
    the record shows this was the question the design hung on rather than
    suggesting nobody thought to ask.
+
+---
+
+## 2026-08-12: Two projects, forked, with one shared corpus holding them honest
+
+**Decision.** This addon is its own codebase, maintained separately from Windrow.
+Not a shared Composer package with two consumers. Owner's call, made explicitly.
+
+This closes open question 2, and it closes it against what the Windrow plan
+originally called the only acceptable answer. That plan said two copies of the
+rules would drift, and drift is worse than not shipping, because a conformance
+claim then depends on which copy ran. **That risk is real and is not waved away
+here.** What changed is the weight on the other side of it.
+
+**Why a fork is defensible, and it is not just convenience.**
+
+The two are already different products, and a shared package would have had to
+pretend otherwise. Windrow runs seven check families; this addon can run four,
+because three read attributes only Windrow's renderer stamps. Windrow maps a rule
+to an editor field through `FieldTarget`; Statamic has no such fields. Windrow's
+gate blocks a publish it fully controls; this one hangs off `EntrySaving` and has
+to infer what publishing even means. A single package serving both is a lowest
+common denominator with two sets of escape hatches.
+
+The extraction was also the most expensive and riskiest phase in the plan, and it
+sat inside the codebase that pays the bills. A fork deletes that phase entirely.
+
+And the release friction was permanent: a rule fix would have meant a package
+release plus a version bump in two consumers, forever, on the thing Windrow is
+sold on. The standard fix for that is a monorepo with automated read-only splits,
+whose tooling is a GitHub Action, and Actions on the Windrow repo are dead until
+September.
+
+**The mitigation, which is the actual decision here.** Forking the code is fine.
+Forking the *behaviour* silently is not. So the two projects share a **conformance
+corpus**: a directory of HTML fixtures and the exact findings each must produce,
+checked into both, run by both suites. Implementations may diverge. Behaviour
+diverges only when somebody changes the corpus, in a commit, on purpose.
+
+That corpus already half exists, as Windrow's
+`StaticCheckerCharacterisationTest`, which pins the ordered rule list, all
+fourteen keys of a violation, every severity, and the exact blocking set. It was
+written to make a refactor safe and it turns out to be the thing that makes a
+fork safe too.
+
+**Rejected.** *One package, two consumers*, for the reasons above. *A fork with
+no shared corpus*, which is the version of this decision that earns the original
+warning: two accessibility tools with the same name and quietly different
+answers.
+
+**A consequence worth naming, because it is new.** Forking means publishing a
+copy of Windrow's checker, and Windrow's repository is private. The rules become
+public. That is consistent with the decision above and with the fact that they
+are readable in any element inspector, but it is a real change in exposure and it
+should be a choice rather than a side effect.
+
+---
+
+## 2026-08-12: Source-available and proprietary, modelled on Statamic's own
+
+**Decision.** A bespoke source-available licence, written plain, in `LICENSE.md`.
+Not MIT, not BSL, not PolyForm.
+
+**Why.** The fork decision above collapsed this question. There is no longer a
+shared package needing a licence that lets a private commercial product and a
+public paid one both use it. There is one codebase, owned outright, and the only
+question left is what other people may do with source they can read.
+
+The model is Statamic's own licence, which is five plain conditions: one
+production install per licence, do not circumvent the licensing features, no
+reuse in other products, keep the notice, follow the law. Copying that shape is
+right for three reasons. It is the norm every buyer in this marketplace has
+already agreed to once. It is readable by a procurement officer without a lawyer,
+which matters when the buyer is a university or a hospital. And it permits
+unlimited local and CI use, which is what makes "try before you buy" true rather
+than a slogan.
+
+**Rejected.** *MIT*, which permits anyone to resell this verbatim, and would be
+the correct choice only if the goal were adoption rather than revenue. *Business
+Source License*, whose time-delayed conversion to open source solves a problem
+this product does not have and adds a clause every buyer would have to read
+twice. *PolyForm Shield*, which is well drafted and standard, and which loses to
+Statamic's licence only because matching the ecosystem is worth more here than
+matching a standard nobody in it uses.
+
+**The clause that is not boilerplate.** The licence states outright that the
+Software cannot tell anyone a site is accessible, that nothing it produces is a
+conformance claim, and that a page it allows has not been proven clean. That is
+the same refusal the README and `CLAUDE.md` already make, put where it survives
+being resold, forked, or quoted back during a dispute. For a tool bought to
+discharge a legal obligation, the disclaimer is a product feature.
+
+**Not done.** No lawyer has read it. One should, before the first sale, and the
+conformance disclaimer is the clause most likely to be tested.
 
 ---
 
