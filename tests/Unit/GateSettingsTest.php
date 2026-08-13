@@ -31,6 +31,18 @@ it('gates only the collections named', function () {
     expect($settings->gates('articles'))->toBeFalse();
 });
 
+it('does not add the panel to blueprints unless the key says so', function () {
+    // The fallback matters most for the people it would surprise most: a site
+    // that published this config before the setting existed has no key at all,
+    // and would find a field appearing in its publish forms after an update it
+    // did not read the notes for.
+    //
+    // Found by mutation: flipping this default broke no test, because every
+    // other test sets the key explicitly.
+    expect(GateSettings::fromConfig([])->addsPanel)->toBeFalse();
+    expect(GateSettings::fromConfig(['add_panel_to_blueprints' => true])->addsPanel)->toBeTrue();
+});
+
 it('carries the opt-in checks the site has integrated', function () {
     // Without this the setting is a config key nothing reads, and the two
     // opt-in checks stay silent on a site that went to the trouble of stamping

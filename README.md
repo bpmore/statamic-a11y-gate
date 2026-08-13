@@ -24,7 +24,17 @@ Windrow repo at `docs/plans/statamic-addon.md`.
 
 ## Adding the panel
 
-It is a field. Put it wherever it belongs in a blueprint, usually the sidebar:
+Set `add_panel_to_blueprints` to `true` in `config/a11y-gate.php` and it appears
+in the sidebar of every gated collection that has pages. No blueprint files to
+edit.
+
+That uses the same mechanism Statamic uses for `slug` and `date`, which are not
+in your yaml either, so the field behaves like a native one and leaves nothing
+behind if the addon is removed. It is off by default: an addon that rearranges
+publish forms on install is one that gets uninstalled by somebody who did not
+choose it.
+
+To place it yourself instead, put it wherever it belongs in a blueprint:
 
 ```yaml
 -
@@ -33,6 +43,9 @@ It is a field. Put it wherever it belongs in a blueprint, usually the sidebar:
     type: accessibility_panel
     display: Accessibility
 ```
+
+Your placement wins. A blueprint that already has the field does not get a
+second copy.
 
 It stores nothing in the entry. Findings change every time the page does, so a
 copy of them in the content directory would be wrong by the next save.

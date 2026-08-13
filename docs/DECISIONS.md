@@ -9,6 +9,56 @@ read alongside that one.
 
 ---
 
+## 2026-08-12: The addon can put its own panel in blueprints, off unless asked
+
+Adding the panel to a site meant editing every entry blueprint by hand. On a
+small site that is seven files. The addon can do it itself, and now does, behind
+`add_panel_to_blueprints`.
+
+**The mechanism is Statamic's own.** `slug` and `date` are not in anybody's yaml
+either: they are added to the blueprint as it is found, through
+`EntryBlueprintFound` and `ensureField`. Using the same call means the field
+behaves like a native one and disappears cleanly when the addon is removed,
+rather than leaving an orphaned handle in a file somebody has to go and delete.
+
+**Off by default, and that is the decision rather than the feature.** An addon
+that rearranges publish forms on install is one that somebody who did not choose
+it will uninstall by lunchtime. The first run of this addon should surprise
+nobody.
+
+**Three things it refuses to do**, each because the alternative is a field
+sitting in a form saying nothing useful:
+
+- A collection with no route never gets it. No pages means nothing to check.
+- A collection the `collections` setting excludes never gets it. If the gate is
+  not watching it, a panel offering to check it is an odd thing to draw.
+- A blueprint that already carries the field keeps its own placement and does
+  not get a second copy, because `ensureField` matches on the handle.
+
+**The collection is read off the blueprint's namespace, not off the event's
+entry, and this is the bug that was nearly shipped.** `EntryBlueprintFound`
+carries an entry only sometimes: Statamic dispatches it from the entry when
+there is one, and from the collection when there is not. The second path is what
+happens when somebody presses Create, which is the first time an author ever
+sees the form. Reading the collection from `$event->entry` would have passed
+every test written before that was noticed, and left the panel missing at
+exactly that moment.
+
+**Mutation-tested, four run, four killed:** the flag ignored, routeless
+collections included, the collection filter ignored, and the default flipped to
+on. The last one survived first time and is worth naming: every test set the key
+explicitly, so nothing exercised the fallback that decides for a site whose
+published config predates the setting. That is precisely the site the surprise
+would land on.
+
+**Rejected.** *A settings screen for choosing collections*, because Statamic
+already has one for this and it is called the blueprint editor: it knows which
+tab, what order and what display name, and a second screen would answer none of
+those. *On by default*, which is the better first run and the worse first
+impression.
+
+---
+
 ## 2026-08-12: The whole-site scan, and why the grouping is the feature
 
 `php please a11y:check` renders every published page and groups the findings by

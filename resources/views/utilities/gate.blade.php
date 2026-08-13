@@ -118,6 +118,21 @@
         </div>
     </ui-card-panel>
 
+    <ui-card-panel heading="Where this panel appears">
+        <div class="space-y-3">
+            <p>
+                It is a field, so it shows up wherever somebody has put it in a
+                blueprint. Your developer can also have it added to every checked
+                collection automatically, with one setting in
+                <code>config/a11y-gate.php</code>.
+            </p>
+            <p>
+                A collection with no public pages never gets it, because there
+                would be nothing for it to check.
+            </p>
+        </div>
+    </ui-card-panel>
+
     <ui-card-panel heading="Two checks your developer can switch on">
         <div class="space-y-3">
             <p>
