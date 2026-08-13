@@ -53,10 +53,21 @@ Rejected: attaching the findings to a real field handle so Statamic renders them
 inline. That would put accessibility errors under whichever field was chosen as a
 host, which is a lie about where the problem is.
 
-**A fresh check supersedes an older refusal.** Leaving it on screen after the
-author fixed the page and pressed Check again would be the panel describing a
-past that is no longer true. Pinned by its own assertion, because nothing about
-it would fail loudly.
+**Whichever answer is newest is the one on screen**, and it took a real author to
+find that this has to run both ways. The first version only let a check supersede
+a refusal, reasoning that a refusal left up after the page was fixed describes a
+past that is no longer true. Correct, and half the rule.
+
+What happened: a save was refused, Check was pressed to see why, and Save &
+Publish was pressed again with nothing changed. The refusal was real and current,
+and the panel hid it behind the older check result, so the second refusal drew
+nothing at all and the only sign left was Statamic's toast in the corner. Straight
+back to being told the data was invalid and nothing else.
+
+A refusal now clears any older check result as it arrives. Statamic hands a new
+errors object to the container on every failed save, so this fires on each
+refusal even when the findings are word for word the ones already shown. Both
+directions are pinned by their own assertions, because neither would fail loudly.
 
 **What was not checked**: how it looks, and whether the container's errors arrive
 exactly as read. There is no browser in this session. Both halves of the

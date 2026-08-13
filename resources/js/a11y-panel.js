@@ -124,9 +124,29 @@
                 return errors.a11y_gate ?? [];
             });
 
-            // A fresh check is newer information than the save that was refused,
-            // and leaving a refusal on screen after the author has fixed the page
-            // and checked it again would be this panel lying about the present.
+            // Whichever answer is newest is the one on screen, and it took a
+            // real author to find that this has to run both ways. The first
+            // version only let a check supersede a refusal, on the reasoning
+            // that a refusal left up after the page was fixed would describe a
+            // past that is no longer true. All correct, and half the rule.
+            //
+            // What happened: refused a save, pressed Check to see why, then
+            // pressed Save & Publish again without changing anything. The
+            // refusal was real and current, and the panel hid it behind the
+            // older check result, so the second refusal drew nothing and the
+            // only sign left was Statamic's toast in the corner. Back to being
+            // told the data was invalid and nothing else.
+            //
+            // Statamic hands a new errors object to the container on every
+            // failed save, so this fires on each refusal even when the findings
+            // are word for word the ones already shown.
+            Vue.watch(refusal, (lines) => {
+                if (lines.length > 0) {
+                    state.result = null;
+                    state.failed = null;
+                }
+            });
+
             const showRefusal = Vue.computed(
                 () => refusal.value.length > 0 && ! state.result && ! state.failed && ! state.checking
             );
