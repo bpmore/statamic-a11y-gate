@@ -57,11 +57,32 @@ final class AddPanelToBlueprints
             return;
         }
 
+        // The collection and blueprint are stamped into the field's own config,
+        // and that is the only way the panel can check a page before its first
+        // save. Statamic's create screen sends no entry reference, because its
+        // view data has none, and it never sets the blueprint's parent either,
+        // so a fieldtype has nothing to ask. Field config does reach the browser
+        // (`Field::toPublishArray()` merges the raw config), so the answer is
+        // put there by the one piece of code that already knows it.
+        //
+        // Without this an author on a new page is told to save it first, and on
+        // a collection that publishes by default there is no way to save without
+        // publishing, and the gate refuses the publish. Told to do the one thing
+        // the gate will not let them do.
+        //
         // `ensureField` is by handle, so a site that already added this to a
-        // blueprint keeps its own placement and does not get a second copy.
+        // blueprint keeps its own placement and does not get a second copy. It
+        // also keeps its own config, which means a hand-placed field has no
+        // collection stamped on it and falls back to asking for a save. That is
+        // the honest outcome rather than this addon guessing.
         $event->blueprint->ensureField(
             'a11y_panel',
-            ['type' => 'accessibility_panel', 'display' => 'Accessibility'],
+            [
+                'type' => 'accessibility_panel',
+                'display' => 'Accessibility',
+                'collection' => $handle,
+                'blueprint' => $event->blueprint->handle(),
+            ],
             'sidebar',
         );
     }

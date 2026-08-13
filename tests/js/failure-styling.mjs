@@ -37,5 +37,19 @@ for (const [label, err, variant] of cases) {
     if (!ok) bad++;
     console.log(`${ok ? 'ok  ' : 'FAIL'} ${label}: ${got} (wanted ${variant})`);
 }
-console.log(bad === 0 ? `\nall ${cases.length} passed` : `\n${bad} FAILED`);
+// The request the panel sends. Checked here because nothing on the PHP side
+// can: the endpoint's own tests post whatever they like, so they would keep
+// passing while the panel quietly stopped sending half of it. Dropping
+// `collection` would not break anything visibly. It would just put every author
+// on a new page back to being told to save first, on a screen where saving
+// means publishing and the gate refuses the publish.
+const payload = src.match(/axios\.post\(cp_url\('a11y-gate\/check'\), \{([\s\S]*?)\n {20}\}\)/)[1];
+
+for (const key of ['reference', 'values', 'collection', 'blueprint']) {
+    const sent = new RegExp(`^\\s*${key}:`, 'm').test(payload);
+    if (!sent) bad++;
+    console.log(`${sent ? 'ok  ' : 'FAIL'} sends ${key}`);
+}
+
+console.log(bad === 0 ? '\nall passed' : `\n${bad} FAILED`);
 process.exit(bad === 0 ? 0 : 1);

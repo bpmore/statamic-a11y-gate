@@ -22,7 +22,16 @@
     const { injectPublishContext } = window.__STATAMIC__.ui;
 
     Statamic.$components.register('accessibility_panel-fieldtype', {
-        setup() {
+        // Statamic hands every fieldtype component `id`, `config`, `value`,
+        // `meta`, `handle` and a few more, read out of the control panel's own
+        // bundle rather than assumed. `config` is the field's config from the
+        // blueprint, and the listener that places this field stamps the
+        // collection and blueprint handles into it. That is what lets a page be
+        // checked before its first save: the create screen sends no entry
+        // reference, so without those two the panel has nothing to name.
+        props: ['config'],
+
+        setup(props) {
             const container = injectPublishContext();
 
             const state = Vue.reactive({
@@ -46,8 +55,17 @@
 
                 try {
                     const { data } = await axios.post(cp_url('a11y-gate/check'), {
-                        reference: container.reference.value,
+                        // Undefined on the create screen, where the publish
+                        // container has no reference to give. The endpoint reads
+                        // that as "build the entry" rather than as an error.
+                        reference: container.reference?.value,
                         values: container.values.value,
+
+                        // Only used when there is no reference. Sent every time
+                        // anyway, because a request whose shape changes with the
+                        // screen is a second thing to keep in step.
+                        collection: props.config?.collection,
+                        blueprint: props.config?.blueprint,
                     });
 
                     state.result = data;
