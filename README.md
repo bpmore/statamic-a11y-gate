@@ -1,6 +1,6 @@
-# Accessibility Gate for Statamic
+# A11y Gate: Accessibility Gate for Statamic
 
-An entry that fails an accessibility check this addon can actually run does not
+An entry that fails an accessibility check this addon can runs does not
 get published.
 
 Not "here is a report". The publish is refused, in the control panel, with plain
