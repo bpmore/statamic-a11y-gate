@@ -17,12 +17,11 @@ use DOMXPath;
  * Wider than the name suggests and inherited that way: it also carries a
  * figure's required text version and broken footnote references.
  *
- * **Four of its five rules read attributes a host has to stamp**, and on an
- * ordinary Statamic site nothing stamps them, so those four find nothing. That
- * is not a pass and the addon must never present it as one. The attribute names
- * are Windrow's (`data-windrow-*`) rather than renamed, because the shared
- * corpus fixtures use them and renaming them here would fork the corpus to no
- * purpose.
+ * **Four of its five rules read `data-a11y-*` attributes a site has to stamp**,
+ * and on an ordinary Statamic site nothing stamps them, so those four find
+ * nothing. That is not a pass and the addon must never present it as one: the
+ * corpus marks those fixtures `host-markup` so the difference between "checked
+ * and clean" and "had nothing to read" cannot be lost.
  *
  * Only the iframe title rule reads ordinary HTML and runs anywhere.
  */
@@ -53,7 +52,7 @@ final class MediaAlternativesCheck extends RuleCheck
         // Captions live at the video host, so the page cannot prove they exist.
         // The most an author can do is attest to them, and an unattested video is
         // reported as unconfirmed rather than as failing: the rule name says which.
-        foreach ($xpath->query('//*[@data-windrow-video-captions="missing"]') as $node) {
+        foreach ($xpath->query('//*[@data-a11y-video-captions="missing"]') as $node) {
             $violations[] = $this->issue(
                 'video-captions-unconfirmed',
                 Violation::ERROR,
@@ -63,7 +62,7 @@ final class MediaAlternativesCheck extends RuleCheck
 
         // A transcript is a link on this page rather than something held
         // elsewhere, so it is demanded rather than attested.
-        foreach ($xpath->query('//*[@data-windrow-audio-transcript="missing"]') as $node) {
+        foreach ($xpath->query('//*[@data-a11y-audio-transcript="missing"]') as $node) {
             $violations[] = $this->issue(
                 'audio-transcript-missing',
                 Violation::ERROR,
@@ -75,7 +74,7 @@ final class MediaAlternativesCheck extends RuleCheck
         // class of failure. Presence-only and labelled honestly, because the
         // checker can prove the text exists and the author owns whether it is
         // faithful to the image.
-        foreach ($xpath->query('//*[@data-windrow-figure-text="missing"]') as $node) {
+        foreach ($xpath->query('//*[@data-a11y-figure-text="missing"]') as $node) {
             $violations[] = $this->issue('figure-text-missing', Violation::ERROR);
         }
 
@@ -83,7 +82,7 @@ final class MediaAlternativesCheck extends RuleCheck
         // rendered page cannot show them honestly: an unresolved reference
         // renders as literal "[^x]" junk, and an unreferenced note is dropped by
         // the renderer, so the author's words vanish with no visible trace.
-        foreach ($xpath->query('//*[@data-windrow-footnotes="broken"]') as $node) {
+        foreach ($xpath->query('//*[@data-a11y-footnotes="broken"]') as $node) {
             $violations[] = $this->issue('footnotes-broken', Violation::ERROR);
         }
 

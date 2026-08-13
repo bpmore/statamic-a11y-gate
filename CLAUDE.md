@@ -17,39 +17,37 @@ rules here exist to protect that.
 - A check that could not run must say so. A silent zero is indistinguishable from
   a pass, and shipping that would make every other claim here worthless.
 
-## THE CONFORMANCE CORPUS IS THE CONTRACT
+## THE CORPUS IS THE CONTRACT
 
-This codebase is a deliberate fork of Windrow's checker, maintained separately.
-The one thing that must not fork is the answers.
+Every rule has at least one fixed page whose answer is written down, in
+`corpus/`. That is what stops a rule changing what it reports by accident.
 
-- A directory of HTML fixtures and the exact findings each must produce lives in
-  both projects and is run by both suites. Implementations may diverge freely.
-- **Behaviour diverges only by editing the corpus, in its own commit, with the
+- **Behaviour changes only by editing the corpus, in its own commit, with the
   reason written down.** A rule change that alters a finding and does not touch
-  the corpus is a defect, whichever project it happens in.
-- Adding a check means adding its fixtures first. A check with no corpus entry is
-  a check the other project cannot be held to.
-- When the two projects genuinely must differ, say so in the corpus rather than
-  in silence. A fixture may be marked as expected-to-differ with the reason. An
-  undocumented disagreement is the failure this whole arrangement exists to
-  prevent.
+  the corpus is a defect.
+- Adding a check means adding its fixtures first. The suite fails if a rule has
+  no case, so a new rule with nothing pinned cannot ship quietly.
+- The corpus records what the checker does, not what it ought to do. It cannot
+  catch a bug that is already shipping. Whether a rule is right is the job of the
+  rule's own tests; this catches a change nobody meant to make.
 
-## THE RULES ARE COPIED, AND THAT IS THE RISK BEING MANAGED
+This directory was once shared with another project, so that two implementations
+of the same rules could be held to the same answers. That ended when this addon
+was separated to stand on its own. The corpus stayed, because what it was worth
+day to day never depended on anyone else running it.
 
-This section used to say the opposite: that the rules come from one place and
-must never be reimplemented here. That was written while the question was open.
-It was settled the other way, on purpose, and the reasoning is in
-`docs/DECISIONS.md` under the fork entry. Rewritten rather than deleted, because
-the danger it named has not gone anywhere.
+## THE RULES LIVE HERE, AND NOWHERE ELSE
 
-- This repo holds its own copy of every rule. Two copies drift, and a
-  conformance claim that depends on which copy ran is worse than no addon. That
-  is the cost of the fork and it is paid by the corpus above, not by wishing.
-- So a rule change here is never finished at the rule. Either the corpus agrees
-  and the change was a refactor, or the corpus must change too, in its own
-  commit, in both repositories, with the reason written down.
-- Port a rule verbatim before improving it. A rule tidied on the way across is
-  how the two projects start answering differently on the first day.
+This project owns its rules outright. There is no upstream to port from and no
+second implementation to stay in step with.
+
+- That was not always true, and the history is in `docs/DECISIONS.md`. It matters
+  only if you find something that looks like it was written to match somebody
+  else's shape. It was. It does not have to any more.
+- The danger the old arrangement managed has not disappeared, it has moved: there
+  is now nothing outside this repository that will notice a rule quietly changing
+  its mind. The corpus is the only thing that will, which is why the rule above is
+  the first one in this file that is not about the product.
 
 ## STACK
 
@@ -74,12 +72,15 @@ an auditor will all read it, because once this is listed they can.
 - **The addon is free. No price, no licence key, no per-site limit, no edition.**
   Never write copy, a setting, or a code path that implies otherwise, and never
   add a licence check: there is nothing to check.
-- **The licence is still proprietary, and the no-reuse clause is the point.** This
-  codebase is a fork of Windrow's accessibility engine. A permissive licence would
-  give that engine away. Free to use is the intent. Free to take is not.
-- Nothing here carries the Windrow name. The listing reads "Accessibility Gate",
+- **The licence is still proprietary, and the no-reuse clause is the point.**
+  These rules began as a fork of the accessibility engine behind another product
+  by the same author. A permissive licence would give that engine away. Free to
+  use is the intent. Free to take is not.
+- **The other product is never named here.** Not in copy, not in a comment, not
+  in an attribute a site owner has to type. It is listed as "Accessibility Gate"
   under the author's own name, and somebody evaluating it should not need to know
-  what Windrow is.
+  anything else exists. The only exception is `docs/DECISIONS.md`, which is a
+  record rather than a pitch.
 
 ## TESTING
 
@@ -105,5 +106,6 @@ an auditor will all read it, because once this is listed they can.
 - Never push or merge unless asked.
 - Read `docs/DECISIONS.md` before choosing an approach. Add an entry when your
   change settles a question, including the alternatives you turned down.
-- The design lives in the Windrow repo at `docs/plans/statamic-addon.md`. If this
-  repo and that plan disagree, stop and ask rather than picking one.
+- There is no design document outside this repository any more. What this addon
+  should do is settled here, in the decision log and in the corpus, and nowhere
+  else has a vote.

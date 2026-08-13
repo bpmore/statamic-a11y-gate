@@ -48,8 +48,8 @@ final class ReadingLevelCheck extends RuleCheck
     {
         $violations = [];
 
-        foreach ($xpath->query('//*[@data-windrow-reading-grade]') as $node) {
-            $grade = (float) $node->getAttribute('data-windrow-reading-grade');
+        foreach ($xpath->query('//*[@data-a11y-reading-grade]') as $node) {
+            $grade = (float) $node->getAttribute('data-a11y-reading-grade');
 
             if ($grade > ReadingLevel::PLAIN_MAX_GRADE) {
                 $violations[] = $this->issue(
@@ -80,7 +80,7 @@ final class ReadingLevelCheck extends RuleCheck
      */
     public function coverage(DOMXPath $xpath, array $optedIn = []): ?Coverage
     {
-        $stamped = $xpath->query('//*[@data-windrow-reading-grade]');
+        $stamped = $xpath->query('//*[@data-a11y-reading-grade]');
 
         if ($stamped !== false && $stamped->length > 0) {
             return Coverage::full(self::key(), self::name());

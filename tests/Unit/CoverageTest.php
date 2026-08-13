@@ -58,7 +58,7 @@ it('reports an opt-in check as full when the page carries its markup, opted in o
     // has to as well. A site that starts stamping before it edits a config file
     // gets told what ran, not silence.
     $coverage = coverageFor(
-        '<html lang="en"><body><h1>The weir</h1><p data-windrow-reading-grade="7.2">Short words.</p></body></html>'
+        '<html lang="en"><body><h1>The weir</h1><p data-a11y-reading-grade="7.2">Short words.</p></body></html>'
     );
 
     expect($coverage['a11y.text.reading_level']->extent)->toBe(Coverage::FULL);

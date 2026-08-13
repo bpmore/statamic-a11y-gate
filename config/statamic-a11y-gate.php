@@ -71,12 +71,12 @@ return [
     | repeated on every entry, which is the only place a standing "this was not
     | checked" notice would ever be read.
     |
-    | 'a11y.link.unpublished'   reads data-windrow-unpublished-link="true"
+    | 'a11y.link.unpublished'   reads data-a11y-unpublished-link="true"
     |                           on anything wrapping a link to a page that is
     |                           not live yet. A link to a draft looks like any
     |                           other link once the page is built.
     |
-    | 'a11y.text.reading_level' reads data-windrow-reading-grade="9.4" on a
+    | 'a11y.text.reading_level' reads data-a11y-reading-grade="9.4" on a
     |                           plain-language summary. On the finished page a
     |                           summary is just more text, and nothing marks out
     |                           which words were meant to be the plain ones.

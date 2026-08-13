@@ -13,8 +13,7 @@ namespace Bpmore\A11yGate\Accessibility\Checks;
  *
  * Order is part of the contract. A refusal renders its issues in the order it
  * receives them, so a pack that runs the same checks in a different sequence
- * shows an author something different first. The conformance corpus pins it, in
- * this project and in Windrow.
+ * shows an author something different first. The corpus pins it.
  */
 final class CheckPack
 {

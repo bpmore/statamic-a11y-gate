@@ -1,28 +1,33 @@
-# The conformance corpus
+# The corpus
 
-The same web pages, the same expected answers, checked into two repositories that
-share no code.
+Fixed pages, and the exact findings this checker must produce for each of them.
 
-Windrow and the Statamic addon (`bpmore/statamic-a11y-gate`) are deliberate forks
-of the same accessibility rules, maintained separately. Forking the code is
-fine. Forking the *answers* is not: two checkers that quietly disagree mean "did
-this page pass?" depends on which one ran, and that is the one thing a tool sold
-on conformance cannot afford.
+This started life as a shared artefact: the same fixtures checked into two
+repositories so that two implementations of the same rules could be held to the
+same answers. That arrangement ended when this addon was separated to stand on
+its own, and the reasoning is in `docs/DECISIONS.md`. The corpus stayed, because
+what it was worth day to day never depended on anyone else running it.
 
-This directory is how that is prevented. Both projects run it. Both must agree.
+**What it is worth is this.** Every rule has at least one page whose answer is
+written down, so a rule cannot change what it reports without a test saying so by
+name. That caught a fix over-reaching twice in one afternoon, in cases written
+minutes apart, which is the whole argument for keeping it.
 
 ## The rule
 
-**Behaviour diverges only by editing this corpus, in its own commit, with the
+**Behaviour changes only by editing this corpus, in its own commit, with the
 reason written down.** A rule change that shifts a finding and does not touch the
-corpus is a defect, whichever project it happens in.
+corpus is a defect.
+
+Adding a check means adding its fixtures. The suite fails if a rule has no case,
+so a new rule with nothing pinned cannot ship quietly.
 
 ## What a case looks like
 
 ```
 cases/heading-skipped-level/
   input.html      the page under check
-  expected.json   what both projects must report
+  expected.json   what this project must report
 ```
 
 ```json
@@ -39,29 +44,26 @@ cases/heading-skipped-level/
 ## What is pinned, and what is deliberately not
 
 **Pinned:** the rule, the severity, the label it is allowed to cite, and the
-order findings come back in. Order counts because an editor renders its issue
-list in the order it receives, so the same findings in a different sequence show
-an author something different first.
+order findings come back in. Order counts because the panel renders its list in
+the order it receives, so the same findings in a different sequence show an
+author something different first.
 
 **Not pinned:** the message and the call to action. Those are wording, and
-wording must stay free to improve. Also not pinned: anything carrying a block
-id, field key, or breakpoint, because only Windrow can produce those and a
-corpus that demanded them would be unshareable by construction.
-
-This mirrors how the operator fingerprints a finding: on the evidence, not the
-prose.
+wording must stay free to improve. Pinning prose would make every improvement to
+a sentence look like a behaviour change, and the point of this directory is that
+a behaviour change is impossible to miss.
 
 ## portability, and why every case declares it
 
-Six of the seventeen rules read `data-windrow-*` attributes that only Windrow's
-renderer stamps. In any other host they find nothing, and **a check that silently
-finds nothing is indistinguishable from a check that passed.** That is the worst
-failure available to this product, so the corpus makes each case say which it is:
+Six of the seventeen rules read `data-a11y-*` attributes that a host has to stamp
+into its own templates. Without them those rules find nothing, and **a check that
+silently finds nothing is indistinguishable from a check that passed.** That is
+the worst failure available to this product, so every case says which it is:
 
 | Value | Meaning |
 |---|---|
-| `portable` | reads nothing but ordinary HTML. Must behave identically in every host. |
-| `host-markup` | needs `data-windrow-*` attributes the host has to stamp. Finds nothing without them, and that is expected. |
+| `portable` | reads nothing but ordinary HTML. Must behave identically on every site. |
+| `host-markup` | needs `data-a11y-*` attributes the site has to stamp. Finds nothing without them, and that is expected. |
 | `host-styling` | portable code, but only fires on inline styles. See below. |
 
 `host-styling` exists for one case and is the subtlest of the three.
@@ -70,36 +72,30 @@ portable, and a site that sizes its buttons in a stylesheet will never trigger
 it. So it is neither "works everywhere" nor "needs our markup", and calling it
 either would be a lie in one direction or the other.
 
-A case whose HTML contains `data-windrow-` and claims to be `portable` fails the
+A case whose HTML contains `data-a11y-` and claims to be `portable` fails the
 suite. The label is checked against the fixture, not trusted.
 
 ## How these expectations were produced
 
 **By running the checker that exists today, not by writing down what it should
 do.** That makes this a characterisation corpus, and it has a limit worth stating
-plainly: *it cannot catch a bug that is already shipping in both projects.* If a
-rule is wrong today, the corpus faithfully records it as wrong.
+plainly: *it cannot catch a bug that is already shipping.* If a rule is wrong
+today, the corpus faithfully records it as wrong.
 
-That is not what it is for. It is for catching the two projects drifting apart,
-and for that the starting point only has to be shared, not correct. Rules being
-right is the job of each project's own rule tests, which check that a rule fires
-for the right reason. This checks that both projects answer the same.
+That is not what it is for. It is for catching a change nobody meant to make.
+Whether a rule is right in the first place is the job of the rule's own tests,
+which check that it fires for the right reason.
 
 ## Coverage
 
-19 cases covering all 17 rules the check pack can raise, plus a clean page and a
+22 cases covering all 17 rules the check pack can raise, plus a clean page and a
 multi-defect page that pins cross-family ordering.
-
-The suite fails if a rule has no case. That assertion is the one that keeps this
-honest as rules are added: a new rule with no fixture is a rule the fork is
-unguarded for.
 
 ## Adding a case
 
 1. Add `cases/<name>/input.html`.
 2. Add `cases/<name>/expected.json` with `name`, `why`, `portability`, `findings`.
-3. Run both suites.
-4. Copy the case into the other repository in the same change.
+3. Run the suite.
 
-Write `why` for somebody who has not read the rule. It is the only explanation
-the other project's maintainer will have.
+Write `why` for somebody who has not read the rule, including yourself in a year.
+It is the only explanation attached to the answer.

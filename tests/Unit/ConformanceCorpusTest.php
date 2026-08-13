@@ -7,23 +7,19 @@ use Bpmore\A11yGate\Accessibility\StaticAccessibilityChecker;
 use Bpmore\A11yGate\Accessibility\Violation;
 
 /**
- * The shared conformance corpus, run against this fork's checker.
+ * The corpus, run against the checker.
  *
- * This addon and Windrow are deliberate forks of the same rules, maintained
- * separately. Two copies of an accessibility checker that quietly disagree are
- * worse than one copy that is wrong, because "did this page pass?" starts
- * depending on which copy ran. `corpus/` is the answer to that: the same HTML,
- * the same expected findings, checked into both repositories and run by both
- * suites.
+ * `corpus/` holds fixed pages and the exact findings each must produce, so that
+ * a rule cannot change what it reports without a test saying so by name. This
+ * file is the thing that makes it binding rather than decorative.
  *
- * Implementations may diverge freely. Behaviour diverges only when somebody
- * edits the corpus, in its own commit, with the reason written down.
+ * Behaviour changes only when somebody edits the corpus, in its own commit, with
+ * the reason written down.
  *
- * The assertions are Windrow's, deliberately. This file is close to a copy of
- * `tests/Unit/ConformanceCorpusTest.php` there, and it should stay that way:
- * the point of a shared corpus is that both suites hold their project to the
- * same statements, so a "tidier" rewrite on one side is how the two stop
- * asking the same question.
+ * These fixtures were once shared with another implementation of the same rules,
+ * and this file was close to a copy of that project's. That ended when the addon
+ * was separated to stand on its own. What did not change is what the assertions
+ * are for, which is why they are unchanged.
  *
  * Helpers are prefixed with their subject: Pest shares one global function
  * namespace across every test file.
@@ -53,8 +49,8 @@ function corpusFindings(string $html): array
     return array_map(fn (Violation $v) => [
         // Pinned: the decision. A rule, how bad it is, and what it is allowed to
         // cite. Not pinned: the message and call to action, which are wording and
-        // must stay free to improve, and nothing carrying a block uid or field
-        // key, which only Windrow can produce.
+        // must stay free to improve, because pinning prose makes every improved
+        // sentence look like a behaviour change.
         'rule' => $v->rule,
         'severity' => $v->severity,
         'wcag' => $v->wcag,
@@ -66,7 +62,7 @@ it('has a corpus at all', function () {
     // renamed, which would turn every assertion below into a loop over nothing
     // and report a clean pass. A vacuous suite is the worst outcome here,
     // because the whole point is catching silent divergence.
-    expect(count(corpusCases()))->toBeGreaterThanOrEqual(22);
+    expect(count(corpusCases()))->toBeGreaterThanOrEqual(24);
 });
 
 it('produces exactly the findings the corpus expects, in order', function () {
@@ -92,13 +88,13 @@ it('covers every rule the pack can raise', function () {
 
     $uncovered = array_values(array_diff(CheckPack::rules(), array_keys($covered)));
 
-    expect($uncovered)->toBe([], 'these rules have no corpus case, so the fork is unguarded for them: '.implode(', ', $uncovered));
+    expect($uncovered)->toBe([], 'these rules have no corpus case, so nothing would notice them changing: '.implode(', ', $uncovered));
 });
 
-it('says which cases a host without Windrow markup cannot reproduce', function () {
-    // The honesty rule, enforced. Several rules read data-windrow-* attributes
-    // that only Windrow's renderer stamps, so an ordinary Statamic site finds
-    // nothing for them. That is fine and it is stated. What is NOT fine is a
+it('says which cases a site without the extra markup cannot reproduce', function () {
+    // The honesty rule, enforced. Several rules read data-a11y-* attributes that
+    // a site has to stamp into its own templates, so a site that has not done
+    // that finds nothing for them. That is fine and it is stated. What is NOT
     // case that quietly finds nothing while the corpus implies it should, which
     // is exactly how "4 of 7 checks ran" degrades into a clean tick.
     foreach (corpusCases() as $name => $case) {
@@ -115,18 +111,18 @@ it('says which cases a host without Windrow markup cannot reproduce', function (
     }
 });
 
-it('marks every case that depends on markup only Windrow stamps', function () {
+it('marks every case that depends on markup the site has to stamp', function () {
     // Derived from the fixture rather than trusted from the label: a case whose
-    // HTML carries a data-windrow-* attribute is host-dependent whatever its
-    // metadata claims. This is the assertion that catches somebody adding a
-    // Windrow-only case and labelling it portable, which would tell this project
-    // it must reproduce a finding it has no way to produce.
+    // HTML carries a data-a11y-* attribute needs that markup whatever its
+    // metadata claims. This is the assertion that catches somebody labelling such
+    // a case portable, which would tell every site without the markup that it
+    // must reproduce a finding it has no way to produce.
     foreach (corpusCases() as $name => $case) {
-        $usesWindrowMarkup = str_contains($case['html'], 'data-windrow-');
+        $needsStampedMarkup = str_contains($case['html'], 'data-a11y-');
 
-        if ($usesWindrowMarkup) {
+        if ($needsStampedMarkup) {
             expect($case['expected']['portability'])
-                ->toBe('host-markup', "corpus case '$name' uses data-windrow- markup but is not labelled host-markup");
+                ->toBe('host-markup', "corpus case '$name' uses data-a11y- markup but is not labelled host-markup");
         }
     }
 });

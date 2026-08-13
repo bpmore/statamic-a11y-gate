@@ -6,14 +6,17 @@ use Bpmore\A11yGate\Accessibility\StaticAccessibilityChecker;
 use Bpmore\A11yGate\Accessibility\Violation;
 
 /**
- * The empty-alt branch of the image rule, which the shared corpus does not reach.
+ * The empty-alt branch of the image rule, in more detail than the corpus pins.
  *
  * Found by mutation: deleting the whole `alt=""` clause from `ImageAltCheck` left
- * the corpus suite green, because every fixture in `corpus/` either omits the
- * attribute or fills it in. That is a hole in a shared artifact rather than a bug
- * in this port, and closing it properly means a corpus case added to both
- * repositories in one change. Until that happens, this file guards the branch on
- * this side, so the gap is covered somewhere rather than only written down.
+ * the corpus suite green, because every fixture in `corpus/` either omitted the
+ * attribute or filled it in. That hole is now closed by `image-alt-empty` and
+ * `image-decorative-opt-out`, added once this project stopped having to
+ * coordinate a corpus change with anybody else.
+ *
+ * This file stays because it says more than the corpus does: whitespace-only alt,
+ * and the case where a decorative marker appears with no alt attribute at all.
+ * The corpus pins the decision; these pin the edges around it.
  *
  * `alt=""` is the distinction that matters most in practice: it is what an editor
  * saves before a description has been written, and it is also how a genuinely

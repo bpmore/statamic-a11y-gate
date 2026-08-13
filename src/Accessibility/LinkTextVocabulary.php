@@ -7,15 +7,14 @@ namespace Bpmore\A11yGate\Accessibility;
 /**
  * The word lists behind the link-purpose rules.
  *
- * Windrow reads these from `config()`. Here they are constructor arguments whose
- * defaults are Windrow's current values, byte for byte, so the two forks answer
- * the same on the same page unless a host deliberately says otherwise. That
- * matters more than usual: `link-unclear` and `link-vague` are the only rules in
- * the pack whose verdict depends on a list rather than on the markup, so this
- * file is where the two projects would drift first and most quietly.
+ * Constructor arguments rather than config, because the checker must stay
+ * framework-free. The defaults are the answer unless a host deliberately says
+ * otherwise.
  *
- * A host that customises these has left the shared corpus behind on purpose, and
- * the corpus is run against the defaults for that reason.
+ * This matters more than most files: `link-unclear` and `link-vague` are the only
+ * rules in the pack whose verdict depends on a list rather than on the markup, so
+ * a word added here changes what the gate refuses without touching a rule. The
+ * corpus is run against the defaults for that reason.
  */
 final class LinkTextVocabulary
 {

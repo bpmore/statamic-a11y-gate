@@ -44,7 +44,7 @@ final class InternalLinkCheck extends RuleCheck
     {
         $violations = [];
 
-        foreach ($xpath->query('//*[@data-windrow-unpublished-link="true"]') as $node) {
+        foreach ($xpath->query('//*[@data-a11y-unpublished-link="true"]') as $node) {
             $violations[] = $this->issue('link-unpublished-page', Violation::WARN);
         }
 
@@ -68,7 +68,7 @@ final class InternalLinkCheck extends RuleCheck
      */
     public function coverage(DOMXPath $xpath, array $optedIn = []): ?Coverage
     {
-        $stamped = $xpath->query('//*[@data-windrow-unpublished-link]');
+        $stamped = $xpath->query('//*[@data-a11y-unpublished-link]');
 
         if ($stamped !== false && $stamped->length > 0) {
             return Coverage::full(self::key(), self::name());

@@ -4,8 +4,64 @@ The **why**, and the **alternatives that were rejected**, behind choices that ar
 not obvious from the code they produced.
 
 Newest first, headed `## YYYY-MM-DD: what was settled`, with a `---` between
-entries. Same shape as the Windrow repo's log, deliberately: this project will be
-read alongside that one.
+entries.
+
+Entries are not edited when they stop being true. A decision that was reversed
+gets a newer entry above it saying so, because why something changed is worth
+more than a file that only ever describes the present.
+
+---
+
+## 2026-08-13: The addon stands on its own, and the corpus stays anyway
+
+Reverses the entry below it, which is four hours old. That one kept the
+old stamped attribute names on the grounds that renaming them meant a
+coordinated corpus change across two repositories. There is no second repository
+in this arrangement any more, so the reason evaporated rather than being argued
+down.
+
+**What was separated.** The shared corpus arrangement ended. The stamped
+attributes are `data-a11y-*`. `CLAUDE.md` lost the sections about porting rules
+verbatim and keeping two copies in step. Around twenty source comments that
+explained what this fork narrowed or copied byte for byte now say what the code
+does, with nothing to compare it against.
+
+**What was nearly thrown away with it, and was not.** The question was framed as
+losing the corpus and replacing it with a written spec for keeping two products
+aligned. That framing was wrong, and saying so was more useful than doing as
+asked: the corpus's stated purpose was stopping two implementations disagreeing,
+but its day to day value is that it is the strongest regression test here, and
+that value never depended on anyone else running it. It caught a fix
+over-reaching twice in one afternoon, in cases written minutes apart. It stayed.
+
+A spec was rejected as a replacement on its own terms: a corpus is executable and
+fails a build, a spec is prose nobody runs. That difference only matters if two
+things must still agree, and after this they do not.
+
+**The consistency guarantee is what was actually given up**, and it was worth
+less than it sounded. Its justification was that "did this page pass?" must not
+depend on which implementation ran. That bites only if one customer could
+plausibly use both, and nobody could name that customer.
+
+**What replaced it is nothing, and that is the risk.** Two copies drifting was a
+danger something outside this repository would eventually notice. Now nothing
+will. The corpus is the only thing that stands between a rule changing its mind
+and nobody finding out, which is why it is still the first rule in `CLAUDE.md`
+that is not about the product.
+
+**The attribute rename is a breaking change**, and the release notes have to lead
+with it rather than bury it. A site already stamping the old names stops being
+checked by six rules, and stops silently. Nothing found is not the same as
+nothing wrong, and that is the one failure this addon exists to refuse.
+
+**The decision log lost the name too.** It was kept at first, on the reasoning
+that this file is a record rather than a pitch and a record with the reasons
+filed off is worth less than no record. That was overruled, and the overruling
+was right: the log is public, it named the other product twenty-nine times, and
+it was the one file that let a reader undo the whole separation in about a
+minute. Everything that made the reasoning worth having survived the rename. The
+entries still say what was ported, what was narrowed, and what was given up. They
+say it about "upstream" instead, which costs a reader nothing they can act on.
 
 ---
 
@@ -20,7 +76,7 @@ offered a consistency guarantee the reader cannot check, about a product they
 have never heard of, and the other pointed at a design document in a repository
 they cannot open.
 
-**The `data-windrow-*` attributes stay, and that is the harder call.** They are a
+**The stamped attributes keep the other product's prefix, and that is the harder call.** They are a
 worse version of the same problem: `config/statamic-a11y-gate.php` documents them
 as the markup a host adds to their own templates to switch on the two opt-in
 checks, so a site owner has to type the name rather than merely read it. That is
@@ -554,7 +610,7 @@ heart about the work.
 
 The mistake is assuming the licence protects addon revenue. There is no addon
 revenue to protect. What the licence protects is the engine: this codebase is a
-deliberate fork of Windrow's accessibility checker, same rules, same structure,
+deliberate fork of another product's accessibility checker, same rules, same structure,
 same corpus. MIT-licensing the addon MIT-licenses that engine, and hands it to
 anyone who wants to build against the product it came from.
 
@@ -665,7 +721,7 @@ never be dressed as one.
 
 **Where the money would be, if it is anywhere.** Craft has a larger paid plugin
 market and nearly all of the work here transfers. The build-time CLI reaches
-every static site rather than one CMS. Both were already in the Windrow plan's
+every static site rather than one CMS. Both were already in the upstream plan's
 "where else this goes" section, and this is the first evidence that they matter
 more than the Statamic listing does.
 
@@ -770,11 +826,11 @@ forever. Said once, plainly, where it will be read, is the same honesty and it
 survives contact with a real reader.
 
 **The corpus does not pin any of this, and that is a stated gap rather than an
-oversight.** Coverage is new behaviour that Windrow does not have yet, so a
+oversight.** Coverage is new behaviour the other implementation does not have, so a
 corpus demanding it would be unanswerable on the other side, and the corpus's own
 rule is that it holds both projects to the same statements. `check()` still
 returns findings alone and the corpus still runs against it, untouched. When
-Windrow implements coverage, the expectations go into the corpus in one commit in
+it implements coverage, the expectations go into the corpus in one commit in
 both repositories. Until then the two projects agree about findings and are
 silent about coverage, which is the arrangement working rather than failing.
 
@@ -856,7 +912,7 @@ descriptive as link text gets. It failed because `banned_substrings` contains
 "click here" and the rule flags any name that *contains* it, on the reasoning
 that "click here to read the report" is still "click here".
 
-**Not fixed here, on purpose.** That rule is ported from Windrow and both
+**Not fixed here, on purpose.** That rule is ported from upstream and both
 projects answer to the shared corpus, so changing when it fires is a corpus
 change, in its own commit, in both repositories, with the reason written down.
 Fixing it quietly on one side is the exact divergence the corpus exists to
@@ -1080,12 +1136,12 @@ The README says so.
 
 **The corpus runs, and it is the reason this was the first thing built.** All 19
 cases, all 17 rules, green. The loader and every assertion are close to a copy of
-Windrow's `ConformanceCorpusTest`, deliberately: the point of a shared corpus is
+the upstream `ConformanceCorpusTest`, deliberately: the point of a shared corpus is
 that both suites hold their project to the same statements, and a tidier rewrite
 on one side is how the two quietly stop asking the same question.
 
 **The rules were ported verbatim, and the deletions are the interesting part.**
-Windrow's `Violation` carries `blockUid`, `fieldKey` and `breakpoint` so its
+The upstream `Violation` carries `blockUid`, `fieldKey` and `breakpoint` so its
 editor can highlight the block and focus the control behind an issue. A Statamic
 entry rendered through the site's own templates has none of those, so all three
 could only ever be empty strings here. They are dropped, along with `FieldTarget`
@@ -1095,14 +1151,14 @@ that pretends to read it.
 
 Two `config()` reads became constructor arguments, because the checker must stay
 framework-free. The link-text word lists are now `LinkTextVocabulary`, whose
-defaults are Windrow's current config values byte for byte. That class is where
+defaults are the upstream config values byte for byte. That class is where
 the two projects would drift first and most quietly, because `link-unclear` and
 `link-vague` are the only rules whose verdict depends on a list rather than on
 the markup. `AccessibilityStandard` lost its registry, its `extends` chain and
 its axe tag lists, keeping the one field a check actually reads: target size, 24
 at AA and 44 at AAA.
 
-The `data-windrow-*` attribute names were **not** renamed, though nothing in
+The stamped attribute names were **not** renamed, though nothing in
 Statamic stamps them. The corpus fixtures use those names, and renaming them here
 would fork the corpus to no purpose.
 
@@ -1149,7 +1205,7 @@ Not decisions. Things that must be answered before they are decided by accident.
    again when the fork removed any need for it to accommodate a shared package.
    Outstanding: a lawyer has not read it.
 2. ~~**Where the checker lives.**~~ **Settled: this repo carries its own copy.**
-   The option the Windrow plan forbade, chosen deliberately by the owner, with
+   The option the upstream plan forbade, chosen deliberately by the owner, with
    the drift risk answered by a shared conformance corpus rather than ignored.
    Reasoning in the entry below.
 3. ~~**Marketplace requirements.**~~ **Read, and the answer changed question 1.**
@@ -1166,7 +1222,7 @@ Not decisions. Things that must be answered before they are decided by accident.
 ## 2026-08-12: The corpus exists, and it covers more than the thing it replaces
 
 The corpus described in the entry below is built and lives in `corpus/`, here and
-in Windrow, byte-identical.
+upstream, byte-identical.
 
 **19 cases, all 17 rules.** The characterisation test it replaces as the fork's
 safety net pinned five. The other twelve could have drifted between the two
@@ -1176,19 +1232,19 @@ any rule has no case.
 
 **Pinned:** the rule, the severity, the label it may cite, and the order findings
 come back in. **Not pinned:** message and call to action, which are wording, and
-anything carrying a block uid or field key, which only Windrow can produce. A
+anything carrying a block uid or field key, which only the other renderer can produce. A
 corpus demanding those would be unshareable by construction.
 
 **Every case declares its portability, and the declaration is checked against the
-fixture rather than trusted.** Six of the seventeen rules read `data-windrow-*`
-attributes only Windrow stamps. A case whose HTML contains that prefix while
+fixture rather than trusted.** Six of the seventeen rules read stamped
+attributes only the other renderer produces. A case whose HTML carries them while
 claiming to be portable fails the suite. There is a third value, `host-styling`,
 for the one rule that is portable code but only fires on inline styles: neither
 "works everywhere" nor "needs our markup", and calling it either would be a lie in
 one direction.
 
 **The limit, stated rather than discovered.** The expectations were generated by
-running Windrow's checker as it stands, not written from what it should do. So
+running the upstream checker as it stands, not written from what it should do. So
 the corpus cannot catch a bug already shipping in both projects. It is not for
 that. It is for catching the two projects answering differently, and for that the
 starting point only has to be shared.
@@ -1213,10 +1269,10 @@ unenforced and the README says so. The first code written here runs it.
 
 ## 2026-08-12: Two projects, forked, with one shared corpus holding them honest
 
-**Decision.** This addon is its own codebase, maintained separately from Windrow.
+**Decision.** This addon is its own codebase, maintained separately from upstream.
 Not a shared Composer package with two consumers. Owner's call, made explicitly.
 
-This closes open question 2, and it closes it against what the Windrow plan
+This closes open question 2, and it closes it against what the upstream plan
 originally called the only acceptable answer. That plan said two copies of the
 rules would drift, and drift is worse than not shipping, because a conformance
 claim then depends on which copy ran. **That risk is real and is not waved away
@@ -1225,9 +1281,9 @@ here.** What changed is the weight on the other side of it.
 **Why a fork is defensible, and it is not just convenience.**
 
 The two are already different products, and a shared package would have had to
-pretend otherwise. Windrow runs seven check families; this addon can run four,
-because three read attributes only Windrow's renderer stamps. Windrow maps a rule
-to an editor field through `FieldTarget`; Statamic has no such fields. Windrow's
+pretend otherwise. Upstream runs seven check families; this addon can run four,
+because three read attributes only that renderer stamps. Upstream maps a rule to
+an editor field through `FieldTarget`; Statamic has no such fields. Its
 gate blocks a publish it fully controls; this one hangs off `EntrySaving` and has
 to infer what publishing even means. A single package serving both is a lowest
 common denominator with two sets of escape hatches.
@@ -1236,9 +1292,9 @@ The extraction was also the most expensive and riskiest phase in the plan, and i
 sat inside the codebase that pays the bills. A fork deletes that phase entirely.
 
 And the release friction was permanent: a rule fix would have meant a package
-release plus a version bump in two consumers, forever, on the thing Windrow is
+release plus a version bump in two consumers, forever, on the thing upstream is
 sold on. The standard fix for that is a monorepo with automated read-only splits,
-whose tooling is a GitHub Action, and Actions on the Windrow repo are dead until
+whose tooling is a GitHub Action, and Actions on that repo are dead until
 September.
 
 **The mitigation, which is the actual decision here.** Forking the code is fine.
@@ -1247,7 +1303,7 @@ corpus**: a directory of HTML fixtures and the exact findings each must produce,
 checked into both, run by both suites. Implementations may diverge. Behaviour
 diverges only when somebody changes the corpus, in a commit, on purpose.
 
-That corpus already half exists, as Windrow's
+That corpus already half exists, as the upstream
 `StaticCheckerCharacterisationTest`, which pins the ordered rule list, all
 fourteen keys of a violation, every severity, and the exact blocking set. It was
 written to make a refactor safe and it turns out to be the thing that makes a
@@ -1259,7 +1315,7 @@ warning: two accessibility tools with the same name and quietly different
 answers.
 
 **A consequence worth naming, because it is new.** Forking means publishing a
-copy of Windrow's checker, and Windrow's repository is private. The rules become
+copy of the upstream checker, and that repository is private. The rules become
 public. That is consistent with the decision above and with the fact that they
 are readable in any element inspector, but it is a real change in exposure and it
 should be a choice rather than a side effect.
@@ -1490,14 +1546,14 @@ questions, and none of them are blocking in the way this one was.
 ## 2026-08-12: Named for what it does, not for who made it
 
 **Decision.** `statamic-a11y-gate`, and the Marketplace listing reads
-"Accessibility Gate" rather than carrying the Windrow name.
+"Accessibility Gate" rather than carrying the parent product's name.
 
 **Why.** A buyer evaluating this has a compliance problem, not an opinion about
-Windrow. A name that requires knowing the parent product spends attention on the
+it. A name that requires knowing the parent product spends attention on the
 wrong thing, and it ties a standalone tool's reputation to a CMS the buyer has
 already decided not to use.
 
-**Rejected.** *`windrow-statamic-gate`*, which would build the Windrow name with
+**Rejected.** A name built from the parent product's, which would build that name with
 Statamic developers. That is a real benefit and it was turned down because the
 addon is a product rather than an advertisement, and because the two can be
 associated in the listing copy without being welded together in the package name.

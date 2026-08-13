@@ -1,0 +1,6 @@
+{
+    "name": "image-decorative-opt-out",
+    "why": "The other side of the same distinction: an empty alt is how a genuinely decorative image opts out, and demanding a description for a spacer would teach authors to write noise. Both spellings, because a rule that accepted one and refused the other would be arbitrary. Pinned alongside image-alt-empty, since a change that fixes one by breaking the other is the likely mistake.",
+    "portability": "portable",
+    "findings": []
+}

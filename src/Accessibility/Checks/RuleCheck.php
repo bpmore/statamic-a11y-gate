@@ -14,10 +14,10 @@ use Bpmore\A11yGate\Accessibility\Violation;
  * methods have no state, no configuration and no reason to vary. Making them
  * overridable would be offering a choice nobody should make.
  *
- * Thinner than Windrow's version by one method. There, `blockMeta()` walks up to
- * the `data-block-uid` its renderer stamps, so the editor can highlight the block
- * that produced an issue and a violation can name the field to focus. A Statamic
- * entry rendered through the site's own templates carries no such attribute, so
+ * There is no way to point at the block that produced a finding, and no attempt
+ * to invent one. An editor that stamped `data-block-uid` into its own output
+ * could walk up to it and highlight the block. A Statamic entry rendered through
+ * the site's own templates carries no such attribute, so
  * that walk could only ever return empty strings here, and every check would be
  * calling it to pass nothing anywhere.
  */
