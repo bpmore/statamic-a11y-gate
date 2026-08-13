@@ -66,7 +66,7 @@ it('has a corpus at all', function () {
     // renamed, which would turn every assertion below into a loop over nothing
     // and report a clean pass. A vacuous suite is the worst outcome here,
     // because the whole point is catching silent divergence.
-    expect(count(corpusCases()))->toBeGreaterThanOrEqual(19);
+    expect(count(corpusCases()))->toBeGreaterThanOrEqual(22);
 });
 
 it('produces exactly the findings the corpus expects, in order', function () {

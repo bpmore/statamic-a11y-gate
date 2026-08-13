@@ -1,0 +1,12 @@
+{
+    "name": "link-unclear-with-trailing-words",
+    "why": "The instruction is still the link text, and trailing words do not name the destination. Pinned because the fix for the false positive next door must not take this with it.",
+    "portability": "portable",
+    "findings": [
+        {
+            "rule": "link-unclear",
+            "severity": "error",
+            "wcag": "WCAG 2.4.4"
+        }
+    ]
+}
