@@ -67,7 +67,6 @@ final class EntryRenderer
         // rendering return it rather than whatever is on disk.
         $entry->repository()->substitute($entry);
 
-        $request = Request::create($url, 'GET');
         $previous = $this->app->bound('request') ? $this->app->make('request') : null;
 
         // A draft has no public page: `DataResponse::handleDraft()` throws a 404
@@ -83,10 +82,46 @@ final class EntryRenderer
         // is saved, nothing is cached, and there is no token to clean up.
         $wasPublished = $entry->published();
 
+        // The same problem one layer along, and it took a scheduled post to find
+        // it. A collection can be set so that entries dated in the future (or in
+        // the past) are private, and `DataResponse::handlePrivateEntries()` throws
+        // the same 404 for those as it does for a draft. Publishing was not the
+        // only thing standing between the gate and a page.
+        //
+        // That made every scheduled post unpublishable while the gate refuses:
+        // the checks could not run, the gate does not read that as a pass, and so
+        // the save was refused. An accessibility tool that stops a site scheduling
+        // posts is worse than no accessibility tool.
+        //
+        // Dates are restored in `finally` exactly like the published flag.
+        $wasDate = $entry->collection()?->dated() ? $entry->date() : null;
+
         try {
             if (! $wasPublished) {
                 $entry->published(true);
             }
+
+            // Nudged to a date the collection is willing to show. Now first,
+            // which answers the common case of a post scheduled ahead. A
+            // collection that hides past entries instead needs the opposite, and
+            // one configured to hide both has no visible date at all: the loop
+            // stops trying and the 404 is reported honestly rather than papered
+            // over with a date that changes nothing.
+            if ($wasDate !== null && $entry->private()) {
+                foreach ([now(), now()->addYear()] as $visible) {
+                    $entry->date($visible);
+
+                    if (! $entry->private()) {
+                        break;
+                    }
+                }
+            }
+
+            // Built after the date is settled, not before. A collection that
+            // routes on the date ("/{year}/{month}/{slug}") gives a different URL
+            // once the date moves, and requesting the old one would 404 on a page
+            // that was about to render perfectly well.
+            $request = Request::create($entry->absoluteUrl() ?: $url, 'GET');
 
             // The current request during a save is the control panel's PATCH.
             // Templates that ask for the request would otherwise render the page
@@ -112,6 +147,15 @@ final class EntryRenderer
             throw new CouldNotRender('the page threw while rendering: '.$reason, previous: $e);
         } finally {
             $entry->published($wasPublished);
+
+            // An entry left holding today's date by a check would be saved with
+            // it by the next save that touched it, silently unscheduling a post
+            // nobody asked to unschedule. Same reasoning as the published flag,
+            // and the same reason both are restored here rather than after the
+            // status checks below, which throw.
+            if ($wasDate !== null) {
+                $entry->date($wasDate);
+            }
 
             if ($previous !== null) {
                 $this->app->instance('request', $previous);
