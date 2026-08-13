@@ -24,6 +24,25 @@ without the change being visible.
 
 Every result says how much of the page it could see.
 
+## What the first hour looks like
+
+Two things surprise people, and both are the addon working as designed.
+
+**A stock Statamic site cannot re-save its own home page.** The default starter
+template has no `h1`, so the gate refuses with "Add a heading". That is a real
+finding about a real page, and it is a template you did not write. Fix the
+template, or switch to reporting while you clear the ground.
+
+**The first save of a new page is not checked.** On a collection that routes
+through the page tree, an entry has no address until it is saved, and there is
+nothing to fetch until it does. The panel says so, and every save after the first
+is checked normally.
+
+The gate ships **on for every collection, refusing**. If that is too much for the
+site you are installing on, set it to report instead: the setting is in the
+addon's own settings screen, and a site with a backlog is exactly what reporting
+is for.
+
 ## The panel
 
 It is already there. The panel appears in the sidebar of every collection being
