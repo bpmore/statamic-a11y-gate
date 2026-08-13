@@ -17,8 +17,8 @@ use DOMXPath;
  *
  * WCAG 2.4.4, plus house rules. The awkward family: the vague-phrase judgement
  * is a word list rather than a property of the markup, which makes it the rule
- * most likely to drift between the two forks. The list lives in
- * `LinkTextVocabulary` and its defaults are Windrow's current values.
+ * most likely to change without anybody noticing. The list lives in
+ * `LinkTextVocabulary`, and the corpus pins what it does.
  *
  * Covers empty accessible names on both links and buttons, wholly generic text
  * ("click here"), vague text, and links with nowhere to go.

@@ -58,9 +58,9 @@ final class StaticAccessibilityChecker
     /**
      * The findings alone.
      *
-     * Kept because the shared conformance corpus is about findings and nothing
-     * else: coverage is this project's own reporting and Windrow has none yet,
-     * so a corpus that demanded it would be unanswerable on the other side.
+     * Kept because the corpus is about findings and nothing else. Coverage is
+     * reporting rather than a verdict, and pinning it would make every
+     * improvement to how coverage is described look like a behaviour change.
      * Nothing that shows a result to a person should use this.
      *
      * @return array<int, Violation>

@@ -14,10 +14,10 @@ namespace Bpmore\A11yGate\Accessibility;
  * `wcag` is the label the finding is allowed to cite, and for several rules it
  * is deliberately not a success criterion. See `Remediation` for which, and why.
  *
- * Narrower than Windrow's Violation by four fields. Windrow carries `blockUid`,
- * `fieldKey` and `breakpoint` so its editor can highlight the block and focus
- * the control that produced an issue. Statamic has no blocks and no editor
- * fields of that shape, so those fields could only ever be empty strings here,
+ * There is no `blockUid`, `fieldKey` or `breakpoint`. An editor that owns its own
+ * rendering can carry those and highlight the control that produced an issue.
+ * Statamic has no blocks and no editor fields of that shape, so they could only
+ * ever be empty strings here,
  * and an always-empty field is an invitation to write code that pretends to
  * read it.
  */

@@ -11,15 +11,15 @@ namespace Bpmore\A11yGate\Accessibility;
  * and 44 at AAA (2.5.5). Everything else in the pack is at the AA floor and
  * level-independent, so it ignores the argument entirely.
  *
- * Windrow resolves this from a `config()` catalogue, and this fork does not,
- * because the checker must stay framework-free: it takes HTML and returns
- * findings. A named constructor per level is a list you can read in ten seconds,
- * and adding a level is a method rather than a registry plus a resolver.
+ * A named constructor per level rather than a `config()` catalogue, because the
+ * checker must stay framework-free: it takes HTML and returns findings. A list
+ * you can read in ten seconds, and adding a level is a method rather than a
+ * registry plus a resolver.
  *
- * Deliberately narrower than Windrow's. Its axe tag lists and contrast
- * thresholds are read by a browser pass and a token-time validator that this
- * addon does not have, and a field nothing reads is an invitation to write code
- * that pretends to read it.
+ * It carries only what something here reads. Axe tag lists and contrast
+ * thresholds belong to a browser pass and a token-time validator this addon does
+ * not have, and a field nothing reads is an invitation to write code that
+ * pretends to read it.
  */
 final class AccessibilityStandard
 {

@@ -9,10 +9,10 @@ namespace Bpmore\A11yGate\Accessibility;
  * call to action an author is shown. This is the only place a rule id becomes
  * guidance, so the wording cannot differ between two rule families.
  *
- * The rules and their copy are ported from Windrow, which is the other fork of
- * this checker. The label attached to each rule is part of the shared conformance
- * corpus: changing one here without changing it there is the silent divergence
- * `corpus/` exists to catch.
+ * The label attached to each rule is pinned by the corpus. Changing one is a
+ * behaviour change, not a wording change, because the label is what a finding is
+ * allowed to cite and citing the wrong thing is the failure this product cannot
+ * afford.
  */
 final class Remediation
 {
