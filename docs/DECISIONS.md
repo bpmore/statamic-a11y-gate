@@ -9,6 +9,70 @@ read alongside that one.
 
 ---
 
+## 2026-08-13: The panel checks a page that does not exist yet
+
+The panel told an author to save the page before checking it. On a collection
+that publishes by default, there is no way to save without publishing, and the
+gate refuses to publish a page with a problem. So the panel's advice was the one
+thing the gate would not allow, and an author with a broken new page had nothing
+to work with but a refusal toast that names a single finding.
+
+Not an edge case. It is every page anybody writes, the first time they write it.
+
+**The obstacle was that the panel does not know where it is.** Statamic's create
+screen has no entry reference in its view data, only its edit screen does, and it
+never calls `setParent()` on the blueprint either, so a fieldtype cannot ask
+which collection it is sitting in. Read in `EntriesController::create()` against
+`statamic/cms v6.27.2`.
+
+Rejected:
+
+- **Parsing the collection out of the page URL.** The panel already refuses to
+  read the URL, for the reason that holds here too: it breaks the first time a
+  route changes and no test catches it.
+- **Reading the Inertia page props.** Same objection with more steps. It couples
+  the panel to the shape of a screen that Statamic is free to change.
+- **Leaving it, and telling people to set their collections to draft by
+  default.** That makes every site change its publishing habits to suit an addon.
+
+Taken: the listener that places the field stamps the collection and blueprint
+handles into the field's own config, and `Field::toPublishArray()` merges raw
+config, so both reach the browser as the component's `config` prop. The one piece
+of code that already knows the answer writes it down where the panel can read it.
+Both halves were verified in the compiled control panel rather than assumed:
+fieldtype components are handed `config`, and undeclared config keys survive
+`preProcessedConfig()`.
+
+The endpoint then builds the entry the way Statamic's own create screen would:
+collection, the blueprint's processed values, a date if the collection is dated,
+and a slug from the title. Nothing is saved, and a test asserts the collection is
+still empty afterwards, because an endpoint that checks a page must never become
+a way to create one.
+
+Two decisions inside that are worth naming:
+
+- **Permission is `create` on the collection, not `view` on an entry.** There is
+  no entry to check against, and this renders a page from values the caller
+  supplies, so it must not be a way into a collection somebody cannot write to.
+- **A page with no title is refused rather than checked.** Found by asserting the
+  harmless outcome and getting a rendered one. An entry with no slug does not
+  produce "no URL": it produces the collection's route with a hole in it, which
+  renders whatever lives at that address and reports back about a page the author
+  never opened. Reporting somebody else's findings as yours is worse than
+  refusing, so it asks for a title.
+
+**A hand-placed field still asks for a save.** `ensureField` leaves an existing
+field's config alone, so somebody who turned the toggle off and placed the panel
+themselves has no collection stamped on it. It says so instead of guessing which
+collection was meant.
+
+Checked against the real site rather than only the suite: an entry that has never
+been saved renders through hada.farm's own templates at 16324 bytes, with the
+unsaved title and the unsaved body both present in the output, and nothing
+written to disk.
+
+---
+
 ## 2026-08-13: Colour the message, not the space beside it
 
 Third attempt at the same defect, and the first two are worth keeping because the

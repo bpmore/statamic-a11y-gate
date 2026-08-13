@@ -34,6 +34,30 @@ it('adds the panel to a gated collection that has pages', function () {
     expect($field->type())->toBe('accessibility_panel');
 });
 
+it('tells the panel which collection and form it is sitting in', function () {
+    // Not decoration, and not something the panel can work out for itself.
+    // Statamic's create screen sends no entry reference and never sets the
+    // blueprint's parent, so this stamp is the only thing that lets a page be
+    // checked before its first save. Without it an author on a new page is told
+    // to save first, and on a collection that publishes by default the gate
+    // then refuses the save.
+    config()->set('statamic-a11y-gate.add_panel_to_blueprints', true);
+
+    $blueprint = Collection::find('pages')->entryBlueprint();
+    $field = $blueprint->field('a11y_panel');
+
+    expect($field->get('collection'))->toBe('pages');
+    expect($field->get('blueprint'))->toBe($blueprint->handle());
+
+    // The stamp is worth nothing unless it reaches the browser. Field config
+    // does, through `toPublishArray()`, and that is what the Vue component reads
+    // as its `config` prop.
+    $published = $field->toPublishArray();
+
+    expect($published['collection'])->toBe('pages');
+    expect($published['blueprint'])->toBe($blueprint->handle());
+});
+
 it('leaves a collection with no pages alone', function () {
     // No route means no page, so the panel would sit in the form forever saying
     // there is nothing to check.

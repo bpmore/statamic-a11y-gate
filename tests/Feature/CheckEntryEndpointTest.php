@@ -175,6 +175,79 @@ it('checks a draft, which is the state an author most wants checked', function (
     expect($onDisk->published())->toBeFalse();
 });
 
+it('checks a page before it has ever been saved', function () {
+    // The case this endpoint was rebuilt for. Statamic's create screen sends no
+    // entry reference, and on a collection that publishes by default there is no
+    // way to save without publishing, and the gate refuses the publish. So an
+    // author with a broken page was told to save it first and then stopped from
+    // saving it: told to do the one thing the gate would not allow.
+    //
+    // The collection and blueprint come from the panel's own field config,
+    // stamped there by the listener that places the field.
+    $this->viewShouldReturnRaw('default', '<html lang="en"><body><h1>The weir</h1>{{ body }}</body></html>');
+
+    $response = $this->actingAs($this->user)
+        ->postJson(cp_route('a11y-gate.check'), [
+            'collection' => 'pages',
+            'values' => ['title' => 'The weir', 'body' => '<img src="/a.jpg">'],
+        ]);
+
+    $response->assertOk();
+
+    expect($response->json('outcome'))->toBe('checked');
+    expect($response->json('errors.0.cta'))->toBe('Add a description');
+
+    // Nothing was written. An endpoint that checks a page must not be a way to
+    // create one, and the whole point is that this entry does not exist yet.
+    expect(Entry::query()->where('collection', 'pages')->count())->toBe(0);
+});
+
+it('asks for a title rather than checking somebody else page', function () {
+    // A URL is built from the slug and the slug from the title, so an unnamed
+    // page has no URL. Letting it through does not produce "no page": it
+    // produces the collection's route with a hole in it, which renders whatever
+    // lives at that address and reports back about a page the author never
+    // opened. Found by asserting the harmless outcome and getting a rendered
+    // one instead.
+    $response = $this->actingAs($this->user)
+        ->postJson(cp_route('a11y-gate.check'), [
+            'collection' => 'pages',
+            'values' => ['body' => '<img src="/a.jpg">'],
+        ]);
+
+    $response->assertStatus(422);
+
+    expect($response->json('message'))->toContain('no title yet');
+});
+
+it('will not check a new page for somebody who cannot create one', function () {
+    // This renders a page from values the caller supplies. There is no entry to
+    // check permission against yet, so the collection is what stands in for it.
+    $this->setTestRoles(['no_entries' => ['access cp']]);
+
+    $nobody = User::make()->assignRole('no_entries');
+    $nobody->save();
+
+    $this->actingAs($nobody)
+        ->postJson(cp_route('a11y-gate.check'), [
+            'collection' => 'pages',
+            'values' => ['title' => 'The weir'],
+        ])
+        ->assertForbidden();
+});
+
+it('says so when the collection it was given does not exist', function () {
+    $response = $this->actingAs($this->user)
+        ->postJson(cp_route('a11y-gate.check'), [
+            'collection' => 'nope',
+            'values' => ['title' => 'The weir'],
+        ]);
+
+    $response->assertNotFound();
+
+    expect($response->json('message'))->toContain('[nope]');
+});
+
 it('says why when the entry has never been saved', function () {
     // Statamic's create screen carries no `reference` in its view data, only its
     // edit screen does, so the panel has nothing to send until the first save.
