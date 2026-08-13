@@ -18,11 +18,11 @@ conditions below.
    part, may not be redistributed, resold, sublicensed, or reused as the basis of
    another product without written permission.
 
-   This is the condition the whole licence exists for, and it is worth saying why
-   rather than leaving it to be guessed at. These rules are a deliberate fork of
-   the accessibility engine behind another product by the same author. Giving the
-   addon away permissively would give that engine away too, to anyone including a
-   competitor selling against it. Free to use is the intent. Free to take is not.
+   This is the condition the whole licence exists for. These rules are a
+   deliberate fork of the accessibility engine behind another product by the
+   same author. A permissive licence on the addon would give that engine away
+   too, to anyone, competitors included. Free to use is the intent. Free to
+   take is not.
 
    Reading the code to learn from it is expected and encouraged. Shipping it as
    your own is not.
@@ -38,11 +38,11 @@ automatically.
 
 ## No warranty, and specifically no conformance claim
 
-This matters more here than in most licences, so it is stated in plain words
-rather than left to the capitals below.
+The capitals are below, as usual. This part is in plain words because it is the
+part people actually need.
 
-**This Software cannot tell you that a site is accessible, and nothing it
-produces is a conformance claim.** Automated checking finds a subset of a subset:
+This Software cannot tell you that a site is accessible, and nothing it
+produces is a conformance claim. Automated checking finds a subset of a subset:
 it reads rendered HTML, it catches what is mechanically detectable, and a great
 deal of WCAG 2.2 AA is not mechanically detectable at all. A page this Software
 refuses to publish has a problem. A page it allows has not been proven to have
@@ -66,8 +66,8 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ---
 
-*This licence was drafted by reading Statamic's own, which is the norm this addon
-is listed alongside. It has not been reviewed by a lawyer. The conformance
-disclaimer is the clause most likely to be tested, and giving the software away
-does not make that less true: a free tool that somebody relied on is still a tool
-somebody relied on.*
+*This licence was drafted by reading Statamic's own, which is the norm this
+addon is listed alongside. No lawyer has reviewed it. The conformance
+disclaimer is the clause most likely to be tested one day, and giving the
+software away for free does not change that: a tool somebody relied on is a
+tool somebody relied on.*
