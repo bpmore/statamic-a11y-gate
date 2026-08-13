@@ -106,6 +106,20 @@
         // Checked on a button rather than on every keystroke. A check renders the
         // whole page through the site's templates, and firing that on each
         // character typed would make the editor feel broken and hammer the site.
+        //
+        // A failed request wears the same red badge as a gate that could not
+        // check, and that is not decoration. It was a bare `ui-description`,
+        // which is the same small grey line as the idle hint sitting in the same
+        // place: pressing the button swapped one grey sentence for another, and
+        // it was reported as the button doing nothing at all. Watched happening
+        // on a live site with the request confirmed at 422 and the right message
+        // in the body, which is the worst version of this bug, because
+        // everything was working.
+        //
+        // Whether the check did not run because the gate could not render the
+        // page or because the request never got an answer is a distinction for
+        // whoever maintains this. To the author both mean the same thing and must
+        // look the same: nothing is known about this page.
         template: `
             <div class="space-y-3">
                 <div>
@@ -119,7 +133,10 @@
 
                 <ui-skeleton v-if="state.checking" class="h-16 w-full" />
 
-                <ui-description v-else-if="state.failed" :text="state.failed" />
+                <template v-else-if="state.failed">
+                    <div><ui-badge color="red" text="Could not check" /></div>
+                    <ui-description :text="state.failed" />
+                </template>
 
                 <template v-else-if="state.result">
                     <template v-if="state.result.outcome === 'could-not-check'">
