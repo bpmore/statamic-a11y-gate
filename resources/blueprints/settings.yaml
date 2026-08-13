@@ -47,6 +47,12 @@ tabs:
               type: toggle
               display: 'Add the panel to the collections above'
               instructions: 'Puts an Accessibility panel in the sidebar of every entry form in the collections you chose, so an author can check a page before publishing it. Turn this off if you would rather add it to your entry forms yourself.'
+              # Matches the config file, and that is not tidiness. A screen
+              # renders a field from its own default until somebody saves it, so
+              # a toggle defaulting to false would sit here showing OFF while the
+              # panel was on, and the first save of this screen would submit that
+              # false as a real answer and switch it off.
+              default: true
       -
         display: 'Checks your templates have to support'
         fields:

@@ -155,3 +155,32 @@ it('falls back to the config file for a field left empty', function () {
     expect($resolved->gates('blog'))->toBeTrue();
     expect($resolved->gates('pages'))->toBeFalse();
 });
+
+it('shows the panel toggle as on, because it is', function () {
+    // A screen renders a field from the field's own default until somebody saves
+    // it. The panel ships on, so a toggle defaulting to off would sit here saying
+    // the opposite, and the first save of this screen would submit that false as
+    // a real answer and switch off the thing that makes a refusal readable.
+    //
+    // Found by being asked whether a new install has to turn the panel on. It
+    // does not, and until this default was set, opening this screen would have
+    // turned it off.
+    $blueprint = Addon::get('bpmore/statamic-a11y-gate')->settingsBlueprint();
+
+    expect($blueprint->field('add_panel_to_blueprints')->defaultValue())
+        ->toBe(config('statamic-a11y-gate.add_panel_to_blueprints'));
+
+    expect($blueprint->field('add_panel_to_blueprints')->defaultValue())->toBeTrue();
+});
+
+it('shows every setting as what it actually is before anybody saves', function () {
+    // The general case of the bug above. A settings screen that describes a
+    // different state from the one the addon is in is worse than no screen: it
+    // is wrong, and saving it makes the addon agree with the wrong answer.
+    $blueprint = Addon::get('bpmore/statamic-a11y-gate')->settingsBlueprint();
+
+    foreach (['mode', 'add_panel_to_blueprints'] as $handle) {
+        expect($blueprint->field($handle)->defaultValue())
+            ->toBe(config("statamic-a11y-gate.{$handle}"), "the settings screen shows a different {$handle} from the one in force");
+    }
+});
