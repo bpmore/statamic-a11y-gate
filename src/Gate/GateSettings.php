@@ -27,6 +27,8 @@ final class GateSettings
         public readonly string $mode = self::REFUSE,
         public readonly array $collections = [],
         public readonly array $optedIn = [],
+        /** Whether to put the panel into gated collections' blueprints for you. */
+        public readonly bool $addsPanel = false,
         public readonly AccessibilityStandard $standard = new AccessibilityStandard('wcag22aa', 'WCAG 2.2 Level AA', 24),
     ) {}
 
@@ -48,6 +50,7 @@ final class GateSettings
             mode: $mode,
             collections: array_values(array_filter((array) ($config['collections'] ?? []))),
             optedIn: array_values(array_filter((array) ($config['opt_in_checks'] ?? []))),
+            addsPanel: (bool) ($config['add_panel_to_blueprints'] ?? false),
             standard: ($config['standard'] ?? 'wcag22aa') === 'wcag22aaa'
                 ? AccessibilityStandard::wcag22aaa()
                 : AccessibilityStandard::wcag22aa(),

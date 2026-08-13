@@ -9,6 +9,115 @@ read alongside that one.
 
 ---
 
+## 2026-08-12: Settings belong in the control panel, because of who ends up holding the site
+
+Everything configurable was a PHP file and a terminal command. That is fine for
+the person who installs the addon and useless for the person who ends up with it.
+
+**The chain that was being ignored.** A developer installs from the marketplace
+and hands over. The person left holding the site opens the control panel, wants
+the gate to report rather than refuse while a backlog is cleared, and cannot edit
+`config/statamic-a11y-gate.php` or run `php artisan config:clear`. They email the
+developer, who has moved on. For a free addon with no support contract, that is
+where a setting goes to die.
+
+Statamic gives the screen away: a `resources/blueprints/settings.yaml` is the
+entire implementation, and the route, controller and storage already exist. Four
+things moved onto it: what happens when a page has a problem, which collections
+to check, whether to add the panel automatically, and the two opt-in checks.
+
+**Every word on it is written for that person.** A test fails if the screen says
+"blueprint", "handle", "yaml", ".env" or a file path, which is the same rule the
+panel already answers to: the reader can act, or the words are noise.
+
+**The screen wins once saved; the file answers until then.** A screen that
+silently lost to a file would be worse than no screen, because somebody changes a
+setting, saves, sees nothing happen, and stops trusting the rest of the addon.
+
+**Three traps, all found by running it rather than reading it.**
+
+An unsaved settings record is not empty: it comes back carrying the blueprint's
+own defaults. Merging its values would let a field default beat a config file
+somebody wrote on purpose, so what matters is whether a record *exists*, not
+whether it has values.
+
+`all()` blends those defaults over what was saved even on a record that does
+exist. Somebody who opens the screen, flips one toggle and saves would have
+turned a site configured to report into a site that refuses, because "refuse" is
+that field's default. `raw()` is exactly what was saved and nothing else. This
+one survived four mutations and was only caught by writing the specific case.
+
+And the slug. `FileSettings::path()` writes to `resources/addons/{slug}.yaml`
+while `FileSettingsRepository::find()` reads
+`resources/addons/{everything after the slash in the package name}.yaml`. With a
+slug of `a11y-gate` on a package called `bpmore/statamic-a11y-gate`, saving
+worked and loading never did. **An addon whose slug differs from its package name
+cannot use Statamic's own settings storage**, so the slug is now
+`statamic-a11y-gate`, which renames the config file with it. Nothing had shipped,
+so the cost was a rename and one `php artisan statamic:addons:discover` on the
+test site.
+
+**Mutation-tested, five run, five killed**, and the fourth is the one worth
+keeping: reading `all()` instead of `raw()`, the screen never winning, falsey
+answers thrown away, the settings blueprint deleted, and an untouched field on
+the screen overruling the file.
+
+**Rejected.** *A screen for placing the panel in blueprints*, because Statamic
+has one and it is the blueprint editor. *Config file wins*, which protects a
+developer's deployment and breaks the screen for everyone else.
+
+---
+
+## 2026-08-12: The addon can put its own panel in blueprints, off unless asked
+
+Adding the panel to a site meant editing every entry blueprint by hand. On a
+small site that is seven files. The addon can do it itself, and now does, behind
+`add_panel_to_blueprints`.
+
+**The mechanism is Statamic's own.** `slug` and `date` are not in anybody's yaml
+either: they are added to the blueprint as it is found, through
+`EntryBlueprintFound` and `ensureField`. Using the same call means the field
+behaves like a native one and disappears cleanly when the addon is removed,
+rather than leaving an orphaned handle in a file somebody has to go and delete.
+
+**Off by default, and that is the decision rather than the feature.** An addon
+that rearranges publish forms on install is one that somebody who did not choose
+it will uninstall by lunchtime. The first run of this addon should surprise
+nobody.
+
+**Three things it refuses to do**, each because the alternative is a field
+sitting in a form saying nothing useful:
+
+- A collection with no route never gets it. No pages means nothing to check.
+- A collection the `collections` setting excludes never gets it. If the gate is
+  not watching it, a panel offering to check it is an odd thing to draw.
+- A blueprint that already carries the field keeps its own placement and does
+  not get a second copy, because `ensureField` matches on the handle.
+
+**The collection is read off the blueprint's namespace, not off the event's
+entry, and this is the bug that was nearly shipped.** `EntryBlueprintFound`
+carries an entry only sometimes: Statamic dispatches it from the entry when
+there is one, and from the collection when there is not. The second path is what
+happens when somebody presses Create, which is the first time an author ever
+sees the form. Reading the collection from `$event->entry` would have passed
+every test written before that was noticed, and left the panel missing at
+exactly that moment.
+
+**Mutation-tested, four run, four killed:** the flag ignored, routeless
+collections included, the collection filter ignored, and the default flipped to
+on. The last one survived first time and is worth naming: every test set the key
+explicitly, so nothing exercised the fallback that decides for a site whose
+published config predates the setting. That is precisely the site the surprise
+would land on.
+
+**Rejected.** *A settings screen for choosing collections*, because Statamic
+already has one for this and it is called the blueprint editor: it knows which
+tab, what order and what display name, and a second screen would answer none of
+those. *On by default*, which is the better first run and the worse first
+impression.
+
+---
+
 ## 2026-08-12: The whole-site scan, and why the grouping is the feature
 
 `php please a11y:check` renders every published page and groups the findings by
