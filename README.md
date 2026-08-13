@@ -45,8 +45,8 @@ addon's settings screen, and a site with a backlog is what reporting is for.
 ## The panel
 
 It is already there. The panel appears in the sidebar of every checked
-collection that has pages, no blueprint edits needed. "Add the panel to the
-collections above" in the addon's settings turns it off again.
+collection that has pages, no blueprint edits needed. To remove it, switch off
+"Add the panel to the collections above" in the addon's settings.
 
 This uses the same mechanism Statamic uses for `slug` and `date`, which are not
 in your yaml either. The field behaves like a native one and leaves nothing
