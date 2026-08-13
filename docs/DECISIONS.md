@@ -12,6 +12,50 @@ more than a file that only ever describes the present.
 
 ---
 
+## 2026-08-13: A page with no address yet is told the truth about why
+
+Found by installing the addon into a stock Statamic site rather than by anything
+in the suite, which is the argument for doing that before listing.
+
+Statamic's default `pages` collection routes on `{parent_uri}/{slug}`, and that
+URI comes from the page tree. An entry being created is not in the tree while
+`EntrySaving` runs, so `absoluteUrl()` is null, so there is nothing to fetch.
+**The first save of a page in a structured collection is therefore unchecked, and
+every save after it is checked.**
+
+That hole is real and it stays. Refusing here would mean no page could ever be
+created in such a collection, which is worse than one unchecked save. hada.farm
+never showed it because its blog routes on `blog/{slug}`, which does not depend
+on the tree.
+
+**What was actually wrong was the sentence.** The gate reported "the entry has no
+page of its own", which is what it says for a collection the site never routes.
+Here the entry has a page. It has no address yet. Reporting the false one is the
+failure this product exists to refuse, in miniature, and it was doing it on every
+first save on a default install.
+
+So `PageHasNoAddressYet` is now its own type, extending `EntryHasNoPage` because
+it needs the same answer to the only question the gate asks, which is whether to
+refuse. It does not. `EntryHasNoPage` lost its `final` for exactly this and says
+so: anything that ought to fail closed belongs under `CouldNotRender` instead.
+
+Both halves have their own test, so a fix to one cannot quietly answer for the
+other.
+
+**Two other things that install turned up**, neither a defect:
+
+A stock Statamic site cannot re-save its own home page. The default starter
+template has no `h1`, so the gate refuses with "Add a heading". That is the gate
+being right, and it is also the first thing a new customer meets: blocked on a
+page they did not write, by a template they did not choose. It belongs in the
+README rather than in the code.
+
+The default starter never renders the `content` field, so an image pasted into it
+does not reach the page and is not checked. Also correct, and a useful reminder
+that this addon checks the rendered page rather than the entry.
+
+---
+
 ## 2026-08-13: A settings screen must show the state the addon is actually in
 
 Flipping the panel default to true broke the settings screen, and the bug shipped

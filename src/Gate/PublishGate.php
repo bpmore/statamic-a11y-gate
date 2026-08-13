@@ -65,9 +65,15 @@ final class PublishGate
     {
         try {
             $html = $this->renderer->render($entry);
+        } catch (PageHasNoAddressYet) {
+            // A page that exists but has no address yet, which on a collection
+            // routed through the page tree is every entry on its first save. Not
+            // refused, because refusing would mean no page could be created at
+            // all, and said accurately rather than borrowing the sentence below.
+            return GateResult::notApplicable('this page has no address yet, so there was nothing to fetch. It is checked from the next save onwards');
         } catch (EntryHasNoPage) {
             // Nothing to check rather than a failure to check, and the order of
-            // these two catches is the whole distinction: an entry the site
+            // these three catches is the whole distinction: an entry the site
             // never routes has no page to get wrong.
             return GateResult::notApplicable('the entry has no page of its own');
         } catch (CouldNotRender $e) {
