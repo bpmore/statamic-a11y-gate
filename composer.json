@@ -4,6 +4,19 @@
     "keywords": ["statamic", "accessibility", "a11y", "wcag"],
     "license": "proprietary",
     "type": "statamic-addon",
+    "homepage": "https://hada.farm",
+    "authors": [
+        {
+            "name": "Brent Passmore",
+            "homepage": "https://hada.farm"
+        }
+    ],
+    "funding": [
+        {
+            "type": "other",
+            "url": "https://buymeacoffee.com/bpmore"
+        }
+    ],
     "require": {
         "php": "^8.4",
         "ext-dom": "*",
