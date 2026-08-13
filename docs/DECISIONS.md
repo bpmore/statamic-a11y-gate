@@ -9,6 +9,48 @@ read alongside that one.
 
 ---
 
+## 2026-08-13: Colour the message, not the space beside it
+
+Third attempt at the same defect, and the first two are worth keeping because the
+pattern is the point. A check that could not run drew nothing. Fixed. It drew a
+grey sentence where a grey sentence already was, and was reported as the button
+doing nothing while the request returned 422 with the right words in it. Fixed
+with a badge. The badge is a small word in a small pill above the sentence, and
+it was missed the same way.
+
+Each fix was correct and each one was too quiet. What was actually wanted, and
+was said plainly the third time, is for the message itself to change colour.
+
+So `ui-alert` replaces the badge and the description in both failure paths:
+`warning` for an entry nobody has saved yet, `error` for everything that really
+went wrong. Statamic's own component, checked in `statamic/cms v6.27.2`: it takes
+`text`, `heading`, `variant` and `icon`, and `variant` accepts exactly `default`,
+`warning`, `error` and `success`.
+
+Two things settled it over anything hand-rolled, beyond the standing rule against
+inventing controls inside an accessibility product:
+
+- **It carries `role` and `aria-live`.** Read out of the compiled component, not
+  assumed. So the result is announced and not only shown. An accessibility addon
+  whose own result reaches some readers and not others would be indefensible, and
+  the request that prompted this said "for those who can see", which is the half
+  a colour serves.
+- **`ui-alert` is registered.** Also verified rather than assumed, by finding the
+  registration in the control panel's own bundle: every export from Statamic's UI
+  index becomes `ui-` plus its kebab-cased name. A tag Vue does not know renders
+  as nothing, which is the exact failure this change exists to stop, so guessing
+  was not an option.
+
+A clean result keeps its quiet green badge. "Nothing to fix" does not need the
+eye dragged to it, and an alert for good news trains somebody to ignore the ones
+that matter.
+
+**The lesson worth more than the fix**: every one of the three attempts passed
+its tests. No test in this repository can say a thing is too quiet to notice, and
+the one added below says so out loud rather than implying the surface is covered.
+
+---
+
 ## 2026-08-13: Amber for "not yet", and the panel gets tested without a toolchain
 
 The panel went quiet twice in one day. First it drew nothing at all when a check
