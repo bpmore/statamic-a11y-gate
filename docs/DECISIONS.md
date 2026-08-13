@@ -9,6 +9,59 @@ read alongside that one.
 
 ---
 
+## 2026-08-13: A failed check is guarded twice, because either guard alone can go quiet
+
+Found on a real site. Pressing Check on an entry that had never been saved showed
+a spinner and then the panel's idle text again: no result, no error, nothing. The
+same screen as a page with nothing wrong with it, which is the one outcome this
+product is not allowed to produce.
+
+The cause was two correct-looking lines meeting.
+
+Statamic's create screen has no `reference` in its view data at all, only its edit
+screen does (`EntriesController::create()` versus `::edit()`, read in
+`statamic/cms v6.27.2`). So the panel had nothing to send, and the endpoint's
+`abort_if(..., 404)` fired. Laravel answers a bare `abort()` with
+`{"message": ""}`. The panel then did
+`e.response?.data?.message ?? 'The check could not be run.'`, and `??` steps in
+only for null, so the failure message became the empty string. The template tests
+that value for truth before drawing it, so the failure branch never rendered.
+
+Neither line is wrong on its own. An empty message is a reasonable thing for a
+404 to carry, and `??` is the usual way to default a missing key. The defect only
+exists where they meet, which is why fixing one of them was rejected:
+
+- **Fix the panel only** (`||` instead of `??`). Correct, one character, and it
+  leaves the endpoint free to keep answering failures with nothing. The next
+  `abort()` written here is silent again, and no PHP test would catch it.
+- **Fix the endpoint only** (a message on every failure). Also correct, also
+  leaves the panel one empty string away from drawing nothing, including for
+  failures that never reach this controller at all.
+
+Both were done. The endpoint now gives every refusal a sentence, and the suite
+asserts that invariant across all three failure shapes rather than one at a time,
+because no single-case test would have caught this one returning. The panel now
+falls back on any falsey message, not just a missing one.
+
+The message an author gets for the case that started this says what to do: this
+page has not been saved yet, so save it once and then check it. Making the panel
+work before the first save is a real improvement and is not this change. It needs
+the collection handle, and the publish container does not carry one: it has
+`reference` and `site` and nothing else that identifies a collection. Reading it
+off the page URL was rejected for the reason the panel already avoids the URL: it
+breaks the first time a route changes, with no test to catch it. The remaining
+route is a `preload()` on the fieldtype, which is worth doing on its own terms and
+not while fixing a silent failure.
+
+**What was not checked.** The panel change was verified by reading and by
+confirming the operator semantics directly, not by clicking the button in a
+browser. There is no JavaScript test harness in this repo, so the invariant that
+is actually enforced by tests is the endpoint's: every failure carries a non-empty
+message. That makes the panel's own fallback belt and braces rather than the only
+thing standing between an author and a silent pass.
+
+---
+
 ## 2026-08-12: Settings belong in the control panel, because of who ends up holding the site
 
 Everything configurable was a PHP file and a terminal command. That is fine for

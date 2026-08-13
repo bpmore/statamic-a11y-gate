@@ -51,7 +51,17 @@
                     // A panel that showed nothing after a failed request would
                     // look exactly like a page with nothing wrong with it, which
                     // is the one mistake this whole product refuses to make.
-                    state.failed = e.response?.data?.message ?? 'The check could not be run.';
+                    //
+                    // `||` and not `??`, which is what it was and is why the
+                    // panel did exactly that. A bare `abort(404)` answers with
+                    // `{"message": ""}`; `??` only steps in for null, so `failed`
+                    // became the empty string, and the template below tests it for
+                    // truth, so the failure branch never drew. Pressing Check on
+                    // an unsaved entry showed a spinner and then the idle text
+                    // again. The endpoint now sends a reason for every failure as
+                    // well: both halves, because either one alone leaves the other
+                    // free to go quiet.
+                    state.failed = e.response?.data?.message || 'The check could not be run.';
                     state.result = null;
                 } finally {
                     state.checking = false;
