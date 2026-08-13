@@ -40,10 +40,22 @@ abstract class RuleCheck implements Check
         return Remediation::violation($rule, $severity, $pointer);
     }
 
+    /**
+     * Link text that reads as a web address: a scheme, a www prefix, or a
+     * domain followed by a path.
+     *
+     * A bare word ending in dot-letters is deliberately NOT enough. The first
+     * version matched `^[a-z0-9.-]+\.[a-z]{2,}$` too, which read "Node.js",
+     * "Vue.js" and "ASP.NET" as bare web addresses and refused the publish on
+     * link text that names its destination perfectly well. The gate refuses a
+     * publish, so a rule that fires on a good name teaches people the tool is
+     * wrong. The cost is that a bare "example.com" with no path now passes,
+     * which is the cheaper mistake: it at least names where the link goes.
+     */
     protected function looksLikeUrl(string $text): bool
     {
         return (bool) preg_match('#^(https?://|www\.)#i', $text)
-            || (bool) preg_match('#^[a-z0-9.-]+\.[a-z]{2,}(/|$)#i', $text);
+            || (bool) preg_match('#^[a-z0-9.-]+\.[a-z]{2,}/#i', $text);
     }
 
     protected function snippet(string $text): string
