@@ -43,15 +43,25 @@ final class ImageAltCheck extends RuleCheck
 
         foreach ($xpath->query('//img') as $img) {
             // A decorative image opts out of a text alternative explicitly:
-            // alt="" plus role="presentation"/"none", or aria-hidden. A
-            // meaningful image needs a non-empty alt, so a missing attribute and
-            // an empty one that is not marked decorative both leave it without an
-            // accessible name.
+            // role="presentation"/"none" or aria-hidden, with or without an
+            // alt attribute. The marker alone used to be refused when alt was
+            // missing entirely, on the argument that alt="" is what shows the
+            // omission was a decision. That refused markup assistive tech
+            // treats as decorative (axe passes it), while citing WCAG 1.1.1,
+            // which such an image does not fail. Citing a criterion the check
+            // cannot establish is the one mistake this product is built to
+            // avoid, so the marker now wins either way.
             $role = strtolower($img->getAttribute('role'));
             $decorative = in_array($role, ['presentation', 'none'], true)
                 || $img->getAttribute('aria-hidden') === 'true';
 
-            if (! $img->hasAttribute('alt') || (! $decorative && trim($img->getAttribute('alt')) === '')) {
+            if ($decorative) {
+                continue;
+            }
+
+            // A meaningful image needs a non-empty alt: a missing attribute and
+            // an empty one both leave it without an accessible name.
+            if (trim($img->getAttribute('alt')) === '') {
                 $violations[] = $this->issue(
                     'image-missing-alt',
                     Violation::ERROR,

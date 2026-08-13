@@ -12,6 +12,48 @@ more than a file that only ever describes the present.
 
 ---
 
+## 2026-08-13: Three refusals loosened, because each was firing on a good page
+
+A code review found three shapes the gate refused that it should not, all of the
+same species: a rule reading more into the markup than the markup says. A gate
+that refuses a good page teaches people the tool is wrong, and they switch it
+off. Each fix is pinned in the corpus in both directions, and each guard was
+mutation-tested: break it and the suite goes red.
+
+**A hidden iframe is not a video.** Google Tag Manager's install snippet is a
+zero-size `display:none` iframe inside `<noscript>`, and the embed-title rule
+read it as a video with no title, so every site carrying GTM could not publish
+anything at all. Chat widgets ship the same shape with `aria-hidden`. The rule
+now skips a frame that is hidden from every visitor and every screen reader:
+ancestor `<noscript>`, `aria-hidden` on it or an ancestor, inline
+`display:none`/`visibility:hidden`, or zero-size attributes. Only inline
+evidence counts, so a frame hidden by a stylesheet class is still checked,
+which errs toward checking. Rejected alternative: exempting only `<noscript>`,
+which would have fixed GTM and left every aria-hidden chat widget refusing.
+
+**"Node.js" is not a web address.** `looksLikeUrl` matched any word ending in
+dot-letters, so "Node.js", "Vue.js" and "ASP.NET" as link text were refused as
+bare addresses. The rule now wants a scheme, a `www.` prefix, or a domain
+followed by a path. The cost is that a bare "example.com" with no path passes,
+accepted because it at least names where the link goes. Rejected alternative: a
+list of real TLDs to keep catching bare domains, turned down because it is a
+list that rots and `.js` would need excluding from it by hand anyway.
+
+**A decorative marker opts out with or without an alt attribute.**
+`role="presentation"` with no `alt` was refused, on the argument that `alt=""`
+is what shows the omission was a decision. But assistive tech honours the
+marker either way and axe passes both, so the refusal was citing WCAG 1.1.1
+against markup that does not fail it. Citing what a check cannot establish is
+the first rule in CLAUDE.md, and it outranks the (real) tidiness argument the
+old behaviour was built on.
+
+Also in the same change, outside the rules: the renderer no longer leaves its
+fake front-end request bound in the container after a console render, and the
+settings singleton carries a comment saying plainly that a long-lived worker
+holds it until restart.
+
+---
+
 ## 2026-08-13: A page with no address yet is told the truth about why
 
 Found by installing the addon into a stock Statamic site rather than by anything

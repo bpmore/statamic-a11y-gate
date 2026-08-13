@@ -88,7 +88,7 @@ which check that it fires for the right reason.
 
 ## Coverage
 
-22 cases covering all 17 rules the check pack can raise, plus a clean page and a
+28 cases covering all 17 rules the check pack can raise, plus a clean page and a
 multi-defect page that pins cross-family ordering.
 
 ## Adding a case

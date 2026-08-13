@@ -1,0 +1,6 @@
+{
+    "name": "link-dotted-name",
+    "why": "A product name that happens to end in dot-letters. 'Node.js' names its destination perfectly well, and the first version of the bare-address rule read it as a web address and refused the publish. Pinned alongside link-text-is-web-address, because a fix that frees this by also freeing real addresses is the likely mistake.",
+    "portability": "portable",
+    "findings": []
+}

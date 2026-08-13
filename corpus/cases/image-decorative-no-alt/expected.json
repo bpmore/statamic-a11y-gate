@@ -1,0 +1,6 @@
+{
+    "name": "image-decorative-no-alt",
+    "why": "A decorative marker with no alt attribute at all. This used to be refused on the argument that alt=\"\" is what shows the omission was a decision. But assistive tech honours the marker either way (axe passes both), so the refusal cited WCAG 1.1.1 against markup that does not fail it, and citing what a check cannot establish is the one mistake this product is built to avoid. Pinned alongside image-decorative-opt-out and image-missing-alt: the marker opts out, its absence does not.",
+    "portability": "portable",
+    "findings": []
+}

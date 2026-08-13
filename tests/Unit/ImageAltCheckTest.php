@@ -52,9 +52,22 @@ it('lets a decorative image opt out with an empty alt', function () {
         ->toBe([]);
 });
 
-it('still refuses an image with no alt attribute even when marked decorative', function () {
-    // role="presentation" without alt="" is not an opt-out: the attribute is what
-    // says the omission was a decision rather than an oversight.
+it('lets a decorative marker opt out even with no alt attribute at all', function () {
+    // This used to be refused, on the argument that alt="" is what shows the
+    // omission was a decision. Reversed: assistive tech honours the marker with
+    // or without the attribute (axe passes both), so the refusal was citing
+    // WCAG 1.1.1 against markup that does not fail it. Pinned in the corpus as
+    // image-decorative-no-alt.
     expect(imageFindings('<html lang="en"><body><h1>Weir</h1><img src="/a.jpg" role="presentation"></body></html>'))
+        ->toBe([]);
+
+    expect(imageFindings('<html lang="en"><body><h1>Weir</h1><img src="/a.jpg" aria-hidden="true"></body></html>'))
+        ->toBe([]);
+});
+
+it('still refuses a plain image with no alt attribute', function () {
+    // The mutation check for the change above: loosening the decorative branch
+    // must not loosen the rule itself.
+    expect(imageFindings('<html lang="en"><body><h1>Weir</h1><img src="/a.jpg"></body></html>'))
         ->toBe([['image-missing-alt', Violation::ERROR]]);
 });

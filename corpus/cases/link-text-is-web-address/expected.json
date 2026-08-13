@@ -1,0 +1,17 @@
+{
+    "name": "link-text-is-web-address",
+    "why": "Link text that is a raw address rather than a name: a domain with a path, and a www address. A screen reader spells these out character by character. The other side of link-dotted-name: a bare product name like 'Node.js' passes, an actual address does not.",
+    "portability": "portable",
+    "findings": [
+        {
+            "rule": "link-unclear",
+            "severity": "error",
+            "wcag": "WCAG 2.4.4"
+        },
+        {
+            "rule": "link-unclear",
+            "severity": "error",
+            "wcag": "WCAG 2.4.4"
+        }
+    ]
+}
