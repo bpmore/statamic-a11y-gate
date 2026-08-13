@@ -9,6 +9,47 @@ read alongside that one.
 
 ---
 
+## 2026-08-13: The name comes out of the README and stays in the attributes
+
+Two decisions that look like the same one and are not.
+
+The README named the other product twice, against the rule in `CLAUDE.md` that
+nothing here carries that name and that somebody evaluating this addon should not
+need to know what it is. Both mentions went. Neither was doing any work: one
+offered a consistency guarantee the reader cannot check, about a product they
+have never heard of, and the other pointed at a design document in a repository
+they cannot open.
+
+**The `data-windrow-*` attributes stay, and that is the harder call.** They are a
+worse version of the same problem: `config/statamic-a11y-gate.php` documents them
+as the markup a host adds to their own templates to switch on the two opt-in
+checks, so a site owner has to type the name rather than merely read it. That is
+squarely what the rule exists to prevent.
+
+They stay anyway, for reasons that outweigh it:
+
+- **They are the shared contract, not a label.** The corpus fixtures carry these
+  attributes, and both projects are held to producing the same findings from the
+  same markup. Renaming them here changes what markup this checker detects, which
+  is a behaviour change, which means a corpus commit in both repositories.
+- **The other side would have to change too**, in its templates, to keep emitting
+  markup this fork still reads. A rename that is only half done leaves the two
+  projects silently disagreeing about a page, which is the exact failure the
+  corpus exists to prevent.
+- **The cost is bounded and small.** Two optional checks, off by default,
+  configured by a developer rather than an author. Nobody who installs this addon
+  and uses it as intended ever sees the string.
+
+An alias, reading both the old and a new name, was considered and rejected. It
+doubles the surface of the one thing the two projects must agree on, to hide a
+name in a config comment.
+
+If this is revisited, the order matters: corpus first, in both repositories, then
+both implementations, then the templates that emit it. Doing it in any other
+order breaks the guarantee while the work is half finished.
+
+---
+
 ## 2026-08-13: The refusal is drawn in the panel, because the toast cannot say it
 
 An author who pressed Save & Publish on a page the gate refuses got a red toast
