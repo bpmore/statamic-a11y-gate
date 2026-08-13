@@ -12,6 +12,38 @@ more than a file that only ever describes the present.
 
 ---
 
+## 2026-08-13: A settings screen must show the state the addon is actually in
+
+Flipping the panel default to true broke the settings screen, and the bug shipped
+in v0.5.0 before anybody noticed. Found by being asked a question rather than by
+a test: does a new install have to switch the panel on?
+
+It does not. But until this, opening the settings screen would have switched it
+off.
+
+**The mechanism.** `AddonSettingsController::edit()` fills the form from
+`settings()->raw()`, which is empty until somebody saves. So every field renders
+from its own default in the blueprint. The toggle declared none, so it fell back
+to false, and the screen sat there showing OFF while the panel was on. Press save
+and the form submits that false as a real answer, which the addon correctly reads
+as a decision, and the panel disappears.
+
+Three things had to be true at once, and each was defensible alone: a config
+default of true, a blueprint with no default, and a settings screen that wins
+once saved. The last two were already tested. Nobody had asked whether the first
+agreed with them.
+
+The fix is one line: the toggle declares `default: true`, matching the config
+file. `mode` already did this, which is why it never had the same problem.
+
+**Two tests, not one.** The first pins the toggle. The second pins every setting
+against the config it mirrors, because the specific bug is less interesting than
+the class: a settings screen that describes a different state from the one in
+force is worse than no screen, since it is wrong and saving it makes the addon
+agree with the wrong answer.
+
+---
+
 ## 2026-08-13: The panel is on by default, because the gate is
 
 Reverses the entry lower down that made it off by default. That entry is right
