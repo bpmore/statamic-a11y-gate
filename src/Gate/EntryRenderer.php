@@ -167,6 +167,13 @@ final class EntryRenderer
 
             if ($previous !== null) {
                 $this->app->instance('request', $previous);
+            } else {
+                // Nothing was bound before, which is the console: the site-wide
+                // scan command. Forgetting restores that, where re-binding the
+                // fake request would leave the last page's request in the
+                // container after the render, for anything that runs later in
+                // the same process to read as if it were real.
+                $this->app->forgetInstance('request');
             }
         }
 

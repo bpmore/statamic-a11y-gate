@@ -69,6 +69,13 @@ class ServiceProvider extends AddonServiceProvider
 
         // Resolved lazily, because the addon's config is merged during boot and
         // this runs before that.
+        //
+        // A singleton, which under PHP-FPM is per-request and always fresh. A
+        // long-lived worker (Octane, a queue) resolves it once and then holds
+        // it, so a save on the settings screen is not seen there until the
+        // worker restarts. Accepted for now rather than hidden: nothing in this
+        // addon runs on a queue, and an Octane site that flips the mode should
+        // reload its workers the same as for any config change.
         $this->app->singleton(GateSettings::class, function () {
             $config = (array) config('statamic-a11y-gate', []);
 
