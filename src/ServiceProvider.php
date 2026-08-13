@@ -9,6 +9,7 @@ use Bpmore\A11yGate\Gate\EntryRenderer;
 use Bpmore\A11yGate\Gate\GateSettings;
 use Bpmore\A11yGate\Gate\PublishGate;
 use Bpmore\A11yGate\Scan\SiteScanner;
+use Statamic\Contracts\Addons\SettingsRepository;
 use Statamic\Facades\Utility;
 use Statamic\Providers\AddonServiceProvider;
 
@@ -68,9 +69,36 @@ class ServiceProvider extends AddonServiceProvider
 
         // Resolved lazily, because the addon's config is merged during boot and
         // this runs before that.
-        $this->app->singleton(GateSettings::class, fn () => GateSettings::fromConfig(
-            (array) config('a11y-gate', []),
-        ));
+        $this->app->singleton(GateSettings::class, function () {
+            $config = (array) config('statamic-a11y-gate', []);
+
+            // The control-panel screen wins once somebody has saved it, and the
+            // config file answers until then. A screen that silently lost to a
+            // file would be worse than no screen: somebody changes a setting,
+            // saves, sees no change, and stops trusting everything else.
+            //
+            // **Whether it has been saved is the question, not whether it has
+            // values.** An unsaved settings record is not empty: it comes back
+            // carrying the blueprint's own defaults, so reading the values alone
+            // would let a field default silently beat a config file that a
+            // developer wrote on purpose. Found by a test that set the mode in
+            // config and watched the gate ignore it.
+            // `raw()`, not `all()`. `all()` blends the blueprint's own defaults
+            // over what was saved, so a toggle somebody switched off comes back
+            // as an empty string and a mode nobody chose comes back as "refuse".
+            // `raw()` is exactly what the person saved and nothing else.
+            $saved = app(SettingsRepository::class)->find('bpmore/statamic-a11y-gate')?->raw();
+
+            return GateSettings::fromConfig(
+                $saved === null ? $config : array_merge($config, array_filter(
+                    $saved,
+                    // Nulls only. `false` and `[]` are real answers, and treating
+                    // them as absent would make "check every collection" and "do
+                    // not add the panel" impossible to choose.
+                    fn ($value) => $value !== null,
+                )),
+            );
+        });
 
         $this->app->bind(SiteScanner::class, fn ($app) => new SiteScanner($app->make(PublishGate::class)));
 

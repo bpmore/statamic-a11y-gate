@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Bpmore\A11yGate\Tests;
 
 use Bpmore\A11yGate\ServiceProvider;
+use Illuminate\Support\Facades\File;
 use Statamic\Facades\Blueprint;
 use Statamic\Testing\AddonTestCase;
 use Statamic\Testing\Concerns\FakesRoles;
@@ -42,6 +43,12 @@ abstract class TestCase extends AddonTestCase
     protected function setUp(): void
     {
         parent::setUp();
+
+        // The addon's settings are a real file in the app's resource path, and
+        // a test that saves one would otherwise decide the answer for every test
+        // that runs after it. Cleared before each, so every test starts from
+        // "nobody has opened the settings screen".
+        File::delete(resource_path('addons/statamic-a11y-gate.yaml'));
 
         // A real blueprint, because the panel's endpoint processes submitted
         // values through one and a blueprint with no fields silently processes

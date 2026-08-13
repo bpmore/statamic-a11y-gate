@@ -170,7 +170,7 @@ it('refuses a page that could not be rendered, rather than passing it', function
 });
 
 it('warns instead of refusing when the site asks it to', function () {
-    config()->set('a11y-gate.mode', 'warn');
+    config()->set('statamic-a11y-gate.mode', 'warn');
 
     Log::shouldReceive('warning')->once();
 
@@ -180,7 +180,7 @@ it('warns instead of refusing when the site asks it to', function () {
 });
 
 it('leaves a collection the site did not ask it to gate alone', function () {
-    config()->set('a11y-gate.collections', ['articles']);
+    config()->set('statamic-a11y-gate.collections', ['articles']);
 
     $entry = gatePage('<html lang="en"><body><h1>The weir</h1><img src="/a.jpg"></body></html>');
 

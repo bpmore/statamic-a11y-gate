@@ -24,9 +24,9 @@ Windrow repo at `docs/plans/statamic-addon.md`.
 
 ## Adding the panel
 
-Set `add_panel_to_blueprints` to `true` in `config/a11y-gate.php` and it appears
-in the sidebar of every gated collection that has pages. No blueprint files to
-edit.
+Turn on **Add the panel to every checked collection** in the addon's settings and
+it appears in the sidebar of every checked collection that has pages. No
+blueprint files to edit.
 
 That uses the same mechanism Statamic uses for `slug` and `date`, which are not
 in your yaml either, so the field behaves like a native one and leaves nothing
@@ -49,6 +49,21 @@ second copy.
 
 It stores nothing in the entry. Findings change every time the page does, so a
 copy of them in the content directory would be wrong by the next save.
+
+## Settings
+
+**Addons > Accessibility Gate > Settings**, in the control panel.
+
+- What happens when a page has a problem: refuse the publish, or report it and
+  publish anyway.
+- Which collections to check.
+- Whether to add the panel to entry forms automatically.
+- The two checks that need your templates to mark something up first.
+
+Everything is also in `config/statamic-a11y-gate.php` for anyone who prefers a
+file. **The screen wins once somebody saves it**, and the file answers until
+then, because a settings screen that silently loses to a file is worse than no
+screen at all.
 
 ## Checking a whole site
 
@@ -137,8 +152,8 @@ know what the tool is worth goes and reads it once.
 ran and how far. That is an auditor's number. It stays in the data the check
 endpoint returns, where a report can be built on it.
 
-Two checks are off unless your templates opt in, and they are named in
-`config/a11y-gate.php`:
+Two checks are off unless your templates opt in, and they are listed in the
+addon's settings:
 
 - Links to a page that is not published yet.
 - The reading grade of a plain-language summary.

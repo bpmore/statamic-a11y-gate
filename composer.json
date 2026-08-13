@@ -34,7 +34,7 @@
     "extra": {
         "statamic": {
             "name": "Accessibility Gate",
-            "slug": "a11y-gate"
+            "slug": "statamic-a11y-gate"
         },
         "laravel": {
             "providers": [

@@ -121,10 +121,10 @@
     <ui-card-panel heading="Where this panel appears">
         <div class="space-y-3">
             <p>
-                It is a field, so it shows up wherever somebody has put it in a
-                blueprint. Your developer can also have it added to every checked
-                collection automatically, with one setting in
-                <code>config/a11y-gate.php</code>.
+                It is a field, so it shows up wherever somebody has added it to
+                an entry form. There is also a setting that adds it to every
+                checked collection for you, under Addons, Accessibility Gate,
+                Settings.
             </p>
             <p>
                 A collection with no public pages never gets it, because there
@@ -136,9 +136,9 @@
     <ui-card-panel heading="Two checks your developer can switch on">
         <div class="space-y-3">
             <p>
-                Both need the site's templates to mark something up, because neither
-                leaves a trace in the finished page. They are listed in
-                <code>config/a11y-gate.php</code>.
+                Both need the site's templates to mark something up, because
+                neither leaves a trace in the finished page. They are listed in
+                the addon's settings, under Addons, Accessibility Gate.
             </p>
             <ul class="list-disc space-y-2 ps-5">
                 <li>Links pointing at a page that has not been published yet.</li>

@@ -1,0 +1,61 @@
+# The addon's settings, as a form in the control panel.
+#
+# Everything here was a PHP file and a terminal command until somebody pointed
+# out who actually ends up holding a site: a developer installs the addon from
+# the marketplace and hands over, and the person left with it cannot edit
+# config/statamic-a11y-gate.php or clear a cache. For a free addon with no support
+# contract, that is where a setting goes to die.
+#
+# Statamic gives this screen for free: this file is the whole implementation,
+# and it appears at Addons, Accessibility Gate, Settings.
+#
+# Every instruction here is written for that person. No handles, no file paths,
+# no words like "blueprint" where "form" will do.
+
+tabs:
+  main:
+    display: Settings
+    sections:
+      -
+        display: 'Checking'
+        fields:
+          -
+            handle: mode
+            field:
+              type: select
+              display: 'When a page has a problem'
+              instructions: 'Refusing is the point of this addon. Reporting is for the first few weeks on a site with a backlog, so nobody is stopped from working while it is cleared.'
+              options:
+                refuse: 'Refuse to publish it'
+                warn: 'Publish it anyway and write a note in the log'
+              default: refuse
+              clearable: false
+              width: 50
+          -
+            handle: collections
+            field:
+              type: collections
+              display: 'Collections to check'
+              instructions: 'Leave this empty to check everything. Anything you leave out is not checked at all, which is fine for a collection with no public pages and a quiet hole for anything else.'
+              mode: select
+      -
+        display: 'The panel authors see'
+        fields:
+          -
+            handle: add_panel_to_blueprints
+            field:
+              type: toggle
+              display: 'Add the panel to every checked collection'
+              instructions: 'Puts an Accessibility panel in the sidebar of every entry form, so an author can check a page before publishing it. Turn this off if you would rather add it to your entry forms yourself.'
+      -
+        display: 'Checks your templates have to support'
+        fields:
+          -
+            handle: opt_in_checks
+            field:
+              type: checkboxes
+              display: 'Extra checks'
+              instructions: 'Both of these need your developer to mark something up in the templates first. Leave them off until they have. Turning one on without the markup means every page is told it could not be checked.'
+              options:
+                a11y.link.unpublished: 'Links pointing at a page that is not published yet'
+                a11y.text.reading_level: 'How hard a plain-language summary is to read'

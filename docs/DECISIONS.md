@@ -9,6 +9,65 @@ read alongside that one.
 
 ---
 
+## 2026-08-12: Settings belong in the control panel, because of who ends up holding the site
+
+Everything configurable was a PHP file and a terminal command. That is fine for
+the person who installs the addon and useless for the person who ends up with it.
+
+**The chain that was being ignored.** A developer installs from the marketplace
+and hands over. The person left holding the site opens the control panel, wants
+the gate to report rather than refuse while a backlog is cleared, and cannot edit
+`config/statamic-a11y-gate.php` or run `php artisan config:clear`. They email the
+developer, who has moved on. For a free addon with no support contract, that is
+where a setting goes to die.
+
+Statamic gives the screen away: a `resources/blueprints/settings.yaml` is the
+entire implementation, and the route, controller and storage already exist. Four
+things moved onto it: what happens when a page has a problem, which collections
+to check, whether to add the panel automatically, and the two opt-in checks.
+
+**Every word on it is written for that person.** A test fails if the screen says
+"blueprint", "handle", "yaml", ".env" or a file path, which is the same rule the
+panel already answers to: the reader can act, or the words are noise.
+
+**The screen wins once saved; the file answers until then.** A screen that
+silently lost to a file would be worse than no screen, because somebody changes a
+setting, saves, sees nothing happen, and stops trusting the rest of the addon.
+
+**Three traps, all found by running it rather than reading it.**
+
+An unsaved settings record is not empty: it comes back carrying the blueprint's
+own defaults. Merging its values would let a field default beat a config file
+somebody wrote on purpose, so what matters is whether a record *exists*, not
+whether it has values.
+
+`all()` blends those defaults over what was saved even on a record that does
+exist. Somebody who opens the screen, flips one toggle and saves would have
+turned a site configured to report into a site that refuses, because "refuse" is
+that field's default. `raw()` is exactly what was saved and nothing else. This
+one survived four mutations and was only caught by writing the specific case.
+
+And the slug. `FileSettings::path()` writes to `resources/addons/{slug}.yaml`
+while `FileSettingsRepository::find()` reads
+`resources/addons/{everything after the slash in the package name}.yaml`. With a
+slug of `a11y-gate` on a package called `bpmore/statamic-a11y-gate`, saving
+worked and loading never did. **An addon whose slug differs from its package name
+cannot use Statamic's own settings storage**, so the slug is now
+`statamic-a11y-gate`, which renames the config file with it. Nothing had shipped,
+so the cost was a rename and one `php artisan statamic:addons:discover` on the
+test site.
+
+**Mutation-tested, five run, five killed**, and the fourth is the one worth
+keeping: reading `all()` instead of `raw()`, the screen never winning, falsey
+answers thrown away, the settings blueprint deleted, and an untouched field on
+the screen overruling the file.
+
+**Rejected.** *A screen for placing the panel in blueprints*, because Statamic
+has one and it is the blueprint editor. *Config file wins*, which protects a
+developer's deployment and breaks the screen for everyone else.
+
+---
+
 ## 2026-08-12: The addon can put its own panel in blueprints, off unless asked
 
 Adding the panel to a site meant editing every entry blueprint by hand. On a

@@ -26,7 +26,7 @@ it('does nothing at all unless the site asks for it', function () {
 });
 
 it('adds the panel to a gated collection that has pages', function () {
-    config()->set('a11y-gate.add_panel_to_blueprints', true);
+    config()->set('statamic-a11y-gate.add_panel_to_blueprints', true);
 
     $field = Collection::find('pages')->entryBlueprint()->field('a11y_panel');
 
@@ -37,14 +37,14 @@ it('adds the panel to a gated collection that has pages', function () {
 it('leaves a collection with no pages alone', function () {
     // No route means no page, so the panel would sit in the form forever saying
     // there is nothing to check.
-    config()->set('a11y-gate.add_panel_to_blueprints', true);
+    config()->set('statamic-a11y-gate.add_panel_to_blueprints', true);
 
     expect(Collection::find('data')->entryBlueprint()->field('a11y_panel'))->toBeNull();
 });
 
 it('leaves a collection the site did not ask it to gate alone', function () {
-    config()->set('a11y-gate.add_panel_to_blueprints', true);
-    config()->set('a11y-gate.collections', ['articles']);
+    config()->set('statamic-a11y-gate.add_panel_to_blueprints', true);
+    config()->set('statamic-a11y-gate.collections', ['articles']);
 
     expect(Collection::find('pages')->entryBlueprint()->field('a11y_panel'))->toBeNull();
 });
@@ -55,7 +55,7 @@ it('adds the panel whether or not an entry came with the blueprint', function ()
     // taken when somebody clicks Create, which is where an author first meets
     // the form, so reading the collection off `$event->entry` would have passed
     // every test here and left the panel missing at exactly that moment.
-    config()->set('a11y-gate.add_panel_to_blueprints', true);
+    config()->set('statamic-a11y-gate.add_panel_to_blueprints', true);
 
     $withoutEntry = Collection::find('pages')->entryBlueprint();
     expect($withoutEntry->field('a11y_panel'))->not->toBeNull();
