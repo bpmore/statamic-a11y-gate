@@ -9,6 +9,56 @@ read alongside that one.
 
 ---
 
+## 2026-08-13: The addon stands on its own, and the corpus stays anyway
+
+Reverses the entry below it, which is four hours old. That one kept the
+`data-windrow-*` attribute names on the grounds that renaming them meant a
+coordinated corpus change across two repositories. There is no second repository
+in this arrangement any more, so the reason evaporated rather than being argued
+down.
+
+**What was separated.** The shared corpus arrangement ended. The stamped
+attributes are `data-a11y-*`. `CLAUDE.md` lost the sections about porting rules
+verbatim and keeping two copies in step. Around twenty source comments that
+explained what this fork narrowed or copied byte for byte now say what the code
+does, with nothing to compare it against.
+
+**What was nearly thrown away with it, and was not.** The question was framed as
+losing the corpus and replacing it with a written spec for keeping two products
+aligned. That framing was wrong, and saying so was more useful than doing as
+asked: the corpus's stated purpose was stopping two implementations disagreeing,
+but its day to day value is that it is the strongest regression test here, and
+that value never depended on anyone else running it. It caught a fix
+over-reaching twice in one afternoon, in cases written minutes apart. It stayed.
+
+A spec was rejected as a replacement on its own terms: a corpus is executable and
+fails a build, a spec is prose nobody runs. That difference only matters if two
+things must still agree, and after this they do not.
+
+**The consistency guarantee is what was actually given up**, and it was worth
+less than it sounded. Its justification was that "did this page pass?" must not
+depend on which implementation ran. That bites only if one customer could
+plausibly use both, and nobody could name that customer.
+
+**What replaced it is nothing, and that is the risk.** Two copies drifting was a
+danger something outside this repository would eventually notice. Now nothing
+will. The corpus is the only thing that stands between a rule changing its mind
+and nobody finding out, which is why it is still the first rule in `CLAUDE.md`
+that is not about the product.
+
+**The attribute rename is a breaking change**, and the release notes have to lead
+with it rather than bury it. A site already stamping the old names stops being
+checked by six rules, and stops silently. Nothing found is not the same as
+nothing wrong, and that is the one failure this addon exists to refuse.
+
+**The decision log keeps the other product's name.** Everything else lost it,
+including a public API a site owner had to type. This file is a record rather
+than a pitch, and a record with the reasons filed off is worth less than no
+record. It is also the one file that lets a reader undo the separation in about a
+minute, so it is a deliberate choice rather than an oversight.
+
+---
+
 ## 2026-08-13: The name comes out of the README and stays in the attributes
 
 Two decisions that look like the same one and are not.
