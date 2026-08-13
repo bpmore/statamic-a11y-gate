@@ -1,21 +1,21 @@
-# Accessibility Gate for Statamic
+# A11y Gate: The Accessibility Gate for Statamic
 
 An entry that fails an accessibility check this addon can run does not get
 published.
 
-Not "here is a report". The publish is refused, in the control panel, with
+No "here's a report". The publish is refused, in the control panel, with
 plain language about what is wrong and what to do about it.
 
 ## Status
 
 The gate works and the panel is built. Install the addon and a save that would
-leave a published entry with an accessibility error is refused, with the reason
+leave a published entry with an accessibility error is refused and the reason is
 attached. Add the Accessibility field to a blueprint and an author can check a
 page before pressing publish, unsaved changes included. It also works on a page
 that has never been saved at all.
 
-I have watched it work in a real control panel, on hada.farm. The field renders
-in the entry sidebar, the button runs the check, the result comes back.
+I have watched it work in a real control panel, on my business website. The field 
+renders in the entry sidebar, the button runs the check, the result comes back.
 
 The rules are pinned. `corpus/` holds 28 fixed pages and the exact findings
 this project must produce for each of them. `composer test` runs it, and the
@@ -83,8 +83,7 @@ save.
 - The two checks that need your templates to mark something up first.
 
 Everything is also in `config/statamic-a11y-gate.php` if you prefer a file. The
-screen wins once somebody saves it; the file answers until then. A settings
-screen that silently loses to a file is worse than no screen at all.
+screen wins once somebody saves it; the file answers until then.
 
 ## Checking a whole site
 
