@@ -24,17 +24,19 @@ without the change being visible.
 
 Every result says how much of the page it could see.
 
-## Adding the panel
+## The panel
 
-Turn on **Add the panel to the collections above** in the addon's settings and it
-appears in the sidebar of every collection you chose that has pages. No blueprint
-files to edit.
+It is already there. The panel appears in the sidebar of every collection being
+checked that has pages, with no blueprint files to edit, and
+**Add the panel to the collections above** in the addon's settings turns it off
+again.
 
 That uses the same mechanism Statamic uses for `slug` and `date`, which are not
 in your yaml either, so the field behaves like a native one and leaves nothing
-behind if the addon is removed. It is off by default: an addon that rearranges
-publish forms on install is one that gets uninstalled by somebody who did not
-choose it.
+behind if the addon is removed. It is on by default, because the gate refuses a
+publish from the moment the addon is installed and this panel is the only place
+those findings are readable. Switching it off is supported, and then the field
+needs to be somewhere or a refusal cannot be read.
 
 To place it yourself instead, put it wherever it belongs in a blueprint:
 

@@ -12,6 +12,47 @@ more than a file that only ever describes the present.
 
 ---
 
+## 2026-08-13: The panel is on by default, because the gate is
+
+Reverses the entry lower down that made it off by default. That entry is right
+about its own argument and was answering the wrong question.
+
+Its argument: an addon that rearranges publish forms on install is one that gets
+uninstalled by somebody who did not choose it, and a field appearing in a form
+nobody added it to is a surprise that makes people distrust everything else it
+does. All true, and none of it was weighed against what the other defaults do.
+
+**The two defaults contradicted each other.** The gate ships on for every
+collection, in refuse mode, which is maximum intervention. The panel shipped off,
+which is minimum intervention. So a fresh install stopped somebody publishing and
+gave them nowhere to look.
+
+The findings are not missing. They come back with the refusal, on the publish
+container, under the listener's own key. But Statamic renders errors next to the
+field they name, `a11y_gate` names no field, and this panel is the only thing
+that draws them. Without it the entire result is Statamic's own "The given data
+was invalid" in the bottom-left corner, which is its wording for every validation
+failure in the control panel and not ours to change.
+
+That was observed rather than reasoned about. It is exactly what an author saw
+this afternoon before the panel learned to draw a refusal, with the panel
+switched on. Off, it is strictly worse.
+
+**Rejected: defaulting to warn mode instead.** It makes the install polite by
+turning the gate into a reporter, and refusing is the product. `CLAUDE.md`
+requires stopping and asking before any change that turns a refusal into a
+warning, so it was asked rather than assumed, and turned down.
+
+Being coy about a read-only sidebar panel while blocking publishing on every
+collection was not caution. It was inconsistency, and the panel was the cheaper
+half to fix.
+
+Switching the panel off is still supported and still reasonable for a site that
+places the field by hand. The config comment now says plainly what it costs: a
+refusal is unreadable unless that field is somewhere.
+
+---
+
 ## 2026-08-13: The addon stands on its own, and the corpus stays anyway
 
 Reverses the entry below it, which is four hours old. That one kept the

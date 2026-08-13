@@ -18,10 +18,13 @@ use Statamic\Facades\Collection;
  * the day the addon is removed, leaving no orphaned handle in a file somebody
  * has to go and delete.
  *
- * **Off unless the site asks.** An addon that rearranges publish forms on
- * install is an addon that gets uninstalled by somebody who did not choose it,
- * and a field appearing in a form nobody added it to is the kind of surprise
- * that makes people distrust everything else it does.
+ * **On unless the site says otherwise**, which is the reverse of how this
+ * shipped at first. Rearranging somebody's publish form uninvited is a real
+ * cost and it was the one this weighed. The larger one was missed: the gate
+ * refuses a publish on every collection from the moment the addon is installed,
+ * the findings come back with the refusal, and this panel is the only thing that
+ * draws them. Off, an author is stopped and shown Statamic's own "The given data
+ * was invalid" in the corner, with nowhere to look.
  */
 final class AddPanelToBlueprints
 {
