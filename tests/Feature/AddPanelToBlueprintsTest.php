@@ -17,21 +17,29 @@ beforeEach(function () {
     Collection::make('data')->save();
 });
 
-it('does nothing at all unless the site asks for it', function () {
-    // The default, and the reason it is the default: a publish form that
-    // rearranges itself on install is a form somebody did not agree to.
-    $blueprint = Collection::find('pages')->entryBlueprint();
-
-    expect($blueprint->field('a11y_panel'))->toBeNull();
-});
-
-it('adds the panel to a gated collection that has pages', function () {
-    config()->set('statamic-a11y-gate.add_panel_to_blueprints', true);
-
+it('puts the panel in a gated collection without being asked', function () {
+    // The default, and it was the opposite until somebody pointed out what that
+    // meant. The gate refuses a publish on every collection from the moment the
+    // addon is installed. Findings come back with the refusal and the panel is
+    // the only thing that draws them, so an install without it stops an author
+    // and gives them nowhere to look: Statamic's own "The given data was
+    // invalid" in the corner and nothing else.
+    //
+    // Rearranging somebody's publish form uninvited is a real cost. It is not
+    // the larger one.
     $field = Collection::find('pages')->entryBlueprint()->field('a11y_panel');
 
     expect($field)->not->toBeNull();
     expect($field->type())->toBe('accessibility_panel');
+});
+
+it('leaves the form alone for a site that switches the panel off', function () {
+    // Still supported, and still reasonable for a site that places the field by
+    // hand. What it must not do is fail quietly, which is why the config comment
+    // says plainly that a refusal is unreadable with no field anywhere.
+    config()->set('statamic-a11y-gate.add_panel_to_blueprints', false);
+
+    expect(Collection::find('pages')->entryBlueprint()->field('a11y_panel'))->toBeNull();
 });
 
 it('tells the panel which collection and form it is sitting in', function () {

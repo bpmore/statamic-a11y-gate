@@ -42,23 +42,31 @@ return [
     | Add the panel to blueprints
     |---------------------------------------------------------------------------
     |
-    | Turn this on and the Accessibility panel appears in the sidebar of every
-    | gated collection that has pages, without editing a single blueprint file.
+    | The Accessibility panel appears in the sidebar of every gated collection
+    | that has pages, without editing a single blueprint file.
     |
     | It uses the same mechanism Statamic uses for `slug` and `date`, which are
     | not in your yaml either. The field behaves like a native one and it
     | disappears cleanly if this addon is removed, leaving nothing behind for
     | somebody to delete.
     |
-    | Off by default on purpose. An addon that rearranges publish forms on
-    | install is one that somebody who did not choose it will uninstall.
+    | On by default, and it was off until somebody pointed out what that meant.
+    | The gate refuses a publish on every collection from the moment this addon
+    | is installed. With no panel, the only thing an author sees is Statamic's
+    | own "The given data was invalid" in the corner of the screen: stopped, with
+    | nowhere to look. Findings do come back with the refusal, and the panel is
+    | the only thing that draws them.
+    |
+    | Turning it off is still supported and still reasonable, for a site that
+    | places the field by hand or does not want it on every form. Just know that
+    | a refusal is then unreadable unless the field is somewhere.
     |
     | Adding the field to a blueprint yourself still works and takes precedence:
     | your placement is kept and you do not get a second copy.
     |
     */
 
-    'add_panel_to_blueprints' => false,
+    'add_panel_to_blueprints' => true,
 
     /*
     |---------------------------------------------------------------------------
