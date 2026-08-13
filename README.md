@@ -1,6 +1,7 @@
 # Accessibility Gate for Statamic
 
-An entry that fails WCAG 2.2 AA cannot be published.
+An entry that fails an accessibility check this addon can actually run does not
+get published.
 
 Not "here is a report". The publish is refused, in the control panel, with plain
 language saying what is wrong and what to do about it.
@@ -10,12 +11,13 @@ language saying what is wrong and what to do about it.
 **The gate works and the panel is built.** Install this addon and a save that
 would leave a published entry with an accessibility error is refused, with the
 reason attached. Add the Accessibility field to a blueprint and an author can
-check the page before pressing publish, including changes they have not saved.
+check the page before pressing publish, including changes they have not saved and
+including a page that has never been saved at all.
 
 **Watched working in a real control panel**, on hada.farm: the field renders in
 the entry sidebar, the button runs the check, and the result comes back.
 
-**`corpus/` is now enforced.** It is the shared conformance corpus: 19 pages and
+**`corpus/` is now enforced.** It is the shared conformance corpus: 22 pages and
 the exact findings this project must produce for each, identical to the copy in
 Windrow. `composer test` runs it, and the suite fails if any rule has no case.
 
@@ -24,9 +26,9 @@ Windrow repo at `docs/plans/statamic-addon.md`.
 
 ## Adding the panel
 
-Turn on **Add the panel to every checked collection** in the addon's settings and
-it appears in the sidebar of every checked collection that has pages. No
-blueprint files to edit.
+Turn on **Add the panel to the collections above** in the addon's settings and it
+appears in the sidebar of every collection you chose that has pages. No blueprint
+files to edit.
 
 That uses the same mechanism Statamic uses for `slug` and `date`, which are not
 in your yaml either, so the field behaves like a native one and leaves nothing
