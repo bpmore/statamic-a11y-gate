@@ -9,6 +9,58 @@ read alongside that one.
 
 ---
 
+## 2026-08-13: Amber for "not yet", and the panel gets tested without a toolchain
+
+The panel went quiet twice in one day. First it drew nothing at all when a check
+failed, for the reasons in the entry below. That was fixed, and it was reported
+again the same way: the button does nothing. It was doing everything. The request
+went out, came back 422, and the correct sentence was on screen.
+
+It was drawn as a bare `ui-description`, which is the same small grey line, in the
+same place, as the idle hint that was already sitting there. Pressing the button
+swapped one grey sentence for another. Nothing moved and nothing changed colour,
+and no reasonable person reads that as an answer. A message nobody notices is not
+meaningfully different from no message.
+
+So a failure now wears a badge, the way a result does. Two of them:
+
+- **Red, "Could not check"**, for anything that actually went wrong: the entry is
+  gone, the caller cannot view it, the server erred, the request never landed.
+  Same badge the gate already uses when it cannot render the page, because to an
+  author those mean the same thing.
+- **Amber, "Not checked yet"**, for the endpoint's 422, which today means one
+  thing: nobody has saved this entry. Red was shipped for this case first and
+  then changed, because red says something is wrong and nothing is. An addon
+  whose entire discipline is not overstating what it knows cannot afford to shout
+  at somebody for not having pressed save.
+
+Amber is already the warnings colour. That is not a collision: warnings are a
+result and this is the absence of one, and the two branches cannot draw together.
+
+**The second decision here is how any of that gets tested.** Everything above is
+in JavaScript, and this addon has no npm, no build step and no bundle on purpose.
+The endpoint had tests throughout while the half an author actually looks at had
+none, which is exactly why the same defect shipped twice.
+
+Rejected: adding vitest, a package.json and a node toolchain to a repository
+whose product is one PHP class and a list of rules. That is a large permanent
+cost for one file.
+
+Taken instead: the badge choice is pure logic, so a plain node script pulls the
+expressions out of the panel source and runs them against fabricated errors, and
+a Pest test shells out to it and skips when node is absent. It asserts nothing
+about how anything looks, which is honest about what it can know. It asserts that
+"not saved yet" and "something went wrong" cannot quietly end up wearing the same
+badge. Mutation-tested twice: changing 422 to 419, and deleting the assignment
+entirely. Both fail, and the failure output names the case rather than the exit
+code.
+
+What is still untested is everything visual, and that is a real gap rather than a
+solved problem. The mitigation is that both badge branches reuse markup already
+rendering correctly on a live control panel rather than introducing anything new.
+
+---
+
 ## 2026-08-13: A failed check is guarded twice, because either guard alone can go quiet
 
 Found on a real site. Pressing Check on an entry that had never been saved showed

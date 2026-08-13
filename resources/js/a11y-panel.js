@@ -29,11 +29,16 @@
                 checking: false,
                 result: null,
                 failed: null,
+
+                // Whether the check did not run because something went wrong, or
+                // because it was never going to run yet. See the badge below.
+                notYet: false,
             });
 
             async function check() {
                 state.checking = true;
                 state.failed = null;
+                state.notYet = false;
 
                 // Statamic's axios instance, which already carries the CSRF
                 // token and the headers that make a 422 come back as JSON.
@@ -61,6 +66,13 @@
                     // again. The endpoint now sends a reason for every failure as
                     // well: both halves, because either one alone leaves the other
                     // free to go quiet.
+                    //
+                    // 422 is the endpoint saying the check was never going to
+                    // run, not that anything went wrong: today that means an
+                    // entry nobody has saved yet. Nothing is broken and nothing
+                    // about the page is known either, so it earns a badge that
+                    // says neither. Every other status is a real failure.
+                    state.notYet = e.response?.status === 422;
                     state.failed = e.response?.data?.message || 'The check could not be run.';
                     state.result = null;
                 } finally {
@@ -120,6 +132,13 @@
         // page or because the request never got an answer is a distinction for
         // whoever maintains this. To the author both mean the same thing and must
         // look the same: nothing is known about this page.
+        //
+        // Red is for something being wrong. An entry nobody has saved yet is not
+        // wrong, so it gets amber and "Not checked yet". Red there would be this
+        // addon overstating what it knows, on a screen whose entire job is not
+        // doing that. Amber is already the warnings colour and the two cannot
+        // appear together, because one is a result and the other is the absence
+        // of one.
         template: `
             <div class="space-y-3">
                 <div>
@@ -134,7 +153,12 @@
                 <ui-skeleton v-if="state.checking" class="h-16 w-full" />
 
                 <template v-else-if="state.failed">
-                    <div><ui-badge color="red" text="Could not check" /></div>
+                    <div>
+                        <ui-badge
+                            :color="state.notYet ? 'amber' : 'red'"
+                            :text="state.notYet ? 'Not checked yet' : 'Could not check'"
+                        />
+                    </div>
                     <ui-description :text="state.failed" />
                 </template>
 
