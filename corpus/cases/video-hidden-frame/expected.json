@@ -1,0 +1,6 @@
+{
+    "name": "video-hidden-frame",
+    "why": "Frames nobody can perceive: Google Tag Manager's noscript snippet, an aria-hidden chat widget, an inline display:none frame and a zero-size pixel. Before this case, every one of them was 'a video with no title' and a site carrying GTM could not publish anything at all. A frame hidden from every visitor and every screen reader has no accessible name to be missing.",
+    "portability": "portable",
+    "findings": []
+}

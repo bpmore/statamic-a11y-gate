@@ -7,6 +7,7 @@ namespace Bpmore\A11yGate\Accessibility\Checks;
 use Bpmore\A11yGate\Accessibility\AccessibilityStandard;
 use Bpmore\A11yGate\Accessibility\Coverage;
 use Bpmore\A11yGate\Accessibility\Violation;
+use DOMElement;
 use DOMNode;
 use DOMXPath;
 
@@ -89,7 +90,18 @@ final class MediaAlternativesCheck extends RuleCheck
         // An embedded player is an iframe, so its accessible name comes from the
         // title attribute and there is nothing else to read it from. Deliberately
         // not scoped to video providers, so any future embed inherits it.
+        //
+        // A frame nobody can perceive is exempt. Google Tag Manager's install
+        // snippet is a zero-size display:none iframe inside <noscript>, which
+        // this rule read as a video with no title, so every site carrying GTM
+        // could not publish anything at all. Chat widgets do the same with
+        // aria-hidden. A frame that is hidden from every visitor and every
+        // screen reader has no accessible name to be missing.
         foreach ($xpath->query('//iframe') as $iframe) {
+            if (! $iframe instanceof DOMElement || $this->hiddenFromEveryone($iframe)) {
+                continue;
+            }
+
             if (trim($iframe->getAttribute('title')) === '') {
                 $violations[] = $this->issue(
                     'video-missing-title',
@@ -100,6 +112,41 @@ final class MediaAlternativesCheck extends RuleCheck
         }
 
         return $violations;
+    }
+
+    /**
+     * Whether no visitor and no screen reader will ever meet this element.
+     *
+     * Four spellings, each one seen on real tracking and widget embeds: an
+     * ancestor <noscript> (GTM's install snippet), aria-hidden on the element
+     * or an ancestor (chat widgets), inline display:none or visibility:hidden
+     * (both, and the only kind of hiding a pass over markup can see: a
+     * stylesheet class that hides is invisible here, same limit as target
+     * size), and a frame declared zero-size in its own attributes (tracking
+     * pixels).
+     *
+     * Only inline evidence counts, so a frame hidden by a stylesheet is still
+     * checked. That errs toward checking, which for a gate is the safe side.
+     */
+    private function hiddenFromEveryone(DOMElement $el): bool
+    {
+        if ($el->getAttribute('width') === '0' || $el->getAttribute('height') === '0') {
+            return true;
+        }
+
+        for ($node = $el; $node instanceof DOMElement; $node = $node->parentNode) {
+            if ($node->nodeName === 'noscript' || $node->getAttribute('aria-hidden') === 'true') {
+                return true;
+            }
+
+            $style = strtolower(preg_replace('/\s+/', '', $node->getAttribute('style')) ?? '');
+
+            if (str_contains($style, 'display:none') || str_contains($style, 'visibility:hidden')) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -143,7 +190,19 @@ final class MediaAlternativesCheck extends RuleCheck
     {
         $media = $xpath->query('//iframe|//video|//audio|//figure|//object|//embed');
 
-        if ($media === false || $media->length === 0) {
+        // Hidden frames are excluded here for the same reason they are excluded
+        // from the title rule: a page whose only "media" is a tracking iframe
+        // has no video, and telling its author to confirm captions on it would
+        // be a standing notice about something that does not exist.
+        $visible = 0;
+
+        foreach ($media === false ? [] : $media as $node) {
+            if ($node instanceof DOMElement && ! $this->hiddenFromEveryone($node)) {
+                $visible++;
+            }
+        }
+
+        if ($visible === 0) {
             return Coverage::full(self::key(), self::name());
         }
 
