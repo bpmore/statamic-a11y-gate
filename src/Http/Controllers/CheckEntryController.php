@@ -29,9 +29,33 @@ class CheckEntryController extends CpController
         // A reference ("entry::abc123") rather than a bare id, because that is
         // what the publish container already holds and hands to the panel. No
         // parsing in the browser, and no second format to keep in step.
-        $entry = Data::find((string) $request->input('reference'));
+        $reference = (string) $request->input('reference');
 
-        abort_if(! $entry instanceof Entry, 404);
+        // Every failure below says why, in a sentence, and that is not politeness.
+        // These used to be bare `abort()` calls, which Laravel answers with
+        // `{"message": ""}`. The panel read that empty string as "no message" in
+        // one place and as "no failure" in another, so a check that could not run
+        // drew nothing at all: same screen as a page with nothing wrong with it.
+        // The one mistake this product is not allowed to make.
+        //
+        // An entry being created for the first time has no reference to send.
+        // Statamic's create screen has no `reference` in its view data at all
+        // (`EntriesController::create()`), only its edit screen does, so this is
+        // the shape of every check pressed before the first save rather than a
+        // rare edge.
+        abort_if(
+            $reference === '',
+            422,
+            'This page has not been saved yet, so there is no page to check. Save it once, then check it.'
+        );
+
+        $entry = Data::find($reference);
+
+        abort_if(
+            ! $entry instanceof Entry,
+            404,
+            'That entry could not be found, so nothing about it was checked.'
+        );
 
         // The same permission Statamic requires to open the entry. Rendering a
         // page is cheap to ask for and this endpoint takes arbitrary values, so

@@ -175,6 +175,53 @@ it('checks a draft, which is the state an author most wants checked', function (
     expect($onDisk->published())->toBeFalse();
 });
 
+it('says why when the entry has never been saved', function () {
+    // Statamic's create screen carries no `reference` in its view data, only its
+    // edit screen does, so the panel has nothing to send until the first save.
+    // That is not an edge: it is every check pressed on a new page.
+    //
+    // This used to be a bare `abort(404)`, which Laravel answers with
+    // `{"message": ""}`. The panel then drew nothing at all, so pressing Check on
+    // a new page looked identical to pressing it on a page with nothing wrong.
+    $response = $this->actingAs($this->user)
+        ->postJson(cp_route('a11y-gate.check'), [
+            'values' => ['title' => 'Not saved yet', 'body' => '<img src="/a.jpg">'],
+        ]);
+
+    $response->assertStatus(422);
+
+    expect($response->json('message'))->toContain('has not been saved');
+});
+
+it('never answers a failure with an empty message', function () {
+    // The invariant, held across every way this endpoint can refuse to answer. An
+    // empty message is what let a failed check look like a clean one, and no
+    // single test above would have caught it returning to any one of these.
+    $entry = savedPage('<p>The footbridge.</p>');
+
+    $this->setTestRoles(['no_entries' => ['access cp']]);
+    $nobody = User::make()->assignRole('no_entries');
+    $nobody->save();
+
+    $failures = [
+        'never saved' => [$this->user, []],
+        'entry is gone' => [$this->user, ['reference' => 'entry::nope']],
+        'not allowed to view it' => [$nobody, ['reference' => $entry->reference()]],
+    ];
+
+    foreach ($failures as $case => [$as, $payload]) {
+        $response = $this->actingAs($as)->postJson(cp_route('a11y-gate.check'), $payload);
+
+        expect($response->status())->toBeGreaterThanOrEqual(400, "[{$case}] should have failed");
+        expect(trim((string) $response->json('message')) !== '')
+            ->toBeTrue("[{$case}] failed with an empty message, which the panel draws as nothing at all");
+    }
+
+    // The loop asserts nothing if the list is ever emptied, and this is the whole
+    // point of the test.
+    expect($failures)->toHaveCount(3);
+});
+
 it('refuses to check an entry for somebody who cannot view it', function () {
     // The endpoint renders a page from values the caller supplies, so it must
     // not be a way to read an entry the caller has no business reading.
@@ -194,8 +241,11 @@ it('refuses to check an entry for somebody who cannot view it', function () {
         ->assertForbidden();
 });
 
-it('404s on an entry that does not exist', function () {
-    $this->actingAs($this->user)
-        ->postJson(cp_route('a11y-gate.check'), ['reference' => 'entry::nope'])
-        ->assertNotFound();
+it('404s on an entry that does not exist, and says so', function () {
+    $response = $this->actingAs($this->user)
+        ->postJson(cp_route('a11y-gate.check'), ['reference' => 'entry::nope']);
+
+    $response->assertNotFound();
+
+    expect($response->json('message'))->toContain('could not be found');
 });
