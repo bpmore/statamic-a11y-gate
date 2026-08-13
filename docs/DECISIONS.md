@@ -9,6 +9,62 @@ read alongside that one.
 
 ---
 
+## 2026-08-13: The refusal is drawn in the panel, because the toast cannot say it
+
+An author who pressed Save & Publish on a page the gate refuses got a red toast
+in the bottom-left corner reading "The given data was invalid." Nothing about
+accessibility, nothing about what to fix, in the corner furthest from the form.
+
+Two facts, both read in vendor source rather than guessed:
+
+- **The position is Statamic's.** Its toast plugin is configured
+  `position: "bottom-left"` in the control panel bundle.
+- **The words are Statamic's, and they are hard-coded.**
+  `Statamic\Exceptions\ValidationException::summarize()` overrides Laravel's and
+  returns "The given data was invalid." for every validation failure in the
+  control panel. Laravel would have used the first error message. Statamic throws
+  it away.
+
+So the toast cannot be fixed from an addon, and an earlier comment in
+`RefuseUnlessAccessible` claiming the summary reached it was simply wrong. That
+comment is corrected in the same change, because a wrong note about why
+something works is worse than no note.
+
+What can be fixed is where the refusal is read. Statamic's save pipeline, in
+`ui-C4XItfuR.js`, does this with a 422:
+
+```js
+const { errors: messages, message } = e.response.data;
+if (errors) errors.value = messages;
+Statamic.$toast.error(message);
+```
+
+The errors go onto the publish container under the key the endpoint sent, which
+is the listener's own `a11y_gate`. So the panel reads them from there and draws
+every line in the same red alert a failed check gets, next to the button that
+would have said the same thing had the author pressed it first.
+
+Rejected: overriding Statamic's exception handler to change the toast text. It
+would fix the words and not the corner, and an addon that replaces a
+control-panel exception handler changes the wording of every unrelated validation
+failure on the site.
+
+Rejected: attaching the findings to a real field handle so Statamic renders them
+inline. That would put accessibility errors under whichever field was chosen as a
+host, which is a lie about where the problem is.
+
+**A fresh check supersedes an older refusal.** Leaving it on screen after the
+author fixed the page and pressed Check again would be the panel describing a
+past that is no longer true. Pinned by its own assertion, because nothing about
+it would fail loudly.
+
+**What was not checked**: how it looks, and whether the container's errors arrive
+exactly as read. There is no browser in this session. Both halves of the
+mechanism were read in Statamic's own source, and the panel degrades to today's
+behaviour if the key never appears: no alert, and the toast still fires.
+
+---
+
 ## 2026-08-13: A scheduled post can be checked, and the gate stops blocking scheduling
 
 Publishing was not the only thing standing between the gate and a page. A

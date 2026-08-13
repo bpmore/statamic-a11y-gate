@@ -51,5 +51,22 @@ for (const key of ['reference', 'values', 'collection', 'blueprint']) {
     console.log(`${sent ? 'ok  ' : 'FAIL'} sends ${key}`);
 }
 
+// The refusal the gate raised when it stopped a save. Statamic's save pipeline
+// puts a 422's `errors` on the publish container under the key the endpoint
+// sent, and raises `message` as a toast whose words Statamic hard-codes to "The
+// given data was invalid". So the container is the only place the refusal's own
+// sentences survive, and reading the wrong key there fails silently: no error,
+// no warning, an author simply never told why they were stopped.
+const readsRefusal = /errors\.a11y_gate/.test(src);
+if (!readsRefusal) bad++;
+console.log(`${readsRefusal ? 'ok  ' : 'FAIL'} reads errors.a11y_gate off the publish container`);
+
+// Drawn only while it is still the newest thing that happened. A refusal left on
+// screen after the author fixed the page and checked it again would be the panel
+// describing a past that is no longer true.
+const supersededByAFreshCheck = /showRefusal[\s\S]*?state\.result[\s\S]*?state\.failed/.test(src);
+if (!supersededByAFreshCheck) bad++;
+console.log(`${supersededByAFreshCheck ? 'ok  ' : 'FAIL'} a fresh check supersedes an older refusal`);
+
 console.log(bad === 0 ? '\nall passed' : `\n${bad} FAILED`);
 process.exit(bad === 0 ? 0 : 1);

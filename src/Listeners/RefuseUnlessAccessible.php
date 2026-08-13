@@ -26,17 +26,23 @@ use Statamic\Events\EntrySaving;
  *
  * A `ValidationException` carries the findings and comes back as a 422, which
  * the control panel already handles: its publish form reads `message` and
- * `errors` off a 422 and raises the message as a red toast. Read out of the
- * compiled control-panel JavaScript that ships in the vendor package, which an
- * earlier decision entry wrongly recorded as absent.
+ * `errors` off a 422, puts `errors` on the publish container and raises
+ * `message` as a red toast. Read out of the compiled control-panel JavaScript
+ * that ships in the vendor package, which an earlier decision entry wrongly
+ * recorded as absent.
  *
- * **What the author actually sees is one line**, and this is a known limit
- * rather than a finished job. Laravel builds `message` from the first validation
- * error, so the summary reaches the toast and the rest arrive under a key that
- * matches no field in the blueprint, which means nothing renders them yet. The
- * first line is therefore written to be useful alone. The panel that lists every
- * finding is the next piece of work, and until it exists this addon tells an
- * author how many problems there are and shows them one.
+ * **The toast never says any of this, and cannot.** An earlier version of this
+ * comment claimed Laravel builds `message` from the first validation error, so
+ * the summary reached the toast. It does not.
+ * `Statamic\Exceptions\ValidationException::summarize()` overrides Laravel's and
+ * returns "The given data was invalid." for every validation failure in the
+ * control panel, so every sentence below is thrown away before it gets there.
+ * Watched happening on a live site, then found in vendor source.
+ *
+ * What the author reads is the panel, which draws `errors.a11y_gate` in full.
+ * The lines below are therefore written to be read as a list rather than as one
+ * useful summary, and the first is still written to stand alone in case
+ * something else ever surfaces it.
  *
  * The cost of throwing is that the refusal is an exception in every context,
  * including a script or an import that saves entries outside the control panel.

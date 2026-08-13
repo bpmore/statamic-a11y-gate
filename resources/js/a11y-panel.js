@@ -98,7 +98,40 @@
                 }
             }
 
-            return { state, check };
+            // What the gate said when it refused a save, drawn where the author
+            // is already looking.
+            //
+            // Statamic's save pipeline does two things with a 422: it puts the
+            // response's `errors` straight onto the publish container, keyed
+            // exactly as the endpoint sent them, and it raises `message` as a
+            // toast. Both were read in `ui-C4XItfuR.js` rather than assumed.
+            //
+            // The toast is no use to us. It appears bottom-left, far from the
+            // form, and its words are not ours to choose:
+            // `Statamic\Exceptions\ValidationException::summarize()` overrides
+            // Laravel's and returns "The given data was invalid." for every
+            // failure in the control panel, so the refusal's own sentences are
+            // thrown away before they reach it. An author who has just been
+            // stopped from publishing is told the data was invalid, in the
+            // corner, with no idea what to fix.
+            //
+            // The errors are ours though, under the key the listener sets. So
+            // the refusal is drawn in this panel, beside the button that would
+            // have told them the same thing had they pressed it first.
+            const refusal = Vue.computed(() => {
+                const errors = container.errors?.value ?? {};
+
+                return errors.a11y_gate ?? [];
+            });
+
+            // A fresh check is newer information than the save that was refused,
+            // and leaving a refusal on screen after the author has fixed the page
+            // and checked it again would be this panel lying about the present.
+            const showRefusal = Vue.computed(
+                () => refusal.value.length > 0 && ! state.result && ! state.failed && ! state.checking
+            );
+
+            return { state, refusal, showRefusal, check };
         },
 
         // No panel or header of its own. A field is already drawn inside the
@@ -168,6 +201,13 @@
         // somebody to ignore the ones that matter.
         template: `
             <div class="space-y-3">
+                <ui-alert
+                    v-if="showRefusal"
+                    variant="error"
+                    :heading="refusal[0]"
+                    :text="refusal.slice(1).join(' ')"
+                />
+
                 <div>
                     <ui-button
                         size="sm"
