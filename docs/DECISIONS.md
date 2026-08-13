@@ -9,6 +9,55 @@ read alongside that one.
 
 ---
 
+## 2026-08-13: A scheduled post can be checked, and the gate stops blocking scheduling
+
+Publishing was not the only thing standing between the gate and a page. A
+collection can be set so entries dated in the future are private, which is how
+scheduling works in Statamic, and `DataResponse::handlePrivateEntries()` throws
+the same 404 for those as it does for a draft.
+
+The consequence was much worse than a panel that would not answer. The gate does
+not read "could not check" as a pass, on purpose, so with the gate refusing,
+**every scheduled post on such a collection was unpublishable**. An accessibility
+tool that stops a site scheduling posts is worse than no accessibility tool: it
+gets switched off, and nothing gets checked at all.
+
+The fix is the same shape as the published flag already there: for the length of
+the render the entry is nudged to a date the collection is willing to show, and
+the original is put back in `finally`. Nothing is saved. An entry left holding
+today's date would be written with it by the next save that touched it, silently
+unscheduling a post nobody unscheduled, so restoring it is not tidiness.
+
+Rejected: a Live Preview token, which is Statamic's own answer to this. It was
+rejected for the drafts case and the reasoning holds unchanged. A token means a
+write to the token store and a stored copy of the entry, both of which exist so a
+*browser* can request the front end. This renders in the same process.
+
+Two details worth naming:
+
+- **The URL is built after the date is settled, not before.** A collection routing
+  on the date ("/{year}/{month}/{slug}") gives a different URL once the date
+  moves, and requesting the old one would 404 on a page that was about to render
+  perfectly well. This site does not route that way, which is exactly why it
+  would have gone unnoticed.
+- **A collection can hide every date there is.** Future private and past private
+  together leave no visible date to nudge to. The loop tries now, then a year
+  ahead, and then stops: the 404 is reported honestly as "could not check" rather
+  than papered over with a date that changes nothing. Pinned by its own test.
+
+Checked against the real site the gate runs on: its blog collection has
+`future: private`, and a post dated a month ahead now checks clean and comes back
+still dated a month ahead.
+
+**Not a bug, and worth writing down because it looked like one.** A social share
+image with no alt text reports nothing. That field feeds `og:image` and the
+JSON-LD, and never becomes an `<img>` on the page, which was read in the site's
+own template rather than assumed. The checker checks the rendered page. An image
+that is not on the page has no alt text to be missing, and inventing a finding
+for it would be the addon reporting on markup it never saw.
+
+---
+
 ## 2026-08-13: The panel checks a page that does not exist yet
 
 The panel told an author to save the page before checking it. On a collection

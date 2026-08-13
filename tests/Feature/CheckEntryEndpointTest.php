@@ -248,6 +248,88 @@ it('says so when the collection it was given does not exist', function () {
     expect($response->json('message'))->toContain('[nope]');
 });
 
+it('checks a post scheduled for a date the collection hides', function () {
+    // A collection can be set so future entries are private, which is how
+    // scheduling works, and `DataResponse::handlePrivateEntries()` throws the
+    // same 404 for those as for a draft. The gate does not read "could not
+    // check" as a pass, so with the gate refusing, every scheduled post on such
+    // a collection was unpublishable. An accessibility tool that stops a site
+    // scheduling posts is worse than no accessibility tool.
+    // The `pages` collection made dated rather than a new one, because the test
+    // blueprint that carries a `body` field is namespaced to that handle and a
+    // collection without it drops the submitted value silently.
+    Collection::make('pages')
+        ->routes('/{slug}')
+        ->dated(true)
+        ->futureDateBehavior('private')
+        ->save();
+
+    $this->viewShouldReturnRaw('default', '<html lang="en"><body><h1>The weir</h1>{{ body }}</body></html>');
+
+    $entry = Entry::make()
+        ->collection('pages')
+        ->slug('weir')
+        ->date(now()->addYear())
+        ->published(true)
+        ->data(['title' => 'The weir', 'body' => '<p>The footbridge.</p>']);
+
+    $entry->save();
+
+    $response = $this->actingAs($this->user)
+        ->postJson(cp_route('a11y-gate.check'), [
+            'reference' => $entry->reference(),
+            'values' => ['body' => '<img src="/a.jpg">'],
+        ]);
+
+    $response->assertOk();
+
+    expect($response->json('outcome'))->toBe('checked');
+    expect($response->json('errors.0.cta'))->toBe('Add a description');
+
+    // The date is nudged to something the collection will show, and it has to go
+    // back. An entry left holding today's date would be saved with it by the next
+    // save that touched it, silently unscheduling a post nobody unscheduled.
+    expect($entry->date()->isFuture())->toBeTrue();
+
+    $onDisk = Entry::query()->where('collection', 'pages')->where('slug', 'weir')->first();
+    expect($onDisk->date()->isFuture())->toBeTrue();
+});
+
+it('says so when a collection hides every date there is', function () {
+    // Both behaviours private means no date makes the page visible, so there is
+    // nothing to nudge it to. The honest answer is that the checks could not run,
+    // not a clean result from a page that never rendered.
+    Collection::make('pages')
+        ->routes('/{slug}')
+        ->dated(true)
+        ->futureDateBehavior('private')
+        ->pastDateBehavior('private')
+        ->save();
+
+    $this->viewShouldReturnRaw('default', '<html lang="en"><body><h1>The weir</h1></body></html>');
+
+    // Saved as a draft on purpose: saving it published would run the gate, which
+    // cannot check this page either and would refuse the save inside the test
+    // setup. The panel examines whatever state the entry is in, so this changes
+    // nothing about what is being asserted.
+    $entry = Entry::make()
+        ->collection('pages')
+        ->slug('weir')
+        ->date(now()->addYear())
+        ->published(false)
+        ->data(['title' => 'The weir']);
+
+    $entry->save();
+
+    $response = $this->actingAs($this->user)
+        ->postJson(cp_route('a11y-gate.check'), ['reference' => $entry->reference()]);
+
+    $response->assertOk();
+
+    expect($response->json('outcome'))->toBe('could-not-check');
+    expect($response->json('refuses'))->toBeTrue();
+});
+
 it('says why when the entry has never been saved', function () {
     // Statamic's create screen carries no `reference` in its view data, only its
     // edit screen does, so the panel has nothing to send until the first save.
