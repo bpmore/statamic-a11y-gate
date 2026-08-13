@@ -1,0 +1,12 @@
+{
+    "name": "image-alt-empty",
+    "why": "An empty alt with nothing marking the image decorative. This is what an editor saves before writing a description, and it must not pass. Added when a mutation showed that deleting the whole alt=\"\" clause from the rule left every other fixture green.",
+    "portability": "portable",
+    "findings": [
+        {
+            "rule": "image-missing-alt",
+            "severity": "error",
+            "wcag": "WCAG 1.1.1"
+        }
+    ]
+}
