@@ -49,7 +49,15 @@ final class EntryRenderer
         $url = $entry->absoluteUrl();
 
         if (! is_string($url) || $url === '') {
-            throw new EntryHasNoPage('the entry has no URL');
+            // Two different things wear the same symptom, and the addon reported
+            // one as the other until a stock Statamic install showed it. A
+            // collection the site never routes has no page at all. A collection
+            // that routes on the page tree gives an entry no URL until it is in
+            // that tree, which it is not while `EntrySaving` is running, so the
+            // first save of a page is unchecked and every save after it is not.
+            throw ($entry->collection()?->routes()->filter()->isNotEmpty() ?? false)
+                ? new PageHasNoAddressYet('the page has no address yet')
+                : new EntryHasNoPage('the entry has no URL');
         }
 
         // An entry being created for the first time has no id yet, and

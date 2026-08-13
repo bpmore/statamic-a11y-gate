@@ -186,3 +186,48 @@ it('leaves a collection the site did not ask it to gate alone', function () {
 
     expect($entry->save())->toBeTrue();
 });
+
+it('says a page has no address yet rather than pretending it has no page', function () {
+    // Found by installing the addon on a stock Statamic site, not by anything in
+    // this file. The default `pages` collection routes on `{parent_uri}/{slug}`,
+    // and that URI comes from the page tree. An entry being created is not in the
+    // tree while `EntrySaving` runs, so it has no URL and there is nothing to
+    // fetch.
+    //
+    // The gate let it through, which is the right answer: refusing would mean no
+    // page could ever be created in such a collection. What it said was wrong.
+    // "The entry has no page of its own" is true of a collection the site never
+    // routes, and false here.
+    $this->withStandardFakeViews();
+
+    Collection::make('structured')->routes('{parent_uri}/{slug}')->structure(new \Statamic\Structures\CollectionStructure)->save();
+
+    $entry = Entry::make()->collection('structured')->slug('weir')->published(true)
+        ->data(['title' => 'The weir']);
+
+    expect($entry->absoluteUrl())->toBeNull();
+
+    $result = app(\Bpmore\A11yGate\Gate\PublishGate::class)->inspect($entry);
+
+    expect($result->outcome)->toBe('not-applicable');
+    expect($result->shouldRefuse())->toBeFalse();
+    expect($result->reason)->toContain('no address yet');
+    expect($result->reason)->toContain('next save');
+});
+
+it('still says a routeless collection has no page of its own', function () {
+    // The other half, kept separate so a fix to one cannot silently answer for
+    // the other. This collection has no route at all: there is no page, and there
+    // never will be, however many times it is saved.
+    $this->withStandardFakeViews();
+
+    Collection::make('data')->save();
+
+    $entry = Entry::make()->collection('data')->slug('rows')->published(true)
+        ->data(['title' => 'Rows']);
+
+    $result = app(\Bpmore\A11yGate\Gate\PublishGate::class)->inspect($entry);
+
+    expect($result->outcome)->toBe('not-applicable');
+    expect($result->reason)->toBe('the entry has no page of its own');
+});

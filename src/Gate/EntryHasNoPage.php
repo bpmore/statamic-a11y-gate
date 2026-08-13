@@ -14,5 +14,11 @@ namespace Bpmore\A11yGate\Gate;
  *
  * Distinguished by type rather than by reading the message, so a reworded string
  * cannot quietly turn one into the other.
+ *
+ * Not final, and that is the only reason it is not. `PageHasNoAddressYet` extends
+ * it so that a page which simply has no URL yet inherits the one answer that
+ * matters here, which is that the gate does not refuse it. Anything else
+ * extending this is a mistake: a subclass that ought to fail closed belongs under
+ * `CouldNotRender` instead.
  */
-final class EntryHasNoPage extends CouldNotRender {}
+class EntryHasNoPage extends CouldNotRender {}
