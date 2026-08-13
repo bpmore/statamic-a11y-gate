@@ -17,12 +17,12 @@ including a page that has never been saved at all.
 **Watched working in a real control panel**, on hada.farm: the field renders in
 the entry sidebar, the button runs the check, and the result comes back.
 
-**`corpus/` is now enforced.** It is the shared conformance corpus: 22 pages and
-the exact findings this project must produce for each, identical to the copy in
-Windrow. `composer test` runs it, and the suite fails if any rule has no case.
+**`corpus/` is enforced.** It is 22 fixed pages and the exact findings this
+project must produce for each of them. `composer test` runs it, and the suite
+fails if any rule has no case behind it, so a rule cannot change what it reports
+without the change being visible.
 
-Every result says how much of the page it could see. The design lives in the
-Windrow repo at `docs/plans/statamic-addon.md`.
+Every result says how much of the page it could see.
 
 ## Adding the panel
 
