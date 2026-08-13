@@ -45,6 +45,26 @@ it('asks in plain words, with no handles or file paths', function () {
     }
 });
 
+it('keeps the panel toggle beside the list it refers to', function () {
+    // "Add the panel to the collections above" is only true while it is below
+    // them. In its own card further down the page it was read as every
+    // collection on the site, which is the opposite of what it does.
+    $blueprint = Addon::get('bpmore/statamic-a11y-gate')->settingsBlueprint();
+
+    $handlesBySection = collect($blueprint->tabs()->all())
+        ->flatMap(fn ($tab) => $tab->sections()->all())
+        ->map(fn ($section) => $section->fields()->all()->keys()->all());
+
+    $together = $handlesBySection->first(
+        fn ($handles) => in_array('collections', $handles, true)
+            && in_array('add_panel_to_blueprints', $handles, true)
+    );
+
+    expect($together)->not->toBeNull();
+    expect(array_search('add_panel_to_blueprints', $together, true))
+        ->toBeGreaterThan(array_search('collections', $together, true));
+});
+
 it('leaves the config file in charge until somebody saves the screen', function () {
     // The trap this was built around. An unsaved settings record is not empty:
     // it comes back carrying the blueprint's own defaults. Reading its values

@@ -38,15 +38,15 @@ tabs:
               display: 'Collections to check'
               instructions: 'Leave this empty to check everything. Anything you leave out is not checked at all, which is fine for a collection with no public pages and a quiet hole for anything else.'
               mode: select
-      -
-        display: 'The panel authors see'
-        fields:
+          # Directly under the list it depends on, because it was read as "every
+          # collection on the site" while it sat in a card of its own. A setting
+          # whose meaning is "the ones above" has to be able to see them.
           -
             handle: add_panel_to_blueprints
             field:
               type: toggle
-              display: 'Add the panel to every checked collection'
-              instructions: 'Puts an Accessibility panel in the sidebar of every entry form, so an author can check a page before publishing it. Turn this off if you would rather add it to your entry forms yourself.'
+              display: 'Add the panel to the collections above'
+              instructions: 'Puts an Accessibility panel in the sidebar of every entry form in the collections you chose, so an author can check a page before publishing it. Turn this off if you would rather add it to your entry forms yourself.'
       -
         display: 'Checks your templates have to support'
         fields:
