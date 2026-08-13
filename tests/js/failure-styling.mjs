@@ -61,12 +61,17 @@ const readsRefusal = /errors\.a11y_gate/.test(src);
 if (!readsRefusal) bad++;
 console.log(`${readsRefusal ? 'ok  ' : 'FAIL'} reads errors.a11y_gate off the publish container`);
 
-// Drawn only while it is still the newest thing that happened. A refusal left on
-// screen after the author fixed the page and checked it again would be the panel
-// describing a past that is no longer true.
+// Whichever answer is newest is the one on screen, and it has to run both ways.
+// A refusal left up after the page was fixed describes a past that is no longer
+// true. A refusal hidden behind an older check result is worse: the save really
+// was just refused, and the panel says nothing about it.
 const supersededByAFreshCheck = /showRefusal[\s\S]*?state\.result[\s\S]*?state\.failed/.test(src);
 if (!supersededByAFreshCheck) bad++;
 console.log(`${supersededByAFreshCheck ? 'ok  ' : 'FAIL'} a fresh check supersedes an older refusal`);
+
+const supersededByAFreshRefusal = /Vue\.watch\(refusal[\s\S]*?state\.result = null/.test(src);
+if (!supersededByAFreshRefusal) bad++;
+console.log(`${supersededByAFreshRefusal ? 'ok  ' : 'FAIL'} a fresh refusal supersedes an older check`);
 
 console.log(bad === 0 ? '\nall passed' : `\n${bad} FAILED`);
 process.exit(bad === 0 ? 0 : 1);
