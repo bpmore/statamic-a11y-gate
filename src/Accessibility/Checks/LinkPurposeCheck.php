@@ -101,9 +101,10 @@ final class LinkPurposeCheck extends RuleCheck
                 continue;
             }
 
-            // Refuse: the whole name is a banned phrase, or it contains a banned
-            // substring ("click here to read the report" is still "click here").
-            if (in_array($name, $this->vocabulary->banned, true) || $this->containsAny($name, $this->vocabulary->bannedSubstrings)) {
+            // Refuse: the whole name is a banned phrase, or the name opens or
+            // closes with one ("click here to read the report" is still "click
+            // here", and so is "read the report, click here").
+            if (in_array($name, $this->vocabulary->banned, true) || $this->beginsOrEndsWithAny($name, $this->vocabulary->bannedSubstrings)) {
                 $violations[] = $this->issue('link-unclear', Violation::ERROR, $this->snippet($raw));
 
                 continue;
@@ -143,12 +144,31 @@ final class LinkPurposeCheck extends RuleCheck
     }
 
     /**
+     * Whether the name opens or closes with one of the banned instructions.
+     *
+     * It used to be `str_contains`, which refused any name with "click here"
+     * anywhere inside it. That refused "Link Text That Leads Somewhere: No More
+     * Click Here Dead Ends", a real title that names its destination perfectly
+     * well, on a live site, on every page linking to it. The gate refuses a
+     * publish, so a rule that fires on a good page stops somebody working and
+     * teaches them the tool is wrong.
+     *
+     * Start and end rather than start alone. The phrase is only an instruction
+     * when it is the head or the tail of the name: "click here to read the
+     * report" and "read the report, click here" are the same useless link, and
+     * matching only the start would have let the second through. Both are pinned
+     * in the corpus so this cannot quietly regress in either direction.
+     *
      * @param  array<int, string>  $needles
      */
-    private function containsAny(string $name, array $needles): bool
+    private function beginsOrEndsWithAny(string $name, array $needles): bool
     {
         foreach ($needles as $needle) {
-            if ($needle !== '' && str_contains($name, $needle)) {
+            if ($needle === '') {
+                continue;
+            }
+
+            if (str_starts_with($name, $needle) || str_ends_with($name, $needle)) {
                 return true;
             }
         }

@@ -21,7 +21,7 @@ final class LinkTextVocabulary
 {
     /**
      * @param  array<int, string>  $banned  refuses the publish when the whole normalised name equals the phrase
-     * @param  array<int, string>  $bannedSubstrings  refuses even with trailing words ("click here to read the report" is still "click here")
+     * @param  array<int, string>  $bannedSubstrings  refuses when the name opens or closes with the phrase ("click here to read the report" and "read the report, click here" are both still "click here"). Buried inside a longer title it is left alone: "No More Click Here Dead Ends" names its destination
      * @param  array<int, string>  $vague  warns when the phrase sits inside longer text that still names no destination
      * @param  array<int, string>  $filler  content-free function words: see `allWordsGeneric` for what they are for
      */
