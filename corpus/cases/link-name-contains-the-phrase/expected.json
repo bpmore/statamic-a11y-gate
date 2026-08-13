@@ -1,0 +1,6 @@
+{
+    "name": "link-name-contains-the-phrase",
+    "why": "A real title that happens to contain the words \"click here\". It names its destination, so it satisfies 2.4.4 and must report nothing. Taken verbatim from a live site, where an article about avoiding click-here links was refused by the rule against them.",
+    "portability": "portable",
+    "findings": []
+}

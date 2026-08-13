@@ -1,0 +1,12 @@
+{
+    "name": "link-unclear-at-the-end",
+    "why": "The same instruction with the words in front of it instead of behind. Pinned separately because the obvious fix for the false positive next door, matching only the start of the name, would let this through.",
+    "portability": "portable",
+    "findings": [
+        {
+            "rule": "link-unclear",
+            "severity": "error",
+            "wcag": "WCAG 2.4.4"
+        }
+    ]
+}
