@@ -5,11 +5,26 @@ declare(strict_types=1);
 namespace Bpmore\A11yGate\Accessibility;
 
 /**
- * An estimate of how hard a passage is to read, as a US school grade.
+ * The line above which a plain-language summary is not plain.
  *
- * Flesch-Kincaid: 0.39 x (words per sentence) + 11.8 x (syllables per word) -
- * 15.59. Two ideas, both crude and both real: long sentences are harder than
- * short ones, and long words are harder than short ones.
+ * The grade itself is the host's to compute and stamp, as
+ * `data-a11y-reading-grade` on the summary, because by the time the HTML exists
+ * a summary is just more text on the page and nothing marks out which words were
+ * meant to be the plain ones. Flesch-Kincaid is the formula the threshold is set
+ * against: 0.39 x (words per sentence) + 11.8 x (syllables per word) - 15.59.
+ * Two ideas, both crude and both real, and worth naming here so a site stamping
+ * a number from some other formula knows it is answering a different question.
+ *
+ * **This class used to carry an implementation of that formula, and it is gone.**
+ * Nothing in the addon ever called it, in any commit, and no README line, config
+ * comment or decision entry offered it to a host, so it was neither used nor
+ * declared. It was also not fit to be declared: its syllable count stripped
+ * every character outside `a-z`, so a Japanese, Arabic or Russian passage scored
+ * one syllable per word and the grade collapsed into a function of sentence
+ * length. Real passages in those scripts came back as 0.0 and 0.1, which is a
+ * confident-looking pass for text the formula has no opinion about. Shipping
+ * that under this product's name was the expensive mistake, and keeping it
+ * unused and undeclared was the ambiguous one.
  *
  * What this is NOT: a decision about WCAG 3.1.5. That criterion is AAA and asks
  * for text at a lower-secondary reading level, judged on meaning. A formula that
@@ -28,93 +43,4 @@ final class ReadingLevel
 {
     /** Above this, the summary is not plain. Grade 9 = a 14-year-old reader. */
     public const PLAIN_MAX_GRADE = 9;
-
-    /**
-     * The Flesch-Kincaid grade for a passage, or null when there is too little
-     * text to say anything honest about.
-     *
-     * One sentence is not a sample. The formula divides by sentence count and
-     * word count, so a three-word fragment produces a confident-looking number
-     * built on nothing, which is worse than no number, because somebody will act
-     * on it.
-     */
-    public static function grade(string $text): ?float
-    {
-        $text = trim($text);
-        if ($text === '') {
-            return null;
-        }
-
-        $sentences = self::countSentences($text);
-        $words = self::words($text);
-
-        if ($sentences < 2 || count($words) < 20) {
-            return null;
-        }
-
-        $syllables = 0;
-        foreach ($words as $word) {
-            $syllables += self::syllables($word);
-        }
-
-        $grade = 0.39 * (count($words) / $sentences)
-            + 11.8 * ($syllables / count($words))
-            - 15.59;
-
-        // Negative grades are an artifact of very short words in very short
-        // sentences ("I go. You go. We go."), not a meaningful reading level.
-        return round(max($grade, 0), 1);
-    }
-
-    /**
-     * Sentences, counted by terminal punctuation.
-     *
-     * A passage with no full stop at all is one sentence, not zero: otherwise a
-     * heading-shaped line divides by zero. Trailing punctuation runs ("...",
-     * "?!") count once.
-     */
-    private static function countSentences(string $text): int
-    {
-        $count = preg_match_all('/[.!?]+(?=\s|$)/u', $text);
-
-        return max((int) $count, 1);
-    }
-
-    /**
-     * @return array<int, string>
-     */
-    private static function words(string $text): array
-    {
-        preg_match_all("/[\p{L}']+/u", $text, $matches);
-
-        return $matches[0] ?? [];
-    }
-
-    /**
-     * Syllables in one word, by vowel groups.
-     *
-     * The standard heuristic and the standard caveats: a trailing silent "e" is
-     * dropped, and every word counts as at least one. It over-counts "queue" and
-     * under-counts "poem". Averaged over twenty words or more, which is the floor
-     * this class enforces, the errors mostly cancel.
-     */
-    private static function syllables(string $word): int
-    {
-        $word = mb_strtolower($word, 'UTF-8');
-        $word = preg_replace('/[^a-z]/', '', $word) ?? '';
-
-        if ($word === '') {
-            return 1;
-        }
-
-        // "make" is one syllable, "the" is one, but "be" and "he" are too, so
-        // only drop the silent e when something is left behind it.
-        if (str_ends_with($word, 'e') && strlen($word) > 2) {
-            $word = substr($word, 0, -1);
-        }
-
-        $groups = preg_match_all('/[aeiouy]+/', $word);
-
-        return max((int) $groups, 1);
-    }
 }
