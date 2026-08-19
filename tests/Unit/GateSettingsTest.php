@@ -57,7 +57,7 @@ it('reads the target size from the standard, and nothing else from it', function
     // The one setting that changes a finding. AAA raises the minimum touch
     // target to 44 pixels; it does not make this addon check AAA, and the label
     // has to keep saying so.
-    expect(GateSettings::fromConfig(['standard' => 'wcag22aaa'])->standard->targetSize)->toBe(44);
-    expect(GateSettings::fromConfig(['standard' => 'wcag22aa'])->standard->targetSize)->toBe(24);
-    expect(GateSettings::fromConfig(['standard' => 'nonsense'])->standard->targetSize)->toBe(24);
+    expect(GateSettings::fromConfig(['standard' => 'wcag22aaa'])->standard->targetSize())->toBe(44);
+    expect(GateSettings::fromConfig(['standard' => 'wcag22aa'])->standard->targetSize())->toBe(24);
+    expect(GateSettings::fromConfig(['standard' => 'nonsense'])->standard->targetSize())->toBe(24);
 });

@@ -177,10 +177,48 @@ it('shows every setting as what it actually is before anybody saves', function (
     // The general case of the bug above. A settings screen that describes a
     // different state from the one the addon is in is worse than no screen: it
     // is wrong, and saving it makes the addon agree with the wrong answer.
+    //
+    // Derived from the blueprint rather than from a list written here. It used
+    // to loop over two hard-coded handles under this title while the addon had
+    // five settings, so a third field could drift from the config file with
+    // nothing noticing, which is the failure the title claims to cover.
     $blueprint = Addon::get('bpmore/statamic-a11y-gate')->settingsBlueprint();
 
-    foreach (['mode', 'add_panel_to_blueprints'] as $handle) {
-        expect($blueprint->field($handle)->defaultValue())
-            ->toBe(config("statamic-a11y-gate.{$handle}"), "the settings screen shows a different {$handle} from the one in force");
+    $fields = $blueprint->fields()->all();
+
+    expect($fields->count())->toBeGreaterThan(0, 'a settings screen with no fields would make this assert nothing');
+
+    foreach ($fields as $handle => $field) {
+        $inForce = config("statamic-a11y-gate.{$handle}");
+
+        // A field with no default of its own renders empty, so the addon had
+        // better be doing nothing for that setting too. `collections` and
+        // `opt_in_checks` are both of this shape: empty means "everything" and
+        // "none of them", and both are what the config file ships.
+        if ($field->defaultValue() === null) {
+            expect($inForce)->toBe([], "the screen shows {$handle} as empty while the addon is using something else");
+
+            continue;
+        }
+
+        expect($field->defaultValue())
+            ->toBe($inForce, "the settings screen shows a different {$handle} from the one in force");
     }
+});
+
+it('says out loud which settings the screen cannot reach', function () {
+    // `standard` has no field, so the one setting that changes what a check
+    // reports (24 CSS pixels at AA, 44 at AAA) is the only one a site owner
+    // cannot get at from the control panel. That may be the right call for a
+    // level almost nobody moves, but it is a gap, and an untracked gap is how a
+    // sixth setting quietly becomes unreachable too.
+    //
+    // Pinned rather than fixed here: adding the field is a product decision
+    // about a screen written for somebody who was handed a site.
+    $handles = Addon::get('bpmore/statamic-a11y-gate')->settingsBlueprint()->fields()->all()->keys()->all();
+
+    $unreachable = array_values(array_diff(array_keys(config('statamic-a11y-gate')), $handles));
+
+    expect($unreachable)->toBe(['standard'],
+        'a setting gained or lost a field on the screen: '.implode(', ', $unreachable));
 });

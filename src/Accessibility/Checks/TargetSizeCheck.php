@@ -31,6 +31,22 @@ use DOMXPath;
  */
 final class TargetSizeCheck extends RuleCheck
 {
+    /**
+     * What counts as a control, in one place.
+     *
+     * `run()` and `coverage()` have to agree on this, and it used to be written
+     * out in both with nothing tying them together. Divergence is silent either
+     * way, and each direction breaks a stated rule: widen `run()` alone and a
+     * page whose only control is the new kind reports full coverage while the
+     * rule inspected it and could not measure it, which is a silent zero shown
+     * as a pass. Widen `coverage()` alone and pages carry a standing partial
+     * notice about controls the rule never looks at.
+     *
+     * Each alternative needs its own `//`: a bare `*[@role=...]` step is
+     * relative to the document node and only ever matches the root element.
+     */
+    private const CONTROLS = '//a|//button|//*[@role="button"]|//*[@role="link"]';
+
     public static function key(): string
     {
         return 'a11y.target.size';
@@ -51,14 +67,10 @@ final class TargetSizeCheck extends RuleCheck
      */
     public function run(DOMXPath $xpath, ?AccessibilityStandard $standard = null): array
     {
-        $min = $standard?->targetSize ?? AccessibilityStandard::wcag22aa()->targetSize;
+        $min = ($standard ?? AccessibilityStandard::Wcag22aa)->targetSize();
         $violations = [];
 
-        // Each alternative needs its own `//`: a bare `*[@role=...]` step is
-        // relative to the document node and only ever matches the root element.
-        $selector = '//a|//button|//*[@role="button"]|//*[@role="link"]';
-
-        foreach ($xpath->query($selector) as $el) {
+        foreach ($xpath->query(self::CONTROLS) as $el) {
             if (! $el instanceof DOMElement) {
                 continue;
             }
@@ -113,7 +125,7 @@ final class TargetSizeCheck extends RuleCheck
      */
     public function coverage(DOMXPath $xpath): Coverage
     {
-        $controls = $xpath->query('//a|//button|//*[@role="button"]|//*[@role="link"]');
+        $controls = $xpath->query(self::CONTROLS);
 
         if ($controls === false || $controls->length === 0) {
             return Coverage::full(self::key(), self::name());

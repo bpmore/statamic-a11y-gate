@@ -26,6 +26,9 @@ use DOMXPath;
  */
 final class ReadingLevelCheck extends RuleCheck
 {
+    /** The attribute this check reads, for the rule and for its coverage. */
+    private const STAMPED = '//*[@data-a11y-reading-grade]';
+
     public static function key(): string
     {
         return 'a11y.text.reading_level';
@@ -48,7 +51,7 @@ final class ReadingLevelCheck extends RuleCheck
     {
         $violations = [];
 
-        foreach ($xpath->query('//*[@data-a11y-reading-grade]') as $node) {
+        foreach ($xpath->query(self::STAMPED) as $node) {
             $grade = (float) $node->getAttribute('data-a11y-reading-grade');
 
             if ($grade > ReadingLevel::PLAIN_MAX_GRADE) {
@@ -82,7 +85,7 @@ final class ReadingLevelCheck extends RuleCheck
      */
     public function coverage(DOMXPath $xpath): Coverage
     {
-        $stamped = $xpath->query('//*[@data-a11y-reading-grade]');
+        $stamped = $xpath->query(self::STAMPED);
 
         if ($stamped !== false && $stamped->length > 0) {
             return Coverage::full(self::key(), self::name());
