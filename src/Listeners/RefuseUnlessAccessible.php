@@ -88,11 +88,20 @@ final class RefuseUnlessAccessible
         if (! $this->settings->refuses()) {
             // Warn mode still says what it found. A mode that stayed quiet would
             // be indistinguishable from the addon not being installed.
-            $this->log->warning('Accessibility Gate would have refused this entry: '.$this->summary($result), [
-                'entry' => $event->entry->id(),
-                'findings' => array_map(fn ($v) => $v->toArray(), $result->violations),
-                'reason' => $result->reason,
-            ]);
+            //
+            // Both halves out loud: what the gate would have done, and what
+            // actually happened to the entry. This line used to say the second
+            // half wrong, claiming the entry was not saved immediately before
+            // saving it.
+            $this->log->warning(
+                'Accessibility Gate would have refused this entry. It was saved because the mode is set to report. '
+                .$this->problem($result),
+                [
+                    'entry' => $event->entry->id(),
+                    'findings' => array_map(fn ($v) => $v->toArray(), $result->violations),
+                    'reason' => $result->reason,
+                ]
+            );
 
             return;
         }
@@ -122,7 +131,7 @@ final class RefuseUnlessAccessible
             ];
         }
 
-        $lines = [$this->summary($result)];
+        $lines = ['This entry was not saved. '.$this->problem($result)];
 
         foreach ($result->errors() as $violation) {
             $lines[] = $violation->message.' '.$violation->cta.
@@ -148,16 +157,29 @@ final class RefuseUnlessAccessible
         return $lines;
     }
 
-    private function summary(GateResult $result): string
+    /**
+     * What the gate found, and nothing about what was done with it.
+     *
+     * The verdict belongs to the caller, because only the caller knows the
+     * mode. This used to return the verdict too, and the log line in warn mode
+     * read "Accessibility Gate would have refused this entry: This entry was
+     * not saved." about an entry that is saved on the next line of execution.
+     * It contradicted its own first clause, and warn mode's log line is warn
+     * mode's entire output.
+     *
+     * Sentence-cased in both branches so either caller can put a full stop in
+     * front of it.
+     */
+    private function problem(GateResult $result): string
     {
         if ($result->couldNotBeChecked()) {
-            return 'the checks could not run: '.$result->reason;
+            return 'The checks could not run: '.$result->reason;
         }
 
         $count = count($result->errors());
 
         return $count === 1
-            ? 'This entry was not saved. One accessibility problem has to be fixed first.'
-            : "This entry was not saved. {$count} accessibility problems have to be fixed first.";
+            ? 'One accessibility problem has to be fixed first.'
+            : "{$count} accessibility problems have to be fixed first.";
     }
 }
