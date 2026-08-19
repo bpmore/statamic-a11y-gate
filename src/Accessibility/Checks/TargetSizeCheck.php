@@ -71,7 +71,6 @@ final class TargetSizeCheck extends RuleCheck
 
             $violations[] = $this->issue(
                 'target-size-minimum',
-                Violation::ERROR,
                 $this->snippet($el->textContent ?: $el->getAttribute('aria-label')),
             );
         }

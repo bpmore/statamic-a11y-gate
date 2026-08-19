@@ -54,7 +54,6 @@ final class ReadingLevelCheck extends RuleCheck
             if ($grade > ReadingLevel::PLAIN_MAX_GRADE) {
                 $violations[] = $this->issue(
                     'reading-level-high',
-                    Violation::WARN,
                     'reading grade '.rtrim(rtrim(number_format($grade, 1), '0'), '.'),
                 );
             }

@@ -56,7 +56,6 @@ final class MediaAlternativesCheck extends RuleCheck
         foreach ($xpath->query('//*[@data-a11y-video-captions="missing"]') as $node) {
             $violations[] = $this->issue(
                 'video-captions-unconfirmed',
-                Violation::ERROR,
                 $this->frameLabel($node),
             );
         }
@@ -66,7 +65,6 @@ final class MediaAlternativesCheck extends RuleCheck
         foreach ($xpath->query('//*[@data-a11y-audio-transcript="missing"]') as $node) {
             $violations[] = $this->issue(
                 'audio-transcript-missing',
-                Violation::ERROR,
                 $this->frameLabel($node),
             );
         }
@@ -76,7 +74,7 @@ final class MediaAlternativesCheck extends RuleCheck
         // checker can prove the text exists and the author owns whether it is
         // faithful to the image.
         foreach ($xpath->query('//*[@data-a11y-figure-text="missing"]') as $node) {
-            $violations[] = $this->issue('figure-text-missing', Violation::ERROR);
+            $violations[] = $this->issue('figure-text-missing');
         }
 
         // Broken footnotes have to be stamped from the source, because the
@@ -84,7 +82,7 @@ final class MediaAlternativesCheck extends RuleCheck
         // renders as literal "[^x]" junk, and an unreferenced note is dropped by
         // the renderer, so the author's words vanish with no visible trace.
         foreach ($xpath->query('//*[@data-a11y-footnotes="broken"]') as $node) {
-            $violations[] = $this->issue('footnotes-broken', Violation::ERROR);
+            $violations[] = $this->issue('footnotes-broken');
         }
 
         // An embedded player is an iframe, so its accessible name comes from the
@@ -105,7 +103,6 @@ final class MediaAlternativesCheck extends RuleCheck
             if (trim($iframe->getAttribute('title')) === '') {
                 $violations[] = $this->issue(
                     'video-missing-title',
-                    Violation::ERROR,
                     $iframe->getAttribute('src'),
                 );
             }
