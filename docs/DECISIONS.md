@@ -12,6 +12,55 @@ more than a file that only ever describes the present.
 
 ---
 
+## 2026-08-19: The guide page stays hand-written, and gets tested against the code
+
+An audit compared every claim on the Tools page against what the checker does,
+and three of them were wrong. The page said "there are three exceptions" while
+four rules are raised as warnings: `link-vague` was missing from the list, and it
+is labelled `WCAG 2.4.4`, so the page's own sentence ("anything that would fail
+WCAG 2.2 AA stops the publish") was false on both halves. That was wrong from the
+day the sentence was written rather than drift: the fixture and the sentence
+arrived in different commits, minutes apart. The page also said "the entry is not
+saved" flatly, while report mode is a supported setting on the screen this very
+page sends people to, and it named 24 pixels as the touch-target minimum without
+saying a config file can raise it to 44.
+
+**Decision.** Fix the prose, keep it hand-written, and bind the one claim that
+is a fact about the code to the code with a test. The count of exceptions is now
+derived from the corpus, which is what pins each rule's severity, so a fifth
+warning cannot be added without the guide going red.
+
+**Why not generate the page from code.** Its value is the per-rule *reasoning*:
+"neither can ever go live", "blocking on a guess". That is argument, not data,
+and generating it would mean adding a prose field to `Remediation::RULES` and
+flattening four differently shaped explanations into one template. The view is
+also compiled as a Vue template, where Blade's `{{ }}` and Vue's `{{ }}` are the
+same characters, so every word on it is deliberately static text; interpolating
+one list would break that property for the whole file.
+
+**Why a test was needed at all.** All six existing assertions in
+`GuideUtilityTest` compared the page against a string literal written in the
+same test file, so the page was being tested against itself. Every one of them
+stayed green while the page miscounted. A page that documents a gate is a claim
+about the gate, and this repository already holds that a claim nothing checks is
+a claim waiting to go stale.
+
+**Rejected.** *Leaving the count out of the prose*, which would have removed the
+falsifiable sentence rather than making it true, and would have made the page
+vaguer to make it safer. *Hard-coding the four rule names in the test*, which
+moves the same drift problem into the test file. *Deriving the count from
+`Remediation::RULES`*, which is where severity should live but does not yet: it
+is passed per call site today, so the corpus is currently the only place the
+severity of a rule is written down once.
+
+**Worth knowing if you mutation-test a view.** Blade's compiled-view cache keys
+on the source file's mtime at one-second granularity, so mutating a template and
+restoring it inside the same second silently runs the old compiled copy. A batch
+of three mutations reported the wrong test failing until each was run with a
+second between them.
+
+---
+
 ## 2026-08-13: Three refusals loosened, because each was firing on a good page
 
 A code review found three shapes the gate refused that it should not, all of the

@@ -34,8 +34,14 @@
                 is not saved and you are told what to fix.
             </p>
             <p>
+                That is what a new site does. A site can set this to report instead,
+                under Addons, Accessibility Gate, Settings, and then the same findings
+                go to the log and the save goes through. Reporting is meant for the
+                first few weeks on a site with a backlog, not as somewhere to stay.
+            </p>
+            <p>
                 Anything that would fail WCAG 2.2 AA stops the publish. There are
-                three exceptions, and each one is an exception for a reason rather
+                four exceptions, and each one is an exception for a reason rather
                 than a softening.
             </p>
             <ul class="list-disc space-y-2 ps-5">
@@ -49,6 +55,13 @@
                     two pages link to each other, blocking both means neither can
                     ever go live. Somebody staging a launch would be stuck with no
                     way out.
+                </li>
+                <li>
+                    <strong>Link text that is vague rather than plainly wrong.</strong>
+                    "Learn more about us" is built entirely out of words that could
+                    describe anything, while "Learn more about the weir" is fine. That
+                    verdict rests on a list of words rather than on the page, so it is
+                    worth saying and not worth stopping you over.
                 </li>
                 <li>
                     <strong>A plain-language summary that reads too hard.</strong>
@@ -77,11 +90,14 @@
                 marked as decoration.
             </li>
             <li>
-                <strong>Embedded videos.</strong> That each one has a title.
+                <strong>Embedded frames.</strong> That each one has a title. Videos
+                are the common case, but a map, a form or anything else in a frame
+                is checked the same way.
             </li>
             <li>
                 <strong>Control size.</strong> That nothing you can tap is smaller
-                than 24 by 24 pixels, where the size is set on the page itself.
+                than 24 by 24 pixels, where the size is set on the page itself. A
+                developer can raise that to 44 in the addon's config file.
             </li>
         </ul>
     </ui-card-panel>
