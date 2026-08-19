@@ -64,7 +64,6 @@ final class ImageAltCheck extends RuleCheck
             if (trim($img->getAttribute('alt')) === '') {
                 $violations[] = $this->issue(
                     'image-missing-alt',
-                    Violation::ERROR,
                     $img->getAttribute('src'),
                 );
             }

@@ -51,10 +51,10 @@ final class HeadingOrderCheck extends RuleCheck
 
         $h1s = array_values(array_filter($headings, fn ($h) => $h['level'] === 1));
         if ($h1s === []) {
-            $violations[] = $this->issue('heading-missing-h1', Violation::ERROR);
+            $violations[] = $this->issue('heading-missing-h1');
         } elseif (count($h1s) > 1) {
             // The second h1 is the one to fix; the page title's h1 stays.
-            $violations[] = $this->issue('heading-multiple-h1', Violation::ERROR, $h1s[1]['text']);
+            $violations[] = $this->issue('heading-multiple-h1', $h1s[1]['text']);
         }
 
         $previousLevel = 0;
@@ -62,7 +62,6 @@ final class HeadingOrderCheck extends RuleCheck
             if ($previousLevel > 0 && $h['level'] > $previousLevel + 1) {
                 $violations[] = $this->issue(
                     'heading-skipped-level',
-                    Violation::ERROR,
                     "h{$h['level']}: {$h['text']}",
                 );
             }

@@ -35,9 +35,9 @@ abstract class RuleCheck implements Check
      * Build a violation, resolving its remediation copy. Every check emits
      * through here, so the shape cannot differ between rule families.
      */
-    protected function issue(string $rule, string $severity, string $pointer = ''): Violation
+    protected function issue(string $rule, string $pointer = ''): Violation
     {
-        return Remediation::violation($rule, $severity, $pointer);
+        return Remediation::violation($rule, $pointer);
     }
 
     /**

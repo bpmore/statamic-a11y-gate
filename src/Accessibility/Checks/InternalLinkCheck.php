@@ -45,7 +45,7 @@ final class InternalLinkCheck extends RuleCheck
         $violations = [];
 
         foreach ($xpath->query('//*[@data-a11y-unpublished-link="true"]') as $node) {
-            $violations[] = $this->issue('link-unpublished-page', Violation::WARN);
+            $violations[] = $this->issue('link-unpublished-page');
         }
 
         return $violations;

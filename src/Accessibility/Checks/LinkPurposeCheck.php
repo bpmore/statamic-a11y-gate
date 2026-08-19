@@ -72,7 +72,7 @@ final class LinkPurposeCheck extends RuleCheck
             }
 
             if ($el->nodeName === 'a' && $this->goesNowhere($el)) {
-                $violations[] = $this->issue('link-goes-nowhere', Violation::WARN, $this->snippet(AccessibleName::for($el)));
+                $violations[] = $this->issue('link-goes-nowhere', $this->snippet(AccessibleName::for($el)));
             }
 
             $raw = AccessibleName::for($el);
@@ -86,7 +86,7 @@ final class LinkPurposeCheck extends RuleCheck
             }
 
             if ($this->looksLikeUrl($raw)) {
-                $violations[] = $this->issue('link-unclear', Violation::ERROR, $this->snippet($raw));
+                $violations[] = $this->issue('link-unclear', $this->snippet($raw));
 
                 continue;
             }
@@ -105,7 +105,7 @@ final class LinkPurposeCheck extends RuleCheck
             // closes with one ("click here to read the report" is still "click
             // here", and so is "read the report, click here").
             if (in_array($name, $this->vocabulary->banned, true) || $this->beginsOrEndsWithAny($name, $this->vocabulary->bannedSubstrings)) {
-                $violations[] = $this->issue('link-unclear', Violation::ERROR, $this->snippet($raw));
+                $violations[] = $this->issue('link-unclear', $this->snippet($raw));
 
                 continue;
             }
@@ -115,7 +115,7 @@ final class LinkPurposeCheck extends RuleCheck
             // more about us"). Text that names its target ("Learn more about
             // Soundgarden") satisfies 2.4.4 and passes clean.
             if ($this->containsWords($name, $this->vocabulary->vague) && $this->allWordsGeneric($name, $generic)) {
-                $violations[] = $this->issue('link-vague', Violation::WARN, $this->snippet($raw));
+                $violations[] = $this->issue('link-vague', $this->snippet($raw));
             }
         }
 
@@ -125,8 +125,8 @@ final class LinkPurposeCheck extends RuleCheck
     private function nameless(DOMElement $el): Violation
     {
         return $el->nodeName === 'a'
-            ? $this->issue('link-empty', Violation::ERROR, $el->getAttribute('href'))
-            : $this->issue('button-empty', Violation::ERROR, $el->getAttribute('id'));
+            ? $this->issue('link-empty', $el->getAttribute('href'))
+            : $this->issue('button-empty', $el->getAttribute('id'));
     }
 
     /**
