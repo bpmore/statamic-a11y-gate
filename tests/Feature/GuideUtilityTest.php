@@ -66,6 +66,54 @@ it('says why each warning is a warning rather than that warnings do not matter',
     expect($body)->toContain('blocking on a guess');
 });
 
+it('names as many exceptions as the checker actually has', function () {
+    // Every other assertion in this file compares the page against a string
+    // literal written in this file, so the page was being tested against
+    // itself. It said three exceptions from the day the sentence was written
+    // while the checker raised four, and nothing here could have noticed.
+    //
+    // The count is derived from the corpus rather than from a list kept here,
+    // because the corpus is what pins each rule's severity, and
+    // ConformanceCorpusTest already refuses to let a rule exist without a case.
+    // So a fifth warning cannot be added without this going red.
+    $warnings = [];
+
+    foreach (glob(dirname(__DIR__, 2).'/corpus/cases/*/expected.json') as $file) {
+        foreach (json_decode((string) file_get_contents($file), true)['findings'] as $finding) {
+            if ($finding['severity'] === \Bpmore\A11yGate\Accessibility\Violation::WARN) {
+                $warnings[$finding['rule']] = true;
+            }
+        }
+    }
+
+    $counted = count($warnings);
+    $spelled = [1 => 'one', 2 => 'two', 3 => 'three', 4 => 'four', 5 => 'five', 6 => 'six'][$counted] ?? '';
+
+    expect($spelled)->not->toBe('', "the guide spells this number in words and there is no word here for {$counted}");
+
+    $body = guideText($this->actingAs($this->user)
+        ->get(cp_route('utilities.index').'/a11y-gate')
+        ->getContent());
+
+    expect(str_contains($body, "There are {$spelled} exceptions"))
+        ->toBeTrue("the guide names a different number of exceptions from the {$counted} findings the checker raises as warnings");
+});
+
+it('does not claim a refusal is the only thing that can happen', function () {
+    // The page's central sentence is "the entry is not saved", and warn mode is
+    // a supported setting on the screen this very page sends people to. Saying
+    // it unconditionally made the page wrong on any site that had taken the
+    // migration path the config file recommends.
+    $body = guideText($this->actingAs($this->user)
+        ->get(cp_route('utilities.index').'/a11y-gate')
+        ->getContent());
+
+    // str_contains rather than toContain, so a failure prints this sentence
+    // instead of the entire control panel document.
+    expect(str_contains($body, 'set this to report instead'))
+        ->toBeTrue('the guide must say that refusing is a setting rather than the only outcome');
+});
+
 it('is drawn with the control panel components rather than borrowed styles', function () {
     // A utility view is compiled as a Vue template rather than printed as HTML,
     // so Statamic's components resolve here. The first version of this page was
