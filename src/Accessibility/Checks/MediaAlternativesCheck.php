@@ -185,32 +185,83 @@ final class MediaAlternativesCheck extends RuleCheck
      *
      * Partial rather than full even where the site does stamp, because a checker
      * cannot confirm that everything which needed marking got marked.
+     *
+     * **Three separate questions, and they used to be answered by one count.**
+     * Whether to say `full` turns on there being any media at all. Which limit
+     * to state turns on whether this page carries the markup the other four
+     * rules read. Whether the author gets a notice turns on there being
+     * something playable, because captions are the only gap here that is theirs
+     * to settle. Collapsing all three into "is any of the six elements visible"
+     * made the check say two false things, both seen on real shapes of page:
+     *
+     * - a stamped page was told captions "are only checked on sites that mark
+     *   them up, and this one does not", in the same report as a finding that
+     *   only that markup could have produced;
+     * - a page whose only media was a `figure` was told "only you can confirm
+     *   this video or recording has them", about a video it does not have.
+     *   `figure` is the commonest of the six on an ordinary Statamic site, so
+     *   that was the standing notice this class exists to avoid.
      */
     public function coverage(DOMXPath $xpath, array $optedIn = []): ?Coverage
     {
-        $media = $xpath->query('//iframe|//video|//audio|//figure|//object|//embed');
-
-        // Hidden frames are excluded here for the same reason they are excluded
-        // from the title rule: a page whose only "media" is a tracking iframe
-        // has no video, and telling its author to confirm captions on it would
-        // be a standing notice about something that does not exist.
-        $visible = 0;
-
-        foreach ($media === false ? [] : $media as $node) {
-            if ($node instanceof DOMElement && ! $this->hiddenFromEveryone($node)) {
-                $visible++;
-            }
-        }
+        // Hidden frames are excluded throughout for the same reason they are
+        // excluded from the title rule: a page whose only "media" is a tracking
+        // iframe has no video, and telling its author to confirm captions on it
+        // would be a standing notice about something that does not exist.
+        $visible = $this->visible($xpath, '//iframe|//video|//audio|//figure|//object|//embed');
 
         if ($visible === 0) {
             return Coverage::full(self::key(), self::name());
         }
 
+        // Any of the four attributes this check reads. Presence is enough: it
+        // is what separates a site that has integrated these rules from one
+        // that has not, which is the only thing the limit sentence claims.
+        $stamped = $xpath->query(
+            '//*[@data-a11y-video-captions or @data-a11y-audio-transcript'
+            .' or @data-a11y-figure-text or @data-a11y-footnotes]'
+        );
+
+        $marksItsMarkup = $stamped !== false && $stamped->length > 0;
+
+        // Time-based media only. A figure is not something anybody watches or
+        // listens to, so it has no captions to confirm.
+        $playable = $this->visible($xpath, '//iframe|//video|//audio|//object|//embed');
+
+        // Captions specifically, not the other three. A transcript is demanded
+        // rather than attested, and figure text and footnotes are proven
+        // present or absent outright, so none of those three leaves a gap only
+        // the author can close.
+        $captions = $xpath->query('//*[@data-a11y-video-captions]');
+        $captionsChecked = $captions !== false && $captions->length > 0;
+
         return Coverage::partial(
             self::key(),
             self::name(),
-            'Embed titles were checked. Captions, transcripts, figure text and footnotes are only checked on sites that mark them up, and this one does not.',
-            'Captions were not checked. Only you can confirm this video or recording has them.',
+            $marksItsMarkup
+                ? 'Embed titles were checked, and so was every caption, transcript, figure text and footnote this page marks up. A checker cannot confirm that everything which needed marking got marked.'
+                : 'Embed titles were checked. Captions, transcripts, figure text and footnotes are only checked on sites that mark them up, and this one does not.',
+            $playable > 0 && ! $captionsChecked
+                ? 'Captions were not checked. Only you can confirm this video or recording has them.'
+                : '',
         );
+    }
+
+    /**
+     * How many elements matching this selector a visitor could actually meet.
+     */
+    private function visible(DOMXPath $xpath, string $selector): int
+    {
+        $nodes = $xpath->query($selector);
+
+        $count = 0;
+
+        foreach ($nodes === false ? [] : $nodes as $node) {
+            if ($node instanceof DOMElement && ! $this->hiddenFromEveryone($node)) {
+                $count++;
+            }
+        }
+
+        return $count;
     }
 }
