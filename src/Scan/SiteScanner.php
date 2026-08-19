@@ -35,7 +35,7 @@ final class SiteScanner
         $pages = 0;
         $unreadable = [];
 
-        /** @var array<string, array{violation: Violation, pages: array<int, string>}> $grouped */
+        /** @var array<string, array{violation: Violation, pages: array<string, string>}> $grouped */
         $grouped = [];
 
         foreach ($entries as $entry) {
@@ -68,7 +68,18 @@ final class SiteScanner
                 $key = ScannedFinding::keyFor($violation);
 
                 $grouped[$key] ??= ['violation' => $violation, 'pages' => []];
-                $grouped[$key]['pages'][] = $url;
+
+                // Keyed by URL, never appended. The same key can be raised more
+                // than once on one page: a card grid of identical "Read more"
+                // links, two copies of one undescribed image, or any of the
+                // three rules that emit inside a loop with no pointer at all.
+                // Appending counted that page once per finding, so `pageCount()`
+                // became a violation count, the URL stopped being printed
+                // because it was no longer `=== 1`, and `reach()` rounded the
+                // overflow up: one busy page on a five-page site claimed "every
+                // page", which is the sentence that sends somebody to rewrite a
+                // template.
+                $grouped[$key]['pages'][$url] = $url;
             }
         }
 
@@ -82,13 +93,16 @@ final class SiteScanner
      * and forty pages of benefit; a problem on one page is one author's
      * afternoon. Sorting the other way buries the expensive one.
      *
-     * @param  array<string, array{violation: Violation, pages: array<int, string>}>  $grouped
+     * @param  array<string, array{violation: Violation, pages: array<string, string>}>  $grouped
      * @return array<int, ScannedFinding>
      */
     private function sorted(array $grouped): array
     {
         $findings = array_map(
-            fn (array $g) => new ScannedFinding($g['violation'], $g['pages']),
+            // Flattened back to a list here, once. Insertion order survives, so
+            // `ScannedFinding` still receives its pages in the order they were
+            // scanned and its public shape does not change.
+            fn (array $g) => new ScannedFinding($g['violation'], array_values($g['pages'])),
             array_values($grouped),
         );
 

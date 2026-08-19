@@ -110,6 +110,60 @@ it('puts the most widespread problem first, and errors before warnings', functio
     expect($report->warnings()[0]->pageCount())->toBe(3);
 });
 
+it('counts a page once when the same problem is on it three times', function () {
+    // The grouping key is the rule plus the pointer, so a card grid of
+    // identical "Read more" links is one key raised three times on one page.
+    // Appending the URL once per finding made pageCount() a violation count,
+    // and reach() then rounded that up into the one sentence this report is
+    // not allowed to get wrong.
+    test()->viewShouldReturnRaw('default', '<html lang="en"><body><h1>{{ title }}</h1>{{ body }}</body></html>');
+
+    scanPage('one', '<a href="/a">Read more</a><a href="/b">Read more</a><a href="/c">Read more</a>');
+    scanPage('two', '<p>Fine.</p>');
+    scanPage('three', '<p>Fine.</p>');
+
+    $report = app(Bpmore\A11yGate\Scan\SiteScanner::class)->scan(
+        Entry::query()->where('collection', 'pages')->get()
+    );
+
+    expect($report->pagesChecked)->toBe(3);
+    expect($report->findings)->toHaveCount(1);
+    expect($report->findings[0]->pageCount())->toBe(1);
+
+    // The two consequences, both of which an author or a developer sees.
+    expect($report->findings[0]->reach(3))->toBe('1 page');
+
+    // One page gets named. It stopped being named when the count drifted off 1.
+    expect($report->findings[0]->pages)->toHaveCount(1);
+    expect($report->findings[0]->pages[0])->toContain('one');
+});
+
+it('ranks by how many pages carry a problem, not by how often it repeats', function () {
+    // The order is the report's whole argument: a problem on more pages is one
+    // template fix worth more, and sorting the other way buries it. Counting
+    // occurrences let one busy page outrank a genuinely site-wide problem.
+    test()->viewShouldReturnRaw(
+        'default',
+        '<html lang="en"><body><h1>{{ title }}</h1>{{ body }}<img src="/everywhere.jpg"></body></html>'
+    );
+
+    // Four copies of one problem on a single page, against one copy of another
+    // on all three. Under the old count the busy page scored 4 and won.
+    scanPage('one', '<img src="/busy.jpg"><img src="/busy.jpg"><img src="/busy.jpg"><img src="/busy.jpg">');
+    scanPage('two', '<p>Fine.</p>');
+    scanPage('three', '<p>Fine.</p>');
+
+    $report = app(Bpmore\A11yGate\Scan\SiteScanner::class)->scan(
+        Entry::query()->where('collection', 'pages')->get()
+    );
+
+    expect($report->findings[0]->violation->pointer)->toBe('/everywhere.jpg');
+    expect($report->findings[0]->pageCount())->toBe(3);
+
+    expect($report->findings[1]->violation->pointer)->toBe('/busy.jpg');
+    expect($report->findings[1]->pageCount())->toBe(1);
+});
+
 it('names the pages it could not read rather than counting them as clean', function () {
     // The fail-closed rule, at site scale. A report that scanned 40 pages, read
     // 36, and said "nothing found" would be claiming coverage it did not have.
