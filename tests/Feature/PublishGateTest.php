@@ -53,7 +53,12 @@ it('says what is wrong and what to do about it', function () {
         $lines = $e->errors()['a11y_gate'];
 
         expect($e->status)->toBe(422);
-        expect($lines[0])->toContain('This entry was not saved');
+
+        // The whole sentence, not a fragment of it. The verdict and the count
+        // are assembled from two pieces now, because only the caller knows
+        // whether the entry was actually refused, and this is what would catch
+        // that assembly going wrong.
+        expect($lines[0])->toBe('This entry was not saved. One accessibility problem has to be fixed first.');
         expect(implode(' ', $lines))->toContain('Add a description');
         // Never the rule id, which means nothing to the person who has to fix it.
         expect(implode(' ', $lines))->not->toContain('image-missing-alt');
@@ -177,6 +182,37 @@ it('warns instead of refusing when the site asks it to', function () {
     $entry = gatePage('<html lang="en"><body><h1>The weir</h1><img src="/a.jpg"></body></html>');
 
     expect($entry->save())->toBeTrue();
+});
+
+it('does not tell the log an entry was not saved when it was', function () {
+    // The test above asserts only that a warning was logged, never what it
+    // said, which is why this shipped: warn mode's line read "would have
+    // refused this entry: This entry was not saved." about an entry saved on
+    // the next line of execution. It contradicted its own first clause, and in
+    // warn mode that line is the addon's entire output.
+    config()->set('statamic-a11y-gate.mode', 'warn');
+
+    $logged = '';
+
+    Log::shouldReceive('warning')->once()->withArgs(function ($message, $context) use (&$logged) {
+        $logged = $message;
+
+        return true;
+    });
+
+    $entry = gatePage('<html lang="en"><body><h1>The weir</h1><img src="/a.jpg"></body></html>');
+
+    expect($entry->save())->toBeTrue();
+
+    // str_contains and a boolean, not `->not->toContain($needle, $message)`,
+    // which takes a list of needles and would pass vacuously.
+    expect(str_contains($logged, 'was not saved'))
+        ->toBeFalse("warn mode saves the entry, so the log must not say otherwise: [{$logged}]");
+
+    // And it still has to say what it found, or the mode is indistinguishable
+    // from the addon not being installed.
+    expect(str_contains($logged, 'accessibility problem'))
+        ->toBeTrue("warn mode must still name what it found: [{$logged}]");
 });
 
 it('leaves a collection the site did not ask it to gate alone', function () {
