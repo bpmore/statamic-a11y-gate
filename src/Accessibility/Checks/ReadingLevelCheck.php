@@ -68,25 +68,24 @@ final class ReadingLevelCheck extends RuleCheck
     }
 
     /**
-     * Full where the site stamps a grade, nothing to report on a site that has
-     * not integrated this, and `none` on a site that has but did not stamp this
-     * page.
+     * Full where the site stamps a grade, and `none` where it does not.
      *
      * This is the check the opt-in setting was added for. A summary is just more
      * text on the finished page and nothing marks out which words were meant to
      * be the plain ones, so on a site with no summaries there is no page where
-     * this could ever say anything useful.
+     * this could ever say anything useful, and a standing notice saying so would
+     * be read once and scrolled past forever after.
+     *
+     * That suppression is the checker's job now, not this method's. See
+     * `Check::needsOptIn()`, which used to declare it while an `in_array` here
+     * quietly did it.
      */
-    public function coverage(DOMXPath $xpath, array $optedIn = []): ?Coverage
+    public function coverage(DOMXPath $xpath): Coverage
     {
         $stamped = $xpath->query('//*[@data-a11y-reading-grade]');
 
         if ($stamped !== false && $stamped->length > 0) {
             return Coverage::full(self::key(), self::name());
-        }
-
-        if (! in_array(self::key(), $optedIn, true)) {
-            return null;
         }
 
         return Coverage::none(

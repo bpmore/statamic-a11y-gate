@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Bpmore\A11yGate\Accessibility\Checks\CheckPack;
 use Bpmore\A11yGate\Accessibility\Coverage;
 use Bpmore\A11yGate\Accessibility\StaticAccessibilityChecker;
 
@@ -42,6 +43,41 @@ it('says nothing about the opt-in checks on a site that has not opted in', funct
 
     expect(array_key_exists('a11y.link.unpublished', $coverage))->toBeFalse();
     expect(array_key_exists('a11y.text.reading_level', $coverage))->toBeFalse();
+});
+
+it('withholds exactly the checks that declare they need opting in', function () {
+    // `needsOptIn()` was a declaration nothing read. Flipping it changed no
+    // behaviour and broke no test, while the decision it described was written
+    // out by hand inside two `coverage()` methods. Two representations of one
+    // fact, and the typed one was the inert one.
+    //
+    // Derived from the pack rather than listed here, so a third opt-in check
+    // cannot be added with the declaration and without the behaviour, or the
+    // other way round.
+    $reported = array_keys(coverageFor(ORDINARY_PAGE));
+
+    $withheld = [];
+    $declared = [];
+
+    foreach (CheckPack::all() as $check) {
+        if (! in_array($check::key(), $reported, true)) {
+            $withheld[] = $check::key();
+        }
+
+        if ($check::needsOptIn()) {
+            $declared[] = $check::key();
+        }
+    }
+
+    sort($withheld);
+    sort($declared);
+
+    // Asserted directly rather than only through the loop above: a pack where
+    // nothing was withheld would make the comparison vacuously true.
+    expect($withheld === [])
+        ->toBeFalse('a page carrying none of the stamped markup must withhold something');
+
+    expect($withheld)->toBe($declared);
 });
 
 it('reports an opt-in check the site did integrate, and says the page carried none of it', function () {

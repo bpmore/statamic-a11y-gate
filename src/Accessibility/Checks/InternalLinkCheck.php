@@ -57,25 +57,24 @@ final class InternalLinkCheck extends RuleCheck
     }
 
     /**
-     * Full where the site stamps the attribute. Nothing to report at all on a
-     * site that has not integrated this, and `none` on a site that has but did
-     * not stamp this page.
+     * Full where the site stamps the attribute, and `none` where it does not.
      *
-     * The middle case is the one worth having: a site that says it marks up its
-     * unpublished links, on a page where nothing was marked, has a real gap. A
-     * site that never opted in does not need telling on every entry forever, and
-     * the config file names this check instead.
+     * The second case is the one worth having: a site that says it marks up its
+     * unpublished links, on a page where nothing was marked, has a real gap.
+     *
+     * Whether a site that never opted in hears about that is not decided here.
+     * It used to be, by an `in_array` over the setting written out in this
+     * method and again in `ReadingLevelCheck`, while `needsOptIn()` sat on the
+     * contract declaring the same fact and being read by nobody. This method now
+     * answers only what the document shows, and the checker suppresses the
+     * answer for a site that never integrated this check.
      */
-    public function coverage(DOMXPath $xpath, array $optedIn = []): ?Coverage
+    public function coverage(DOMXPath $xpath): Coverage
     {
         $stamped = $xpath->query('//*[@data-a11y-unpublished-link]');
 
         if ($stamped !== false && $stamped->length > 0) {
             return Coverage::full(self::key(), self::name());
-        }
-
-        if (! in_array(self::key(), $optedIn, true)) {
-            return null;
         }
 
         return Coverage::none(

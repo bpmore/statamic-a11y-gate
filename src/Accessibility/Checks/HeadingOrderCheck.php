@@ -76,7 +76,7 @@ final class HeadingOrderCheck extends RuleCheck
      * even when that outline is empty: a page with no h1 is a finding, not a
      * blind spot.
      */
-    public function coverage(DOMXPath $xpath, array $optedIn = []): ?Coverage
+    public function coverage(DOMXPath $xpath): Coverage
     {
         return Coverage::full(self::key(), self::name());
     }
