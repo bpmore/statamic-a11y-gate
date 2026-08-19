@@ -199,7 +199,7 @@ final class MediaAlternativesCheck extends RuleCheck
      *   `figure` is the commonest of the six on an ordinary Statamic site, so
      *   that was the standing notice this class exists to avoid.
      */
-    public function coverage(DOMXPath $xpath, array $optedIn = []): ?Coverage
+    public function coverage(DOMXPath $xpath): Coverage
     {
         // Hidden frames are excluded throughout for the same reason they are
         // excluded from the title rule: a page whose only "media" is a tracking

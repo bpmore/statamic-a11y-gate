@@ -111,7 +111,7 @@ final class TargetSizeCheck extends RuleCheck
      * be noise an author has to learn to ignore, which is how they come to
      * ignore the real one.
      */
-    public function coverage(DOMXPath $xpath, array $optedIn = []): ?Coverage
+    public function coverage(DOMXPath $xpath): Coverage
     {
         $controls = $xpath->query('//a|//button|//*[@role="button"]|//*[@role="link"]');
 

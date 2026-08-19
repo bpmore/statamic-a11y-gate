@@ -47,9 +47,42 @@ final class StaticAccessibilityChecker
             // itself on every page forever.
             $violations = [...$violations, ...$check->run($xpath, $standard)];
 
-            if ($entry = $check->coverage($xpath, $optedIn)) {
-                $coverage[] = $entry;
+            $entry = $check->coverage($xpath);
+
+            // The one place the opt-in setting is read. An opt-in check on a
+            // site that never integrated it has nothing to say about any page,
+            // ever, and repeating that on every entry is noise rather than
+            // honesty: an author with no plain-language summaries does not need
+            // telling, forever, that summaries were not checked.
+            //
+            // This used to be two hand-written copies of the same `in_array`,
+            // one inside each opt-in check, while `needsOptIn()` declared the
+            // same fact on the contract and was read by nobody. Two
+            // representations, and the typed one was the inert one.
+            //
+            // Keyed on `none` rather than on "not full", deliberately. A check
+            // that ran and found part of what it judges invisible has something
+            // real to report even on a site that never opted in. Neither opt-in
+            // check can return `partial` today, so nothing turns on it yet.
+            //
+            // **The `needsOptIn()` term is not exercised by anything, and it
+            // stays.** Deleting it passes the whole suite, because no check that
+            // is not opt-in can return `none`: three always answer `full`, and
+            // the other two answer `full` or `partial`. What it guards is the
+            // check that does not exist yet, one which is blind on some pages
+            // for its own reasons rather than for want of an integration. Such a
+            // check would be silently dropped on every site that had not listed
+            // it in a setting it has no business being in, which is the silent
+            // zero this file exists to refuse. A test for it would need a fake
+            // check, and `CheckPack` is a hard-coded list on purpose, so the
+            // honest thing is to say it is unproven rather than imply otherwise.
+            if ($entry->extent === Coverage::NONE
+                && $check::needsOptIn()
+                && ! in_array($check::key(), $optedIn, true)) {
+                continue;
             }
+
+            $coverage[] = $entry;
         }
 
         return new CheckReport($violations, $coverage);

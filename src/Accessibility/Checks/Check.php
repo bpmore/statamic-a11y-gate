@@ -37,16 +37,21 @@ interface Check
     public static function needsOptIn(): bool;
 
     /**
-     * How much of what this check judges it could see in this document, or null
-     * when it has nothing to report on this site at all.
+     * How much of what this check judges it could see in this document.
      *
-     * Null is only for an opt-in check the site has not integrated. Everything
-     * else answers, including the checks that always work, because a check that
-     * could stay quiet when it is blind looks exactly like a clean page.
+     * Every check answers, always. It used to be allowed to return null, which
+     * meant "an opt-in check on a site that has not integrated me", and that was
+     * a rule stated in this docblock and enforced nowhere. The type let any
+     * check return null, and a check that vanished took the denominator with it:
+     * `CheckReport::summary()` counts the entries it was handed, so a report
+     * missing one says "4 of 4 checks ran in full" rather than 4 of 5. A check
+     * that can stay quiet when it is blind looks exactly like a clean page.
      *
-     * @param  array<int, string>  $optedIn  keys of the opt-in checks this site stamps for
+     * Whether a site wants to hear about an opt-in check it never integrated is
+     * a question about the site, not about the document, so it is answered once
+     * by the checker rather than re-derived here. See `needsOptIn()`.
      */
-    public function coverage(DOMXPath $xpath, array $optedIn = []): ?Coverage;
+    public function coverage(DOMXPath $xpath): Coverage;
 
     /**
      * The rules this check can raise, by their `Violation::rule` value.

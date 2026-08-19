@@ -12,6 +12,59 @@ more than a file that only ever describes the present.
 
 ---
 
+## 2026-08-19: The opt-in setting is read once, by the checker
+
+`Check::needsOptIn()` declared which checks read markup a host has to stamp.
+Nothing called it. The decision it described was written out by hand inside
+`InternalLinkCheck::coverage()` and `ReadingLevelCheck::coverage()` as the same
+nine lines with a different XPath, and `$optedIn` was threaded through all seven
+`coverage()` signatures while five of them ignored it. Two representations of one
+fact, and the typed one was the inert one: flipping `needsOptIn()` changed no
+behaviour and broke no test.
+
+**Decision.** `coverage()` takes only the document and always returns a
+`Coverage`. Each check answers what its own markup shows. The checker reads the
+setting once and drops an entry that says `none` for a check the site never
+integrated.
+
+**Why the type mattered as much as the duplication.** `?Coverage` meant two
+things separated only by a docblock. Any check could return null, and a check
+that vanished took the denominator with it: `CheckReport::summary()` counts the
+entries it is handed, so a report missing one says "4 of 4 checks ran in full"
+instead of 4 of 5. That is the silent zero this product refuses, reachable
+through a type rather than through a rule.
+
+**Suppressed on `none`, not on "not full".** A check that ran and found part of
+what it judges invisible has something real to say even on a site that never
+opted in. Neither opt-in check can return `partial` today, so nothing turns on
+it, and the alternative was considered and turned down rather than missed.
+
+**The `needsOptIn()` term in that condition is unproven, and it stays.**
+Deleting it passes the whole suite, because no check that is not opt-in can
+return `none`: three always answer `full` and two answer `full` or `partial`.
+What it guards is a check that does not exist yet, blind on some pages for its
+own reasons rather than for want of an integration. Without the term such a
+check would be dropped on every site that had not listed it in a setting it has
+no business being in. A test would need a fake check and `CheckPack` is a
+hard-coded list on purpose. Saying so is better than implying it was measured.
+
+**Rejected.** *Deleting `needsOptIn()` outright*, which is four deletions and
+zero behaviour change, and was the cheaper answer to the same complaint. Turned
+down because it leaves the duplicated branch and the ignored parameter in place,
+and the contract then says nothing at all about a distinction the product makes.
+*A `Coverage::forStampedMarkup()` named constructor*, which keeps the parameter
+threading and puts knowledge of a site setting inside a value object whose job is
+to describe a document. *Deriving the settings screen's checkbox list from
+`CheckPack` filtered by `needsOptIn()`*, which would stop a third opt-in check
+being unreachable from the control panel. That is the better end state and its
+subject is the settings blueprint, so it is a separate change.
+
+**Equivalence, checked before and after** across five page shapes and all four
+combinations of the two opt-in keys: every extent, limit, notice and summary
+byte identical.
+
+---
+
 ## 2026-08-19: The guide page stays hand-written, and gets tested against the code
 
 An audit compared every claim on the Tools page against what the checker does,

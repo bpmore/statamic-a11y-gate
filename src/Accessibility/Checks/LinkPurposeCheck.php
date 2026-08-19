@@ -226,7 +226,7 @@ final class LinkPurposeCheck extends RuleCheck
      * Always full. An accessible name is read from the markup, and a page with
      * no links has nothing this rule could have missed.
      */
-    public function coverage(DOMXPath $xpath, array $optedIn = []): ?Coverage
+    public function coverage(DOMXPath $xpath): Coverage
     {
         return Coverage::full(self::key(), self::name());
     }
