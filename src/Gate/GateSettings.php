@@ -29,7 +29,7 @@ final class GateSettings
         public readonly array $optedIn = [],
         /** Whether to put the panel into gated collections' blueprints for you. */
         public readonly bool $addsPanel = false,
-        public readonly AccessibilityStandard $standard = new AccessibilityStandard('wcag22aa', 'WCAG 2.2 Level AA', 24),
+        public readonly AccessibilityStandard $standard = AccessibilityStandard::Wcag22aa,
     ) {}
 
     /**
@@ -51,9 +51,12 @@ final class GateSettings
             collections: array_values(array_filter((array) ($config['collections'] ?? []))),
             optedIn: array_values(array_filter((array) ($config['opt_in_checks'] ?? []))),
             addsPanel: (bool) ($config['add_panel_to_blueprints'] ?? false),
-            standard: ($config['standard'] ?? 'wcag22aa') === 'wcag22aaa'
-                ? AccessibilityStandard::wcag22aaa()
-                : AccessibilityStandard::wcag22aa(),
+            // An unrecognised level falls back to the floor, like the mode
+            // above. `tryFrom` rather than a ternary on a magic string, so the
+            // fallback is visible here instead of being the else branch of a
+            // comparison nobody reads as a fallback.
+            standard: AccessibilityStandard::tryFrom((string) ($config['standard'] ?? ''))
+                ?? AccessibilityStandard::Wcag22aa,
         );
     }
 

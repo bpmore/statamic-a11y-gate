@@ -69,14 +69,15 @@ final class Coverage
         return new self($check, $name, self::PARTIAL, $limit, $notice);
     }
 
-    public static function none(string $check, string $name, string $limit, string $notice = ''): self
+    /**
+     * No `$notice` argument, unlike `partial()`. A notice is a gap in the
+     * author's own content that only they can settle, and a check that could not
+     * run at all has not found one of those: it has found that it cannot look.
+     * Nothing ever passed it.
+     */
+    public static function none(string $check, string $name, string $limit): self
     {
-        return new self($check, $name, self::NONE, $limit, $notice);
-    }
-
-    public function ran(): bool
-    {
-        return $this->extent !== self::NONE;
+        return new self($check, $name, self::NONE, $limit);
     }
 
     /**
