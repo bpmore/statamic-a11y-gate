@@ -24,6 +24,52 @@ use Bpmore\A11yGate\Accessibility\Violation;
  * Helpers are prefixed with their subject: Pest shares one global function
  * namespace across every test file.
  */
+
+/**
+ * Every case the corpus must contain, by name, in the order `corpusCases()`
+ * returns them.
+ *
+ * A list rather than a count, because a count is a lower bound and the corpus
+ * has a half that a lower bound cannot protect. Six cases pin zero findings:
+ * they are the ones that catch a rule firing where nothing is wrong. Under the
+ * old `>= 24` guard, four of those six could be deleted and every assertion in
+ * this file stayed green, because 28 - 4 still clears 24 and a case with no
+ * findings adds nothing to the rule-coverage set below.
+ *
+ * The cost is one line here in the same commit that adds a fixture, which is
+ * what "behaviour changes only by editing the corpus" already asks for.
+ */
+const CORPUS_CASES = [
+    'audio-transcript-missing',
+    'button-empty',
+    'clean-page',
+    'figure-text-missing',
+    'footnotes-broken',
+    'heading-missing-h1',
+    'heading-multiple-h1',
+    'heading-skipped-level',
+    'image-alt-empty',
+    'image-decorative-no-alt',
+    'image-decorative-opt-out',
+    'image-missing-alt',
+    'link-dotted-name',
+    'link-empty',
+    'link-goes-nowhere',
+    'link-name-contains-the-phrase',
+    'link-text-is-web-address',
+    'link-unclear',
+    'link-unclear-at-the-end',
+    'link-unclear-with-trailing-words',
+    'link-unpublished-page',
+    'link-vague',
+    'reading-level-high',
+    'several-defects-ordered',
+    'target-size-minimum',
+    'video-captions-unconfirmed',
+    'video-hidden-frame',
+    'video-missing-title',
+];
+
 function corpusCases(): array
 {
     $cases = [];
@@ -31,11 +77,31 @@ function corpusCases(): array
     // Resolved from __DIR__ rather than from a framework path helper: this
     // loader is shared with a Laravel application and must not need a booted
     // framework to find its own fixtures.
-    foreach (glob(dirname(__DIR__, 2).'/corpus/cases/*', GLOB_ONLYDIR) as $dir) {
-        $cases[basename($dir)] = [
-            'html' => file_get_contents("$dir/input.html"),
-            'expected' => json_decode(file_get_contents("$dir/expected.json"), true),
-        ];
+    foreach (glob(dirname(__DIR__, 2).'/corpus/cases/*', GLOB_ONLYDIR) ?: [] as $dir) {
+        $name = basename($dir);
+
+        // Read with the warning suppressed and judged here instead. A missing
+        // input.html reads as `false`, which coerces to '' at the string
+        // parameter on `check()`, and the checker's answer for an empty page is
+        // `heading-missing-h1` and nothing else: byte for byte what
+        // `corpus/cases/heading-missing-h1/expected.json` pins. That case would
+        // confirm itself against a fixture that is not on disk.
+        //
+        // The only thing that caught it was `failOnWarning` in phpunit.xml,
+        // which nothing here mentions, so relaxing that flag for an unrelated
+        // deprecation would have turned a vacuous pass into a silent one.
+        $html = @file_get_contents("$dir/input.html");
+        $expected = json_decode((string) @file_get_contents("$dir/expected.json"), true);
+
+        // Malformed JSON decodes to null, and every consumer below reaches into
+        // `expected` independently, so an unreadable case failed in four
+        // different places and none of them named the file.
+        if (! is_string($html) || ! is_array($expected)
+            || ! isset($expected['findings'], $expected['portability'])) {
+            throw new RuntimeException("corpus case '$name' is missing or malformed: every case needs an input.html and an expected.json carrying findings and portability");
+        }
+
+        $cases[$name] = ['html' => $html, 'expected' => $expected];
     }
 
     ksort($cases);
@@ -57,12 +123,17 @@ function corpusFindings(string $html): array
     ], (new StaticAccessibilityChecker)->check($html));
 }
 
-it('has a corpus at all', function () {
-    // The failure this catches is the corpus directory going missing or being
-    // renamed, which would turn every assertion below into a loop over nothing
-    // and report a clean pass. A vacuous suite is the worst outcome here,
-    // because the whole point is catching silent divergence.
-    expect(count(corpusCases()))->toBeGreaterThanOrEqual(24);
+it('contains exactly the cases it is supposed to contain', function () {
+    // The failure this catches is a case going missing, being renamed, or
+    // arriving unannounced: any of them turns an assertion below into a loop
+    // over something other than the corpus and reports a clean pass. A vacuous
+    // suite is the worst outcome here, because the whole point is catching
+    // silent divergence.
+    //
+    // `toBe` on arrays is assertSame, so this is order-sensitive, and
+    // `corpusCases()` already ksorts. A deleted case fails by name rather than
+    // by arithmetic.
+    expect(array_keys(corpusCases()))->toBe(CORPUS_CASES);
 });
 
 it('produces exactly the findings the corpus expects, in order', function () {
