@@ -81,6 +81,43 @@ it('says a page with a video was only partly checked for media', function () {
     expect($coverage['a11y.media.alternatives']->limit)->toContain('Captions');
 });
 
+it('does not tell a page that stamps its markup that it does not', function () {
+    // The limit sentence is a claim about the site, and on a stamped page it
+    // was the opposite of what the same report was showing: "only checked on
+    // sites that mark them up, and this one does not", printed beside a finding
+    // that only that markup could have produced.
+    $coverage = coverageFor(
+        '<html lang="en"><body><h1>The weir</h1>'
+        .'<div data-a11y-video-captions="missing"><iframe title="A tour" src="/v"></iframe></div>'
+        .'</body></html>'
+    );
+
+    $limit = $coverage['a11y.media.alternatives']->limit;
+
+    expect(str_contains($limit, 'this one does not'))
+        ->toBeFalse('a page carrying the markup must not be told its site does not carry it');
+
+    // And no notice: captions were checked here. The finding says so.
+    expect($coverage['a11y.media.alternatives']->notice)->toBe('');
+});
+
+it('keeps the captions notice off a page whose only media is a figure', function () {
+    // A figure is not something anybody watches or listens to, so it has no
+    // captions to confirm. It is also the commonest of the six media elements
+    // on an ordinary Statamic site, which made this the standing notice the
+    // whole coverage feature exists to avoid.
+    $coverage = coverageFor(
+        '<html lang="en"><body><h1>The weir</h1>'
+        .'<figure><img src="/rainfall.png" alt="Rainfall since 1970"><figcaption>Rainfall</figcaption></figure>'
+        .'</body></html>'
+    );
+
+    // Still partial: a figure's text version is one of the four rules that
+    // needs the site to mark it up, so there is a real hole here.
+    expect($coverage['a11y.media.alternatives']->extent)->toBe(Coverage::PARTIAL);
+    expect($coverage['a11y.media.alternatives']->notice)->toBe('');
+});
+
 it('treats a page with no controls as fully checked for target size', function () {
     expect(coverageFor(PAGE_WITH_A_VIDEO)['a11y.target.size']->extent)->toBe(Coverage::FULL);
 });
