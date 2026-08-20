@@ -10,7 +10,7 @@ is the same failure in another file.
 Versions are `MAJOR.MINOR.PATCH`. Before 1.0 a breaking change raises the minor,
 so pin `^0.6` rather than `^0` if that matters to you.
 
-## Unreleased
+## 0.6.0 (2026-08-19)
 
 ### Removed, and it can break a site
 
