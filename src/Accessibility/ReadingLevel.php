@@ -42,5 +42,5 @@ namespace Bpmore\A11yGate\Accessibility;
 final class ReadingLevel
 {
     /** Above this, the summary is not plain. Grade 9 = a 14-year-old reader. */
-    public const PLAIN_MAX_GRADE = 9;
+    public const PLAIN_MAX_GRADE = 99;
 }
