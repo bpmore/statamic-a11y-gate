@@ -1,10 +1,7 @@
 # CLAUDE.md
 
-Non-negotiables for any model working in this repository. Rules, not
-documentation. Obey them without asking for confirmation.
-
-This is a commercial addon whose entire value is that its claims are true. Most
-rules here exist to protect that.
+Rules for any model working in this repository. Most of them exist to protect
+one thing: this addon's whole value is that its claims are true.
 
 ## THE PRODUCT
 
@@ -106,6 +103,5 @@ an auditor will all read it, because once this is listed they can.
 - Never push or merge unless asked.
 - Read `docs/DECISIONS.md` before choosing an approach. Add an entry when your
   change settles a question, including the alternatives you turned down.
-- There is no design document outside this repository any more. What this addon
-  should do is settled here, in the decision log and in the corpus, and nowhere
-  else has a vote.
+- What this addon should do is settled in this repository: the decision log and
+  the corpus. Nothing outside it has a vote.
