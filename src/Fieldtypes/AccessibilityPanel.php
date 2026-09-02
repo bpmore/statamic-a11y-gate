@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Bpmore\A11yGate\Fieldtypes;
 
+use Bpmore\A11yGate\Panel\PanelExtensions;
+use Statamic\Contracts\Entries\Entry;
 use Statamic\Fields\Fieldtype;
 
 /**
@@ -42,5 +44,20 @@ class AccessibilityPanel extends Fieldtype
     public function augment($value)
     {
         return null;
+    }
+
+    /**
+     * What other addons have to say about this page, handed to the component
+     * as `meta` when the form loads. Only on an edit screen: the create
+     * screen has no entry for anybody to speak about, and Statamic sets no
+     * parent on the field there.
+     */
+    public function preload()
+    {
+        $parent = $this->field()?->parent();
+
+        return [
+            'extensions' => $parent instanceof Entry ? PanelExtensions::for($parent) : [],
+        ];
     }
 }

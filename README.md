@@ -44,6 +44,12 @@ addon's settings screen, and a site with a backlog is what reporting is for.
 
 ## The panel
 
+Another addon can add a block beneath the panel's result with
+`PanelExtensions::register()`: a callable that takes the entry and returns a
+heading, some lines, and an optional link, or null. It cannot change a
+finding or a refusal. Accessibility Report uses it to show the page's open
+issues from the last scan.
+
 It is already there. The panel appears in the sidebar of every checked
 collection that has pages, no blueprint edits needed. To remove it, switch off
 "Add the panel to the collections above" in the addon's settings.

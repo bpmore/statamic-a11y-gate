@@ -10,6 +10,19 @@ is the same failure in another file.
 Versions are `MAJOR.MINOR.PATCH`. Before 1.0 a breaking change raises the minor,
 so pin `^0.6` rather than `^0` if that matters to you.
 
+## Unreleased
+
+### Added
+
+**A seam in the panel for another addon.** `PanelExtensions::register()`
+takes a callable that, given the entry, returns a block to draw beneath the
+gate's own result on the entry screen: a heading, plain lines, an optional
+link. Nothing about the checks or the refusal changes. Accessibility Report
+uses it to show the page's open issues from the last scan.
+
+**What to do about it:** nothing. Without a provider registered the panel
+is what it was.
+
 ## 0.6.0 (2026-08-19)
 
 ### Removed, and it can break a site

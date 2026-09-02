@@ -55,5 +55,9 @@ abstract class TestCase extends AddonTestCase
         // them to nothing. Without this the endpoint's tests pass by checking an
         // unchanged page, which is the failure they exist to catch.
         Blueprint::setDirectory(__DIR__.'/__fixtures__/blueprints');
+
+        // Providers are process-wide, and a test that registered one would
+        // otherwise speak in every test after it.
+        \Bpmore\A11yGate\Panel\PanelExtensions::flush();
     }
 }
