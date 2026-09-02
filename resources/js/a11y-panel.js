@@ -29,7 +29,10 @@
         // collection and blueprint handles into it. That is what lets a page be
         // checked before its first save: the create screen sends no entry
         // reference, so without those two the panel has nothing to name.
-        props: ['config'],
+        //
+        // `meta` is what the fieldtype's `preload()` returned when the form
+        // was built: today, the blocks other addons contribute about this page.
+        props: ['config', 'meta'],
 
         setup(props) {
             const container = injectPublishContext();
@@ -186,6 +189,12 @@
         // wants to know about their page. The page under Tools says it properly,
         // and somebody who wants it goes and reads it.
         //
+        // Beneath all of that, whatever another addon registered through
+        // `PanelExtensions` has to say about this page: drawn whether or not
+        // Check was pressed, because it is about the page's history rather
+        // than its present, and a warning tone is drawn as an alert for the
+        // same reason a failed check is.
+        //
         // Checked on a button rather than on every keystroke. A check renders the
         // whole page through the site's templates, and firing that on each
         // character typed would make the editor feel broken and hammer the site.
@@ -288,6 +297,15 @@
                     v-else
                     text="Checks this page as it stands here, including changes you have not saved."
                 />
+
+                <div v-for="(ext, i) in (meta?.extensions ?? [])" :key="'x' + i" class="space-y-2">
+                    <ui-alert v-if="ext.tone !== 'default'" :variant="ext.tone" :heading="ext.heading" :text="ext.lines.join(' ')" />
+                    <template v-else>
+                        <ui-heading size="sm" :text="ext.heading" />
+                        <ui-description v-for="(line, j) in ext.lines" :key="'x' + i + 'l' + j" :text="line" />
+                    </template>
+                    <div v-if="ext.link"><ui-button size="sm" :href="ext.link.url" :text="ext.link.text" /></div>
+                </div>
             </div>
         `,
     });

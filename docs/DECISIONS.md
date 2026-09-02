@@ -12,6 +12,51 @@ more than a file that only ever describes the present.
 
 ---
 
+## 2026-09-02: The panel has a seam for another addon, and the rules do not
+
+The companion report addon keeps what the gate never will: a history of
+every page, scanned on a schedule, with the state of each problem. An author
+on an entry screen would want the last scan's open issues for this page
+beside the gate's own result, so that the gate and the queue agree in the
+one place they look. That belongs in the panel, and the panel is this
+addon's.
+
+**Decision.** `PanelExtensions::register(callable)`: a provider takes the
+entry and returns a block (a heading, plain lines, an optional link, a tone)
+or null. The fieldtype's `preload()` collects the blocks on an edit screen
+and hands them to the component as `meta`, which draws each beneath
+everything the gate itself says, whether or not Check was pressed. On the
+create screen there is no entry and nothing is asked.
+
+**What does not change.** No rule, no check, no refusal. A provider cannot
+add a finding, alter one, or affect whether a save goes through; it can only
+say something beneath the result. The checker stays framework-free and the
+rules stay here, and a companion that wanted to change a verdict would have
+to ask for a different seam and be told no.
+
+**A provider that throws is drawn, not dropped.** As a warning block
+carrying the message. A panel that went quiet about a broken companion
+would look exactly like a page with nothing else to say, which is the
+silence this addon refuses in every other place.
+
+**Rejected.** *An event*, which is the Laravel-shaped answer and would have
+made the blocks a side effect of listeners nobody can list. A registry can
+be read. *Letting the companion register its own fieldtype*, which would put
+two panels in the sidebar answering one question, and the brief for the
+report asked for the opposite: extend the existing free panel.
+
+**Checked.** The suite, 118 tests, six of them for the seam: nothing
+registered, a block normalised, order kept with a null skipped, a throw
+drawn as a warning, the create screen silent, and the script wired to
+`meta`. And on a scratch site with the report installed, the preload for a
+page with four open issues returned them with the link.
+
+**Not checked.** The block on screen. The script's extension block was
+written against the same components the rest of the panel uses and was not
+run in a browser.
+
+---
+
 ## 2026-08-19: The opt-in setting is read once, by the checker
 
 `Check::needsOptIn()` declared which checks read markup a host has to stamp.
