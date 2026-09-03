@@ -73,5 +73,29 @@ const supersededByAFreshRefusal = /Vue\.watch\(refusal[\s\S]*?state\.result = nu
 if (!supersededByAFreshRefusal) bad++;
 console.log(`${supersededByAFreshRefusal ? 'ok  ' : 'FAIL'} a fresh refusal supersedes an older check`);
 
+// The link under a finding to the W3C's page on the criterion it cites. Once
+// for errors and once for warnings, and each must be told apart from text:
+// underlined, coloured for both themes, keyboard-focusable with a visible
+// ring, and announcing the new tab. Checked by reading the source because a
+// link that quietly loses its underline is exactly what no PHP test would see.
+const links = src.match(/<a v-if="finding\.reference"[^>]*>[\s\S]*?<\/a>/g) ?? [];
+const linkCount = links.length === 2;
+if (!linkCount) bad++;
+console.log(`${linkCount ? 'ok  ' : 'FAIL'} a criterion link under errors and under warnings (found ${links.length})`);
+
+for (const [what, re] of [
+    ['opens the reference url', /:href="finding\.reference\.url"/],
+    ['is underlined', /class="[^"]*\bunderline\b/],
+    ['has a colour for each theme', /text-blue-700 dark:text-blue-300/],
+    ['shows a focus ring', /focus:focus-outline/],
+    ['announces the new tab', /<span class="sr-only">[^<]*opens in a new tab[^<]*<\/span>/],
+    ['names the criterion', /WCAG \{\{ finding\.reference\.number \}\} \{\{ finding\.reference\.name \}\}/],
+    ['does not hand the opener to w3.org', /rel="noopener"/],
+]) {
+    const ok = links.length > 0 && links.every((a) => re.test(a));
+    if (!ok) bad++;
+    console.log(`${ok ? 'ok  ' : 'FAIL'} every criterion link ${what}`);
+}
+
 console.log(bad === 0 ? '\nall passed' : `\n${bad} FAILED`);
 process.exit(bad === 0 ? 0 : 1);

@@ -70,3 +70,31 @@ it('refuses on everything except the four findings that are meant to warn', func
         'reading-level-high',
     ]);
 });
+
+it('has somewhere to send the author for every criterion a rule cites, and nowhere for a house rule', function () {
+    // A rule that starts citing a criterion the reference table does not
+    // know would ship a finding with no link and nothing said. Held here so
+    // the table and the rules move together.
+    foreach (\Bpmore\A11yGate\Accessibility\Remediation::RULES as $rule => $copy) {
+        $reference = \Bpmore\A11yGate\Accessibility\CriterionReference::for($copy['wcag']);
+
+        if (str_starts_with($copy['wcag'], 'WCAG ')) {
+            expect($reference)->not->toBeNull("{$rule} cites {$copy['wcag']}, which has no reference");
+            expect($reference['url'])->toBe('https://www.w3.org/WAI/WCAG22/Understanding/'.substr($reference['url'], strlen('https://www.w3.org/WAI/WCAG22/Understanding/')), "{$rule} links to the W3C");
+            expect('WCAG '.$reference['number'])->toBe($copy['wcag']);
+            expect($reference['name'])->not->toBe('');
+        } else {
+            expect($reference)->toBeNull("{$rule} is a house rule and must not link to a criterion");
+        }
+    }
+
+    expect(\Bpmore\A11yGate\Accessibility\CriterionReference::for('WCAG 1.1.1'))->toBe([
+        'number' => '1.1.1',
+        'name' => 'Non-text Content',
+        'url' => 'https://www.w3.org/WAI/WCAG22/Understanding/non-text-content.html',
+    ]);
+    // A criterion no rule cites is not linked, however real: the gate does
+    // not send anybody to read up on what it did not check.
+    expect(\Bpmore\A11yGate\Accessibility\CriterionReference::for('WCAG 1.4.3'))->toBeNull();
+    expect(\Bpmore\A11yGate\Accessibility\CriterionReference::for('Heading structure'))->toBeNull();
+});

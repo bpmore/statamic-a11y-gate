@@ -225,6 +225,16 @@
         // Shouting there would be this addon overstating what it knows, on a
         // screen whose entire job is not doing that.
         //
+        // A cited criterion is a link under the finding to the W3C's own page
+        // on it. Underlined and blue by hand, because the control panel's
+        // stylesheet resets anchors to the text colour and a link nobody can
+        // tell from text fails 1.4.1 in an accessibility addon's own panel.
+        // The colours are the pair Statamic's blue badge uses in each theme,
+        // Statamic's focus utility gives the keyboard ring, and a new tab is
+        // announced rather than sprung on a screen-reader user. A house rule
+        // has no reference and no link, because a link to a criterion would
+        // cite what the check cannot establish.
+        //
         // A clean result keeps its quiet green badge. Nothing to fix does not
         // need the eye dragged to it, and an alert for good news would train
         // somebody to ignore the ones that matter.
@@ -273,6 +283,7 @@
                                 <ui-heading size="sm" :text="finding.cta" />
                                 <ui-description :text="finding.message" />
                                 <ui-description v-if="finding.pointer" :text="finding.pointer" />
+                                <a v-if="finding.reference" :href="finding.reference.url" target="_blank" rel="noopener" class="text-xs underline underline-offset-2 text-blue-700 dark:text-blue-300 focus:focus-outline rounded-sm">WCAG {{ finding.reference.number }} {{ finding.reference.name }}<span class="sr-only"> (the W3C's explanation, opens in a new tab)</span></a>
                             </div>
                         </div>
 
@@ -283,6 +294,7 @@
                             <div v-for="(finding, i) in state.result.warnings" :key="'w' + i">
                                 <ui-heading size="sm" :text="finding.cta" />
                                 <ui-description :text="finding.message" />
+                                <a v-if="finding.reference" :href="finding.reference.url" target="_blank" rel="noopener" class="text-xs underline underline-offset-2 text-blue-700 dark:text-blue-300 focus:focus-outline rounded-sm">WCAG {{ finding.reference.number }} {{ finding.reference.name }}<span class="sr-only"> (the W3C's explanation, opens in a new tab)</span></a>
                             </div>
                         </div>
                     </template>
