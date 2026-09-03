@@ -53,6 +53,11 @@ it('checks the values in the form, not the ones on disk', function () {
     expect($response->json('refuses'))->toBeTrue();
     expect($response->json('errors.0.message'))->toContain('no description');
     expect($response->json('errors.0.cta'))->toBe('Add a description');
+    expect($response->json('errors.0.reference'))->toBe([
+        'number' => '1.1.1',
+        'name' => 'Non-text Content',
+        'url' => 'https://www.w3.org/WAI/WCAG22/Understanding/non-text-content.html',
+    ]);
 });
 
 it('reports a clean page as clean without claiming it is accessible', function () {

@@ -44,6 +44,10 @@ addon's settings screen, and a site with a backlog is what reporting is for.
 
 ## The panel
 
+Under each finding that cites a WCAG success criterion, the criterion is a
+link to the W3C's own explanation of what it requires. A house rule such as
+"Heading structure" cites none and has no link.
+
 Another addon can add a block beneath the panel's result with
 `PanelExtensions::register()`: a callable that takes the entry and returns a
 heading, some lines, and an optional link, or null. It cannot change a

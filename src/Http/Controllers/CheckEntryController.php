@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Bpmore\A11yGate\Http\Controllers;
 
+use Bpmore\A11yGate\Accessibility\CriterionReference;
 use Bpmore\A11yGate\Accessibility\Violation;
 use Bpmore\A11yGate\Gate\GateResult;
 use Bpmore\A11yGate\Gate\PublishGate;
@@ -206,7 +207,7 @@ class CheckEntryController extends CpController
     }
 
     /**
-     * @return array<string, string>
+     * @return array<string, mixed>
      */
     private function finding(Violation $violation): array
     {
@@ -215,6 +216,9 @@ class CheckEntryController extends CpController
             'cta' => $violation->cta,
             'pointer' => $violation->pointer,
             'label' => $violation->wcag,
+            // Where to read what the criterion requires, or null for a house
+            // rule. The panel draws it as a link under the finding.
+            'reference' => CriterionReference::for($violation->wcag),
         ];
     }
 }

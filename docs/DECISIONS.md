@@ -12,6 +12,43 @@ more than a file that only ever describes the present.
 
 ---
 
+## 2026-09-03: A finding links to the W3C's page on the criterion it cites
+
+The panel showed an author what to fix and never what a citation meant.
+Accessibility Report gained the same links a day earlier, and the two
+addons should send an author to the same place.
+
+**The W3C's text, not a paraphrase.** A sentence of this addon's own under
+each finding was the alternative. Turned down because a summary here would be
+one more place a criterion could be misdescribed with the gate's name on it,
+and the Understanding pages are the answer the criteria's authors wrote.
+
+**Only the criteria the rules cite.** `CriterionReference` lists six numbers
+with their names and the W3C's page slug, and a test holds it to the rule
+table: a rule that cites a criterion the table lacks fails the suite. A
+criterion no rule cites returns null, however real, because the gate does
+not send anybody to read up on what it did not check. A house rule returns
+null for the reason it has a plain name: the link would cite what the check
+cannot establish. Deriving the slug from the name, as the report does, was
+not worth it for six entries that a test checks by hand.
+
+**Styled by hand, and checked.** The control panel's stylesheet resets
+anchors to the text colour, so a bare link there is indistinguishable from
+text and fails 1.4.1 in an accessibility addon's own panel, which is how the
+report's first version of these links looked. Underline, Statamic's blue
+badge colours for each theme (contrast holds on both), Statamic's own focus
+utility for the keyboard ring, `rel="noopener"`, and a screen-reader-only
+note that a new tab opens. The node harness reads the two links out of the
+template and checks each property, since no PHP test can see a link that
+quietly loses its underline; removing the underline fails it.
+
+**Checked.** The gate suite; the node harness with and without the underline;
+the endpoint test asserts the reference on an image finding. On the test
+site the published script carries the link. **Not checked.** The panel on a
+screen; the link read by a screen reader.
+
+---
+
 ## 2026-09-02: The panel has a seam for another addon, and the rules do not
 
 The companion report addon keeps what the gate never will: a history of

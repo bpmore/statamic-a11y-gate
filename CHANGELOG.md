@@ -10,6 +10,21 @@ is the same failure in another file.
 Versions are `MAJOR.MINOR.PATCH`. Before 1.0 a breaking change raises the minor,
 so pin `^0.6` rather than `^0` if that matters to you.
 
+## Unreleased
+
+### Added
+
+**A link under each finding to the W3C's page on the criterion it cites.**
+"WCAG 1.1.1 Non-text Content" under an image finding opens the Understanding
+page for it, in a new tab that is announced. Underlined and coloured for both
+themes, because the control panel resets anchors to look like text. A house
+rule such as "Heading structure" cites no criterion and has no link. The
+check endpoint sends the reference as `reference` on each finding, null for
+a house rule.
+
+**What to do about it:** republish the addon's assets if your deploy does
+not (`php artisan vendor:publish --tag=laravel-assets --force`).
+
 ## 0.7.0 (2026-09-02)
 
 ### Added
