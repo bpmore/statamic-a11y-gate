@@ -12,6 +12,61 @@ more than a file that only ever describes the present.
 
 ---
 
+## 2026-09-03: A block in the panel may carry a mark, and never a colour
+
+Asked for: the panel wearing the same brand as the conformance reports. Half
+of that was built and half of it cannot be, and the half that cannot is the
+more interesting one.
+
+**The gate gains no branding of its own.** It is free, it stands alone, and a
+site with nothing but the gate on it looks exactly as it did before this
+change. What it gained is the ability to draw a mark a provider hands it
+through `PanelExtensions`: a URL and the words that stand in for it. The
+companion that holds the brand supplies both. Turned down: brand settings in
+this addon, which would mean a second copy of somebody else's feature living
+in a free product for a paid one's benefit, and a settings screen for a
+picture this addon never uses.
+
+**A mark with no words is left out.** An image with no text alternative,
+inside the panel of an addon whose whole job is to refuse that on the pages it
+checks, would be the product failing on its own screen. The seam drops it
+rather than drawing it, and the node harness now requires every image in the
+panel source to carry an alt, not just the one image there is today.
+
+**An address the browser should not be handed is left out.** A path, `http`,
+`https`, or `data:image/`, and nothing else. A drawing loaded through an `img`
+cannot run script, but the address still reaches the page as written, and
+`javascript:` in an attribute the control panel renders is not something one
+addon should be able to hand another.
+
+**The colour cannot be carried, and the reason is arithmetic.** The report's
+accent is validated at 4.5:1 against white paper. The control panel has a
+light theme and a dark one, and a single colour cannot clear 4.5:1 against
+both: to pass on white a colour needs a relative luminance of at most 0.1833,
+and to pass on the dark theme's background it needs at least 0.2164. The bands
+do not overlap, so the set of colours that would work is empty. Checked rather
+than reasoned about: all 4096 three-digit colours were measured against both
+surfaces and none passed. Turned down, therefore: tinting the block heading,
+which would have shipped a brand colour that fails contrast in one theme for
+every customer who set one. A brand that wants a colour in the panel would
+have to supply two, one per theme, and nobody has asked for that.
+
+**A block reporting a problem wears no mark.** A warning is drawn as an alert
+in the control panel's own colours. It is the gate's voice, and nobody puts
+their name against a fault.
+
+**Checked.** The suite, 123 tests, and the node harness. The two seam rules
+were mutation-tested: a mark with no words and a `javascript:` address are
+both drawn once their guard is removed, and both tests go red. Every class on
+the image was read out of the control panel's built stylesheet first, because
+`max-h-6` and `max-w-32` are not in it and would have been dropped in silence,
+which is the failure the entry below this one is about.
+
+**Not checked.** The mark in a browser, at either theme, or how a wide
+wordmark sits in a narrow sidebar.
+
+---
+
 ## 2026-09-03: A finding links to the W3C's page on the criterion it cites
 
 The panel showed an author what to fix and never what a citation meant.

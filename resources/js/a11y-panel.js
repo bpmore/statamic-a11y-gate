@@ -195,6 +195,21 @@
         // than its present, and a warning tone is drawn as an alert for the
         // same reason a failed check is.
         //
+        // A block may carry a mark, which is drawn above its heading at about
+        // the height of a line of text. It is a plain `img` and not a
+        // component, because there is no component for "a picture somebody
+        // else supplied" and inventing one would be inventing a control. The
+        // seam guarantees the two things that matter about it: an address of
+        // a shape the browser can be handed, and words that stand in for it.
+        // Every class on it was read out of the control panel's own built
+        // stylesheet first: `max-h-6` and `max-w-32` are not in that build and
+        // would have been dropped without a word, which is how a link in this
+        // panel once shipped looking like plain text.
+        //
+        // A block with a warning tone is an alert and carries no mark: a
+        // problem is the gate's to report plainly, in the control panel's own
+        // colours, and nobody's to put their name against.
+        //
         // Checked on a button rather than on every keystroke. A check renders the
         // whole page through the site's templates, and firing that on each
         // character typed would make the editor feel broken and hammer the site.
@@ -313,6 +328,7 @@
                 <div v-for="(ext, i) in (meta?.extensions ?? [])" :key="'x' + i" class="space-y-2">
                     <ui-alert v-if="ext.tone !== 'default'" :variant="ext.tone" :heading="ext.heading" :text="ext.lines.join(' ')" />
                     <template v-else>
+                        <img v-if="ext.mark" :src="ext.mark.url" :alt="ext.mark.alt" class="h-6 w-auto max-w-full object-contain" />
                         <ui-heading size="sm" :text="ext.heading" />
                         <ui-description v-for="(line, j) in ext.lines" :key="'x' + i + 'l' + j" :text="line" />
                     </template>

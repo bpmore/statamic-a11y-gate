@@ -50,9 +50,19 @@ link to the W3C's own explanation of what it requires. A house rule such as
 
 Another addon can add a block beneath the panel's result with
 `PanelExtensions::register()`: a callable that takes the entry and returns a
-heading, some lines, and an optional link, or null. It cannot change a
-finding or a refusal. Accessibility Report uses it to show the page's open
-issues from the last scan.
+heading, some lines, an optional link, and an optional mark, or null. It
+cannot change a finding or a refusal. Accessibility Report uses it to show the
+page's open issues from the last scan.
+
+A mark is a small image with the words that stand in for it, drawn above the
+block's heading, so a companion's block can be recognised as the site owner's
+own. The gate holds no branding and has no setting for one: it draws what it
+is handed. A mark with no words is left out, because an image nobody can have
+described to them is the fault this addon refuses on the pages it checks, and
+its own panel is the last place that should carry one. An address that is not
+a path, an `http` or `https` URL, or a `data:image/` value is left out too. A
+block reporting a problem is drawn as an alert and wears no mark: that is the
+gate's own voice, in the control panel's colours.
 
 It is already there. The panel appears in the sidebar of every checked
 collection that has pages, no blueprint edits needed. To remove it, switch off

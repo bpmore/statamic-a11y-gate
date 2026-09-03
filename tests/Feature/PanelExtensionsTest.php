@@ -47,7 +47,67 @@ it('hands the component what a provider says about this page, normalised', funct
         'lines' => ['Two images have no description.', '42'],
         'link' => ['url' => '/cp/somewhere', 'text' => 'Open the queue'],
         'tone' => 'default',
+        'mark' => null,
     ]);
+});
+
+it('carries a mark a provider hands it, so a companion can be recognised', function () {
+    PanelExtensions::register(fn () => [
+        'heading' => 'From the last scan',
+        'mark' => ['url' => '/cp/somewhere/mark?site=default', 'alt' => '  Example Trust  '],
+    ]);
+
+    expect(panelPreload($this->entry)['extensions'][0]['mark'])
+        ->toBe(['url' => '/cp/somewhere/mark?site=default', 'alt' => 'Example Trust']);
+});
+
+it('leaves out a mark nobody could have described to them', function () {
+    // An image with no text alternative, in the panel of an addon whose whole
+    // job is to refuse exactly that on the pages it checks.
+    foreach ([['url' => '/cp/mark'], ['url' => '/cp/mark', 'alt' => ''], ['url' => '/cp/mark', 'alt' => '   ']] as $mark) {
+        PanelExtensions::flush();
+        PanelExtensions::register(fn () => ['heading' => 'A block', 'mark' => $mark]);
+
+        expect(panelPreload($this->entry)['extensions'][0]['mark'])
+            ->toBeNull('a mark with no words was drawn: '.json_encode($mark));
+    }
+});
+
+it('leaves out a mark whose address is not one the browser should be handed', function () {
+    $refused = [
+        'javascript:alert(1)',
+        'JavaScript:alert(1)',
+        'vbscript:msgbox',
+        'data:text/html,<script>alert(1)</script>',
+        'mark.png',
+        '',
+    ];
+
+    foreach ($refused as $url) {
+        PanelExtensions::flush();
+        PanelExtensions::register(fn () => ['heading' => 'A block', 'mark' => ['url' => $url, 'alt' => 'Example Trust']]);
+
+        expect(panelPreload($this->entry)['extensions'][0]['mark'])
+            ->toBeNull("a mark addressed [{$url}] was drawn");
+    }
+
+    foreach (['/cp/mark', 'https://example.test/mark.svg', 'http://example.test/mark.svg', 'data:image/svg+xml;base64,PHN2Zz48L3N2Zz4='] as $url) {
+        PanelExtensions::flush();
+        PanelExtensions::register(fn () => ['heading' => 'A block', 'mark' => ['url' => $url, 'alt' => 'Example Trust']]);
+
+        expect(panelPreload($this->entry)['extensions'][0]['mark'])
+            ->toBe(['url' => $url, 'alt' => 'Example Trust'], "a mark addressed [{$url}] was refused");
+    }
+});
+
+it('gives a block that could not answer no mark to wear', function () {
+    // A warning is the gate reporting a problem, in the control panel's own
+    // colours. Nobody puts their name against one.
+    PanelExtensions::register(function () {
+        throw new RuntimeException('the scan database is not there');
+    });
+
+    expect(panelPreload($this->entry)['extensions'][0]['mark'])->toBeNull();
 });
 
 it('leaves out a provider with nothing to say, and keeps the order of the rest', function () {
@@ -90,4 +150,6 @@ it('is drawn by the panel', function () {
     expect(str_contains($src, "props: ['config', 'meta']"))->toBeTrue('the component accepts meta');
     expect(str_contains($src, 'meta?.extensions'))->toBeTrue('the template draws the extensions');
     expect(str_contains($src, 'ext.link.url'))->toBeTrue('the template draws a block\'s link');
+    expect(str_contains($src, ':src="ext.mark.url"'))->toBeTrue('the template draws a block\'s mark');
+    expect(str_contains($src, ':alt="ext.mark.alt"'))->toBeTrue('the mark is drawn with its words');
 });
