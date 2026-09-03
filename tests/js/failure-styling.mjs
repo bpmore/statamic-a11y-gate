@@ -97,5 +97,23 @@ for (const [what, re] of [
     console.log(`${ok ? 'ok  ' : 'FAIL'} every criterion link ${what}`);
 }
 
+// Every image in the panel has words that stand in for it. This addon refuses
+// exactly this fault on the pages it checks, and its own panel is the last
+// place that should carry one. Checked over the whole file rather than over
+// the one image there is today, so the next one has to answer for itself too.
+const images = src.match(/<img\b[^>]*>/g) ?? [];
+for (const img of images) {
+    const described = /\s:?alt="[^"]+"/.test(img);
+    if (!described) bad++;
+    console.log(`${described ? 'ok  ' : 'FAIL'} an image in the panel has words that stand in for it: ${img.slice(0, 60)}`);
+}
+
+// The mark is a picture somebody else supplied, so it is drawn only where the
+// gate is not reporting a problem of its own. An alert is the gate's own
+// voice, in the control panel's colours, and nobody puts their name on one.
+const markInAlert = /<ui-alert[^>]*ext\.mark/.test(src);
+if (markInAlert) bad++;
+console.log(`${markInAlert ? 'FAIL' : 'ok  '} no mark is drawn on a block reporting a problem`);
+
 console.log(bad === 0 ? '\nall passed' : `\n${bad} FAILED`);
 process.exit(bad === 0 ? 0 : 1);

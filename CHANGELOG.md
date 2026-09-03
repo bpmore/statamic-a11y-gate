@@ -22,6 +22,14 @@ rule such as "Heading structure" cites no criterion and has no link. The
 check endpoint sends the reference as `reference` on each finding, null for
 a house rule.
 
+**A block in the panel may carry a mark.** `PanelExtensions` blocks take an
+optional `mark` of a `url` and an `alt`, drawn above the block's heading at
+about the height of a line of text, so a companion addon's block can be
+recognised as the site owner's own. The gate holds no branding of its own and
+gains no setting: it draws what a provider hands it. A mark with no words is
+left out, and so is an address that is not a path, an `http` or `https` URL,
+or a `data:image/` value. A block reporting a problem wears no mark.
+
 **What to do about it:** republish the addon's assets if your deploy does
 not (`php artisan vendor:publish --tag=laravel-assets --force`).
 
