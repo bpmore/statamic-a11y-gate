@@ -10,6 +10,18 @@ is the same failure in another file.
 Versions are `MAJOR.MINOR.PATCH`. Before 1.0 a breaking change raises the minor,
 so pin `^0.6` rather than `^0` if that matters to you.
 
+## 0.8.1 (2026-09-10)
+
+### Fixed, where the addon was saying something untrue
+
+**The all-clear badge now says what it was an all-clear about.** It reads
+"Nothing to fix in the page itself". This gate checks the rendered HTML and
+cannot open a linked document, so a `PanelExtensions` block underneath it can
+report a PDF a screen reader cannot open on the same screen. A flat "Nothing to
+fix" above that was two verdicts with nothing to tell them apart. The wording
+does not depend on what else is installed: a badge that means one thing alone
+and another in company would be harder to trust, not easier.
+
 ## 0.8.0 (2026-09-07)
 
 ### Added

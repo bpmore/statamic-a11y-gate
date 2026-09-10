@@ -253,6 +253,13 @@
         // A clean result keeps its quiet green badge. Nothing to fix does not
         // need the eye dragged to it, and an alert for good news would train
         // somebody to ignore the ones that matter.
+        //
+        // The badge says what it checked, because another addon's block may sit
+        // directly under it saying the opposite. This gate reads the rendered
+        // HTML; it cannot open a linked PDF, so A11y Docs can be reporting an
+        // unreadable document on the same screen. A flat "Nothing to fix" above
+        // that is two verdicts on one page, and the author has no way to tell
+        // which one is about what.
         template: `
             <div class="space-y-3">
                 <ui-alert
@@ -302,7 +309,7 @@
                             </div>
                         </div>
 
-                        <div v-else><ui-badge color="emerald" text="Nothing to fix" /></div>
+                        <div v-else><ui-badge color="emerald" text="Nothing to fix in the page itself" /></div>
 
                         <div v-if="state.result.warnings.length" class="space-y-3">
                             <div><ui-badge color="amber" :text="state.result.warnings.length === 1 ? '1 to look at' : state.result.warnings.length + ' to look at'" /></div>
