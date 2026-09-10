@@ -23,6 +23,14 @@ use Throwable;
  * for nothing to say. A block is a heading, plain lines, an optional link,
  * and an optional mark: a small image with the words that stand in for it,
  * so a companion that speaks here can be recognised as the site owner's own.
+ *
+ * A block may also name a `refusalKey`. Statamic puts a 422's `errors` onto
+ * the publish container exactly as they were sent, and hard-codes the toast
+ * to "The given data was invalid", so an addon that refuses a save has
+ * nowhere of its own to say why. Keying the refusal to a blueprint field
+ * puts it under that field, where it reads as a fault in the field. Naming
+ * the key here draws it in this block instead, which is where the author was
+ * already being told about the same thing.
  * A provider that throws is drawn as a block saying so rather than dropped,
  * because a panel that went quiet about a broken companion would look like a
  * page with nothing else to say, which is the silence this addon refuses.
@@ -62,7 +70,32 @@ final class PanelExtensions
     private const MARK_SCHEMES = ['/', 'https://', 'http://', 'data:image/'];
 
     /**
-     * @return array<int, array{heading: string, lines: array<int, string>, link: array{url: string, text: string}|null, tone: string, mark: array{url: string, alt: string}|null}>
+     * What a provider may rely on this version of the panel drawing.
+     *
+     * A provider is a separate package on its own release cycle. Registering
+     * a block that names a `refusalKey` against a gate too old to read one
+     * would send a refusal to a key nothing draws, and nothing would fail:
+     * the save is still refused, the author is just never told why. Asking
+     * first is the only way to tell those two versions apart at runtime.
+     */
+    private const CAPABILITIES = ['refusalKey'];
+
+    public static function supports(string $capability): bool
+    {
+        return in_array($capability, self::CAPABILITIES, true);
+    }
+
+    /**
+     * What a refusal key may look like: a handle, and nothing else.
+     *
+     * It is read as a property name off the errors object in the browser, so
+     * a provider is held to the shape of a Statamic handle rather than
+     * trusted with an arbitrary string.
+     */
+    private const REFUSAL_KEY = '/^[a-z][a-z0-9_]*$/';
+
+    /**
+     * @return array<int, array{heading: string, lines: array<int, string>, link: array{url: string, text: string}|null, tone: string, mark: array{url: string, alt: string}|null, refusalKey: string|null}>
      */
     public static function for(Entry $entry): array
     {
@@ -91,7 +124,7 @@ final class PanelExtensions
 
     /**
      * @param  array<string, mixed>  $block
-     * @return array{heading: string, lines: array<int, string>, link: array{url: string, text: string}|null, tone: string, mark: array{url: string, alt: string}|null}
+     * @return array{heading: string, lines: array<int, string>, link: array{url: string, text: string}|null, tone: string, mark: array{url: string, alt: string}|null, refusalKey: string|null}
      */
     private static function normalise(array $block): array
     {
@@ -105,7 +138,13 @@ final class PanelExtensions
             'link' => $link,
             'tone' => in_array($block['tone'] ?? null, ['default', 'warning', 'error'], true) ? $block['tone'] : 'default',
             'mark' => self::mark($block['mark'] ?? null),
+            'refusalKey' => self::refusalKey($block['refusalKey'] ?? null),
         ];
+    }
+
+    private static function refusalKey(mixed $key): ?string
+    {
+        return is_string($key) && preg_match(self::REFUSAL_KEY, $key) === 1 ? $key : null;
     }
 
     /**

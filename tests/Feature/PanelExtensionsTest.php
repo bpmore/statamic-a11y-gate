@@ -48,6 +48,7 @@ it('hands the component what a provider says about this page, normalised', funct
         'link' => ['url' => '/cp/somewhere', 'text' => 'Open the queue'],
         'tone' => 'default',
         'mark' => null,
+        'refusalKey' => null,
     ]);
 });
 
@@ -142,6 +143,55 @@ it('says nothing on the create screen, where there is no entry to speak about', 
     expect(panelPreload(null))->toBe(['extensions' => []]);
 });
 
+it('carries a block\'s own refusal key, so its refusal is not keyed to somebody\'s title', function () {
+    // Statamic drops a validation error that is not keyed to a blueprint
+    // field, so an addon refusing a save has to pick a field, and the refusal
+    // then reads as a fault in that field. A11y Docs was keying "this entry
+    // links to a document nobody can read" to `title`.
+    PanelExtensions::register(fn () => ['heading' => 'Documents', 'refusalKey' => 'a11y_docs']);
+
+    expect(panelPreload($this->entry)['extensions'][0]['refusalKey'])->toBe('a11y_docs');
+});
+
+it('takes a refusal key only in the shape of a handle', function () {
+    // It is read as a property name off the errors object in the browser.
+    foreach ([
+        ['a11y_docs', 'a11y_docs'],
+        ['x', 'x'],
+        ['A11yDocs', null],
+        ['a11y-docs', null],
+        ['9lives', null],
+        ['__proto__', null],
+        ['', null],
+        [['not' => 'a string'], null],
+        [null, null],
+    ] as [$given, $expected]) {
+        PanelExtensions::flush();
+        PanelExtensions::register(fn () => ['heading' => 'Documents', 'refusalKey' => $given]);
+
+        expect(panelPreload($this->entry)['extensions'][0]['refusalKey'])
+            ->toBe($expected, 'refusalKey '.json_encode($given));
+    }
+});
+
+it('gives every block a refusal key, null when it named none', function () {
+    // The browser reads the property whether or not a provider set it, and a
+    // key that is sometimes absent is a second shape to keep in step.
+    PanelExtensions::register(fn () => ['heading' => 'Documents']);
+
+    expect(panelPreload($this->entry)['extensions'][0])->toHaveKey('refusalKey')
+        ->and(panelPreload($this->entry)['extensions'][0]['refusalKey'])->toBeNull();
+});
+
+it('answers what a provider may rely on it drawing', function () {
+    // A provider ships separately. Naming a refusalKey at a gate too old to
+    // read one sends the refusal to a key nothing draws, and nothing fails:
+    // the save is still refused and the author is never told why. This is how
+    // a provider tells the two versions apart.
+    expect(PanelExtensions::supports('refusalKey'))->toBeTrue()
+        ->and(PanelExtensions::supports('somethingNobodyHasBuilt'))->toBeFalse();
+});
+
 it('is drawn by the panel', function () {
     // The script is the half an author sees. This does not run it; it asserts
     // the seam is wired to it, so a block cannot be produced and never shown.
@@ -152,4 +202,5 @@ it('is drawn by the panel', function () {
     expect(str_contains($src, 'ext.link.url'))->toBeTrue('the template draws a block\'s link');
     expect(str_contains($src, ':src="ext.mark.url"'))->toBeTrue('the template draws a block\'s mark');
     expect(str_contains($src, ':alt="ext.mark.alt"'))->toBeTrue('the mark is drawn with its words');
+    expect(str_contains($src, 'refusalFor(ext)'))->toBeTrue('the template draws a block\'s own refusal');
 });

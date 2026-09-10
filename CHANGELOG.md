@@ -10,6 +10,25 @@ is the same failure in another file.
 Versions are `MAJOR.MINOR.PATCH`. Before 1.0 a breaking change raises the minor,
 so pin `^0.6` rather than `^0` if that matters to you.
 
+## 0.9.0 (2026-09-10)
+
+### Added
+
+**A panel block may name a `refusalKey`.** Statamic puts a 422's `errors` onto
+the publish container exactly as they were sent, and hard-codes the toast to
+"The given data was invalid", so an addon that refuses a save has nowhere of
+its own to say why. Keying the refusal to a blueprint field puts it under that
+field, where it reads as a fault in the field: A11y Docs was keying "this entry
+links to a document nobody can read" to `title`. A block that names a key has
+whatever is under that key drawn in the block instead, in place of its standing
+lines and above its link. The key has to be shaped like a handle.
+
+**`PanelExtensions::supports()`** answers whether this version draws a given
+capability, today only `refusalKey`. A provider ships on its own release cycle,
+and naming a key at a gate too old to read one sends the refusal somewhere
+nothing draws without failing: the save is still refused and the author is
+never told why.
+
 ## 0.8.1 (2026-09-10)
 
 ### Fixed, where the addon was saying something untrue
