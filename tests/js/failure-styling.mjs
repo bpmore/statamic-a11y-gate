@@ -115,5 +115,16 @@ const markInAlert = /<ui-alert[^>]*ext\.mark/.test(src);
 if (markInAlert) bad++;
 console.log(`${markInAlert ? 'FAIL' : 'ok  '} no mark is drawn on a block reporting a problem`);
 
+// The all-clear badge has to say what it was an all-clear about. A11y Docs
+// registers a block that renders directly under it, and that block can be
+// reporting a PDF a screen reader cannot open while this gate, which only ever
+// reads the rendered HTML, found nothing. Green "Nothing to fix" above red
+// "1 with problems" is two verdicts with nothing to tell them apart, and it
+// shipped that way.
+const clearBadge = src.match(/<ui-badge color="emerald" text="([^"]*)"/);
+const scoped = clearBadge !== null && /\bpage\b/.test(clearBadge[1]) && clearBadge[1] !== 'Nothing to fix';
+if (!scoped) bad++;
+console.log(`${scoped ? 'ok  ' : 'FAIL'} the all-clear badge names what it checked: ${clearBadge ? clearBadge[1] : 'no badge found'}`);
+
 console.log(bad === 0 ? '\nall passed' : `\n${bad} FAILED`);
 process.exit(bad === 0 ? 0 : 1);
