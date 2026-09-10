@@ -154,7 +154,26 @@
                 () => refusal.value.length > 0 && ! state.result && ! state.failed && ! state.checking
             );
 
-            return { state, refusal, showRefusal, check };
+            // The same trick for a block that named a `refusalKey`: whatever
+            // that addon put under its own key, drawn in its own block.
+            //
+            // Not superseded by a fresh check the way the gate's own refusal
+            // is. A check reads the page's HTML, and a block that refuses a
+            // save is refusing over something else entirely, so a clean check
+            // is no answer to it and must not clear it. Statamic hands the
+            // container a new errors object on every save, so a save that is
+            // no longer refused takes the block's refusal with it.
+            function refusalFor(ext) {
+                if (! ext?.refusalKey) {
+                    return [];
+                }
+
+                const lines = (container.errors?.value ?? {})[ext.refusalKey];
+
+                return Array.isArray(lines) ? lines : [];
+            }
+
+            return { state, refusal, showRefusal, check, refusalFor };
         },
 
         // No panel or header of its own. A field is already drawn inside the
@@ -194,6 +213,12 @@
         // Check was pressed, because it is about the page's history rather
         // than its present, and a warning tone is drawn as an alert for the
         // same reason a failed check is.
+        //
+        // A block that named a `refusalKey` and has lines under it draws those
+        // instead of its own: the addon has just refused this save, and what
+        // it said at that moment is sharper than the standing summary of the
+        // same thing. The block's link is kept either way, because a refusal
+        // with no route forward is how a gate becomes a thing people turn off.
         //
         // A block may carry a mark, which is drawn above its heading at about
         // the height of a line of text. It is a plain `img` and not a
@@ -333,7 +358,8 @@
                 />
 
                 <div v-for="(ext, i) in (meta?.extensions ?? [])" :key="'x' + i" class="space-y-2">
-                    <ui-alert v-if="ext.tone !== 'default'" :variant="ext.tone" :heading="ext.heading" :text="ext.lines.join(' ')" />
+                    <ui-alert v-if="refusalFor(ext).length" variant="error" :heading="ext.heading" :text="refusalFor(ext).join(' ')" />
+                    <ui-alert v-else-if="ext.tone !== 'default'" :variant="ext.tone" :heading="ext.heading" :text="ext.lines.join(' ')" />
                     <template v-else>
                         <img v-if="ext.mark" :src="ext.mark.url" :alt="ext.mark.alt" class="h-6 w-auto max-w-full object-contain" />
                         <ui-heading size="sm" :text="ext.heading" />

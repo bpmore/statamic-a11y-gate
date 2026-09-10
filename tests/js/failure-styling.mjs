@@ -126,5 +126,50 @@ const scoped = clearBadge !== null && /\bpage\b/.test(clearBadge[1]) && clearBad
 if (!scoped) bad++;
 console.log(`${scoped ? 'ok  ' : 'FAIL'} the all-clear badge names what it checked: ${clearBadge ? clearBadge[1] : 'no badge found'}`);
 
+// A block that named a refusalKey draws what that addon put under its own key
+// when it refused the save. Statamic's toast cannot carry it and a blueprint
+// field is the wrong place for it: A11y Docs was keying its refusal to `title`,
+// so "this entry links to a document nobody can read" appeared as though the
+// title were at fault.
+const refusalFor = /function refusalFor\(ext\) \{[\s\S]*?\n {12}\}/.exec(src);
+if (!refusalFor) bad++;
+console.log(`${refusalFor ? 'ok  ' : 'FAIL'} the panel reads an extension's own refusal key`);
+
+if (refusalFor) {
+    const read = new Function('ext', 'container', refusalFor[0] + '; return refusalFor(ext);');
+    const errors = { a11y_docs: ['One line.', 'Another.'], a11y_gate: ['Not this one.'] };
+    const container = { errors: { value: errors } };
+
+    for (const [label, ext, want] of [
+        ['reads the key it was given', { refusalKey: 'a11y_docs' }, 'One line. Another.'],
+        ['does not borrow another block\'s key', { refusalKey: 'a11y_report' }, ''],
+        ['a block with no key reads nothing', {}, ''],
+    ]) {
+        const got = read(ext, container).join(' ');
+        const ok = got === want;
+        if (!ok) bad++;
+        console.log(`${ok ? 'ok  ' : 'FAIL'} ${label}: "${got}"`);
+    }
+
+    // No errors at all is the ordinary case: the form has just loaded.
+    const quiet = read({ refusalKey: 'a11y_docs' }, { errors: { value: undefined } }).length === 0;
+    if (!quiet) bad++;
+    console.log(`${quiet ? 'ok  ' : 'FAIL'} a form with no errors draws no refusal`);
+}
+
+// The refusal wins over the block's standing summary, and the block's link
+// survives either way: a refusal with no route forward is how a gate becomes a
+// thing people turn off.
+const extBlock = src.match(/<div v-for="\(ext, i\) in \(meta\?\.extensions[\s\S]*?\n {16}<\/div>/)[0];
+for (const [what, re] of [
+    ['draws the refusal first', /<ui-alert v-if="refusalFor\(ext\)\.length" variant="error"/],
+    ['falls through to the block\'s own tone', /<ui-alert v-else-if="ext\.tone !== 'default'"/],
+    ['keeps the link', /<div v-if="ext\.link">/],
+]) {
+    const ok = re.test(extBlock);
+    if (!ok) bad++;
+    console.log(`${ok ? 'ok  ' : 'FAIL'} an extension block ${what}`);
+}
+
 console.log(bad === 0 ? '\nall passed' : `\n${bad} FAILED`);
 process.exit(bad === 0 ? 0 : 1);
