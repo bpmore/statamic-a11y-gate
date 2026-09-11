@@ -48,7 +48,8 @@ second implementation to stay in step with.
 
 ## STACK
 
-- PHP 8.4. Composer. PSR-4. A Statamic addon is an ordinary Laravel package.
+- PHP 8.2 or newer, tested on 8.2 and 8.4. Composer. PSR-4. A Statamic addon is an
+  ordinary Laravel package.
 - The checker itself must stay framework-free: no Laravel container, no Eloquent,
   no facades in the rules. It takes HTML and returns findings.
 - Statamic 6, verified against `statamic/cms v6.27.1`. The gate hangs off

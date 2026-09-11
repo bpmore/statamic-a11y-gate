@@ -12,6 +12,52 @@ more than a file that only ever describes the present.
 
 ---
 
+## 2026-09-11: The floor is PHP 8.2, because that is the floor, and December 2026 is when to raise it
+
+The manifest required `^8.4` and nothing in the addon needed it. Every file
+lints under 8.2, there are no 8.3 or 8.4 functions, and Statamic 6 itself runs
+on Laravel 12, whose floor is 8.2. The 8.4 was the version the project started
+on, kept because nobody had asked. A floor nobody has tested is not a floor; it
+is a guess with a caret in front of it.
+
+**8.2 rather than 8.3, and the date that decides it.** 8.2 is what Laravel 12
+allows and what a site that has not yet moved to Laravel 13 is on. It leaves
+security support on 31 December 2026, which is close, and which is exactly why
+this entry exists: raise the floor to 8.3 then, not before and not after.
+Before, and a supported site is refused for no reason; after, and this addon
+is promising to run on a PHP that no longer receives security fixes, in a tool
+whose whole job is to be trusted about what it claims. Turned down: 8.3 now,
+which would refuse Laravel 12 sites for a version that is still supported for
+another three months; and 8.4, which is the status quo and the guess.
+
+**The floor is a job, not a number.** A third job in CI installs the oldest
+version of every dependency the manifest allows, on 8.2, and runs the suite.
+Without it the floor is a promise about a machine nobody on this project runs,
+and the day it stops being true is the day a customer's `composer require`
+fails. With it, a dependency that raises its own floor turns the job red on a
+commit that changed nothing, which is a finding and not a nuisance. The same
+reasoning the existing CI comment gives for having no lock file.
+
+**The test toolchain had to widen for it.** Pest 4 and Testbench 11 both
+require 8.3, so the dev requirements now allow Pest 3 and Testbench 10 as
+well. Only `->group()` and `->with()` are used from Pest's API, both of which
+Pest 3 has. A caveat worth recording: Testbench 10's own floor is Laravel
+12.55, so the lowest job runs a little above the true runtime floor of
+Laravel 12.40 that a customer without dev dependencies could land on. It
+cannot be helped without a second toolchain, and the gap is patch releases of
+the same major.
+
+**Checked.** The suite, 127 tests, under real PHP 8.2 with the oldest
+dependencies Composer would resolve: Laravel 12.61, Statamic 6.31, Pest 3.8,
+Testbench 10.11. Every file in `src/` lints under 8.2. `composer validate
+--strict`. The same suite under 8.4 as before.
+
+**Not checked.** PHP 8.3 specifically, which sits between the two tested
+versions and adds nothing either lacks. Laravel 12.40 exactly, for the reason
+above. A real site on PHP 8.2, as opposed to the test harness on it.
+
+---
+
 ## 2026-09-03: A block in the panel may carry a mark, and never a colour
 
 Asked for: the panel wearing the same brand as the conformance reports. Half

@@ -4,12 +4,19 @@
 # were merged on the strength of a local run pasted into a description, which is
 # exactly the shape of claim this addon refuses to accept from anybody else.
 #
-# Two jobs, because ext-intl is a `suggest` rather than a `require` and that is a
+# Three jobs. ext-intl is a `suggest` rather than a `require` and that is a
 # promise: the addon has to work without it. `AccessibleName::normalize()` skips
 # its Unicode fold when the extension is absent, so "Ｃｌｉｃｋ ｈｅｒｅ" in
 # full-width characters stops being folded to "click here" and that link passes.
 # That is a real behaviour difference rather than a tidy fallback, and the second
 # job is what stops it becoming a crash instead.
+#
+# The third is the oldest PHP the manifest allows, with the oldest version of
+# every dependency it allows. A floor in composer.json is a promise about a
+# machine nobody on this project runs, and the only thing that makes it true is
+# a runner that is that machine. When this job goes red on a commit that
+# changed nothing, a dependency raised its own floor, and that is the moment to
+# raise ours rather than the moment a customer finds out.
 
 name: Tests
 
@@ -31,7 +38,7 @@ concurrency:
 
 jobs:
   tests:
-    name: PHP 8.4, ${{ matrix.name }}
+    name: PHP ${{ matrix.php }}, ${{ matrix.name }}
     runs-on: ubuntu-latest
 
     strategy:
@@ -42,19 +49,27 @@ jobs:
       matrix:
         include:
           - name: with ext-intl
+            php: '8.4'
             extensions: dom, libxml, mbstring, intl
+            dependencies: highest
           # The leading colon is how setup-php removes an extension it would
           # otherwise ship by default. Without it this job would silently be a
           # duplicate of the one above.
           - name: without ext-intl
+            php: '8.4'
             extensions: dom, libxml, mbstring, :intl
+            dependencies: highest
+          - name: lowest dependencies
+            php: '8.2'
+            extensions: dom, libxml, mbstring, intl
+            dependencies: lowest
 
     steps:
       - uses: actions/checkout@v4
 
       - uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.4'
+          php-version: ${{ matrix.php }}
           extensions: ${{ matrix.extensions }}
           coverage: none
 
@@ -78,7 +93,15 @@ jobs:
       # commit that changed nothing, a dependency moved, and that is a finding
       # rather than a nuisance.
       - name: Install dependencies
+        if: matrix.dependencies == 'highest'
         run: composer install --prefer-dist --no-interaction --no-progress
+
+      # `--prefer-lowest` alone would take the oldest *pre-release* of anything
+      # that has one; `--prefer-stable` with it takes the oldest stable, which
+      # is the oldest thing a real install can end up with.
+      - name: Install the oldest dependencies the manifest allows
+        if: matrix.dependencies == 'lowest'
+        run: composer update --prefer-lowest --prefer-stable --prefer-dist --no-interaction --no-progress
 
       # `PanelFailureStylingTest` calls `markTestSkipped` when node is missing,
       # and a skipped test is reported as a pass. On a runner with no node the
