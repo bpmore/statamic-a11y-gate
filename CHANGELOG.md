@@ -10,6 +10,20 @@ is the same failure in another file.
 Versions are `MAJOR.MINOR.PATCH`. Before 1.0 a breaking change raises the minor,
 so pin `^0.6` rather than `^0` if that matters to you.
 
+## Unreleased
+
+### Changed
+
+**Runs on PHP 8.2 and newer.** The manifest said 8.4 and nothing in the code
+needed it: the floor was the version the project started on, not one it used.
+The real floor is Laravel's, 8.2 on Laravel 12, and that is now what is
+declared. A job in CI installs the oldest version of everything the manifest
+allows, on 8.2, and runs the suite there, so the floor is a tested fact rather
+than a number in a file.
+
+PHP 8.2 leaves security support at the end of December 2026. That is the date
+to raise this to 8.3, and it is in the decision log so nobody has to remember.
+
 ## 0.9.0 (2026-09-10)
 
 ### Added

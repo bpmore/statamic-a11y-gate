@@ -18,15 +18,15 @@
         }
     ],
     "require": {
-        "php": "^8.4",
+        "php": "^8.2",
         "ext-dom": "*",
         "ext-libxml": "*",
         "ext-mbstring": "*",
         "statamic/cms": "^6.27"
     },
     "require-dev": {
-        "orchestra/testbench": "^11.0",
-        "pestphp/pest": "^4.0"
+        "orchestra/testbench": "^10.11 || ^11.0",
+        "pestphp/pest": "^3.8 || ^4.0"
     },
     "suggest": {
         "ext-intl": "Normalises accented and full-width link text before it is compared, so \"Ｃｌｉｃｋ ｈｅｒｅ\" is caught like \"click here\"."
