@@ -10,7 +10,7 @@ is the same failure in another file.
 Versions are `MAJOR.MINOR.PATCH`. Before 1.0 a breaking change raises the minor,
 so pin `^0.6` rather than `^0` if that matters to you.
 
-## Unreleased
+## 0.9.1 (2026-09-11)
 
 ### Changed
 
