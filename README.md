@@ -51,7 +51,7 @@ link to the W3C's own explanation of what it requires. A house rule such as
 Another addon can add a block beneath the panel's result with
 `PanelExtensions::register()`: a callable that takes the entry and returns a
 heading, some lines, an optional link, and an optional mark, or null. It
-cannot change a finding or a refusal. Accessibility Report uses it to show the
+cannot change a finding or a refusal. A11y Report uses it to show the
 page's open issues from the last scan.
 
 A mark is a small image with the words that stand in for it, drawn above the
@@ -94,7 +94,7 @@ save.
 
 ## Settings
 
-**Addons > Accessibility Gate > Settings**, in the control panel.
+**Addons > A11y Gate > Settings**, in the control panel.
 
 - What happens when a page has a problem: refuse the publish, or report it and
   publish anyway.
@@ -187,7 +187,7 @@ that second one means one thing:
 A page with no video says nothing about captions, the same way a page with no
 images says nothing about descriptions. There was nothing there to miss.
 
-Everything else lives on one page under Tools, "Accessibility Gate". It says
+Everything else lives on one page under Tools, "A11y Gate". It says
 what runs, what cannot run and why, which two checks a developer can switch on,
 and what a clean result does not mean. The result panel does not link to it. An
 author pressing a button is asking about their page; somebody who wants to know
