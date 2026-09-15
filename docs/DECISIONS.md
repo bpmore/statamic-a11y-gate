@@ -12,6 +12,51 @@ more than a file that only ever describes the present.
 
 ---
 
+## 2026-09-14: A thrown response is a response, and its status is the finding
+
+Found in the seed of a test bed, on a learning site's account page. The page
+opens with `{{ redirect to="{lms:url:login}" }}` for anyone not signed in, and
+the site scan is not signed in. The report said "the page threw while
+rendering: Illuminate\Http\Exceptions\HttpResponseException", which is true
+in the narrowest sense and useless in every other: it reads as a crash, and
+names a PHP class rather than a page.
+
+What happened is that Statamic's `{{ redirect }}` tag, like `abort()`, sends
+its response by throwing it. The renderer caught that in the same `Throwable`
+arm as a template that genuinely exploded, and the status check that would have
+said "HTTP 302" sat two lines further down, never reached.
+
+So `HttpResponseException` is caught first, its response unwrapped, and the
+render continues to the status check as if the response had been returned. The
+line now reads "the page came back as HTTP 302, sending visitors to /login".
+The `Location` header is included because the status alone still leaves the
+owner to work out that the page wanted them signed in.
+
+Alternatives turned down:
+
+- **Treat a redirect as unchecked-but-fine, and leave it out of the report.**
+  No. Nobody has checked that page. A signed-in visitor sees markup the scan
+  never saw, and a report that omitted it would be claiming coverage it did not
+  have. It stays under "could not be checked", with a reason that is now true.
+- **Follow the redirect and check the destination.** The destination is the
+  login page, which has its own entry and is checked on its own. Following
+  would check it twice and the account page never, while reporting the account
+  page as checked.
+- **Sign the scan in.** Whose account? The addon has no way to answer that
+  which is not a setting, a credential, and a promise about what it can see
+  once it has them. Out of scope, and possibly forever.
+
+The gate still refuses a save of a page that redirects, as it did before. That
+is the existing fail-closed rule, unchanged, and whether a redirecting page
+ought to be exempt from it is a separate question this does not settle.
+
+Not covered: any other exception that carries a response (Symfony's
+`HttpException` family). Those already reach the `Throwable` arm with a message
+of their own, so the report names something, and none has been seen in the
+wild yet. The arm is easy to widen when one is.
+
+---
+
 ## 2026-09-11: The floor is PHP 8.2, because that is the floor, and December 2026 is when to raise it
 
 The manifest required `^8.4` and nothing in the addon needed it. Every file

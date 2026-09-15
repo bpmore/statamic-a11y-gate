@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Bpmore\A11yGate\Gate;
 
 use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\Request;
 use Statamic\Contracts\Entries\Entry;
 use Statamic\Facades\Stache;
@@ -140,6 +141,21 @@ final class EntryRenderer
             $response = $entry->toResponse($request);
             $status = $response->getStatusCode();
             $html = (string) $response->getContent();
+        } catch (HttpResponseException $e) {
+            // A response, thrown. That is how `abort()` works, and so how
+            // Statamic's `{{ redirect }}` tag works: a page for signed-in
+            // visitors that opens with one sends the scan, which is nobody, to
+            // the login page. Nothing went wrong in any sense the site owner
+            // could act on, but this was landing in the catch below and being
+            // reported as "the page threw while rendering:
+            // HttpResponseException", which reads as a crash and names nothing.
+            // Seen on a learning site's account page.
+            //
+            // So the response is taken out of the exception and handled as if
+            // it had been returned, which lands it on the status check below.
+            $response = $e->getResponse();
+            $status = $response->getStatusCode();
+            $html = (string) $response->getContent();
         } catch (Throwable $e) {
             // The class, not just the message. Statamic's NotFoundHttpException
             // carries no message at all, so reporting the message alone produced
@@ -178,7 +194,15 @@ final class EntryRenderer
         }
 
         if ($status !== 200) {
-            throw new CouldNotRender("the page came back as HTTP {$status}");
+            // Where a redirect went is the whole finding: "302" alone leaves the
+            // site owner to work out that the page wanted them signed in.
+            $location = $response->headers->get('Location');
+
+            throw new CouldNotRender(
+                $location !== null && $location !== ''
+                    ? "the page came back as HTTP {$status}, sending visitors to {$location}"
+                    : "the page came back as HTTP {$status}"
+            );
         }
 
         if (trim($html) === '') {
