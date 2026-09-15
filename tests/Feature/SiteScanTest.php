@@ -180,6 +180,32 @@ it('names the pages it could not read rather than counting them as clean', funct
     expect($report->shouldFail())->toBeTrue();
 });
 
+it('reports a page that redirects as a status, not as a crash', function () {
+    // A page for signed-in visitors opens with {{ redirect }} when nobody is,
+    // and the scan is nobody. Statamic's tag redirects by throwing the
+    // response, which the renderer was catching with everything else and
+    // reporting as "the page threw while rendering: HttpResponseException".
+    // Nothing threw in any sense the site owner could act on: the page did
+    // exactly what it was written to do. Seen on a learning site's account
+    // page, in the seed of a test bed.
+    test()->viewShouldReturnRaw('default', '{{ redirect to="/login" }}<p>{{ body }}</p>');
+
+    scanPage('account', '<p>Fine.</p>');
+
+    $report = app(Bpmore\A11yGate\Scan\SiteScanner::class)->scan(
+        Entry::query()->where('collection', 'pages')->get()
+    );
+
+    expect($report->pagesChecked)->toBe(0);
+    expect($report->unreadable)->toHaveCount(1);
+
+    $reason = $report->unreadable['http://localhost/account'] ?? implode(' ', $report->unreadable);
+
+    expect($reason)->toContain('HTTP 302');
+    expect($reason)->toContain('/login');
+    expect(str_contains($reason, 'threw'))->toBeFalse('a redirect was reported as a crash: '.$reason);
+});
+
 it('fails on errors and passes on warnings alone', function () {
     // The same boundary the gate enforces. A build that stopped for every
     // warning would be turned off, and one that stopped for nothing is not a

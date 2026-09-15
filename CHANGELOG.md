@@ -10,6 +10,21 @@ is the same failure in another file.
 Versions are `MAJOR.MINOR.PATCH`. Before 1.0 a breaking change raises the minor,
 so pin `^0.6` rather than `^0` if that matters to you.
 
+## Unreleased
+
+### Fixed
+
+**A page that redirects is reported as a redirect, not as a crash.** A page
+for signed-in visitors that opens with `{{ redirect }}` sends the scan, which
+is nobody, to the login page. Statamic's tag redirects by throwing the response,
+and the renderer caught that with everything else and reported "the page threw
+while rendering: HttpResponseException". The page had not crashed; it had done
+exactly what it was written to do, and the line named nothing a site owner
+could act on. It now reads "the page came back as HTTP 302, sending visitors
+to /login". The page is still listed as one the scan could not read, and a save
+of it is still refused, because neither has changed: nobody has checked that
+page. What changed is that the report now says why.
+
 ## 0.9.1 (2026-09-11)
 
 ### Changed
