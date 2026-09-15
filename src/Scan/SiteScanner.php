@@ -34,6 +34,7 @@ final class SiteScanner
     {
         $pages = 0;
         $unreadable = [];
+        $skipped = [];
 
         /** @var array<string, array{violation: Violation, pages: array<string, string>}> $grouped */
         $grouped = [];
@@ -57,8 +58,13 @@ final class SiteScanner
             }
 
             if (! $result->wasChecked()) {
-                // No page of its own: nothing was served, so there is nothing to
-                // scan and nothing to report.
+                // Nothing was served, so there is nothing to scan. Named all
+                // the same: a page that sent the scan elsewhere has a page for
+                // somebody, and a report that dropped it would be claiming
+                // coverage it did not have. The command only hands over
+                // entries with a URL, so in practice this is the redirects.
+                $skipped[$url] = $result->reason;
+
                 continue;
             }
 
@@ -83,7 +89,7 @@ final class SiteScanner
             }
         }
 
-        return new ScanReport($pages, $this->sorted($grouped), $unreadable);
+        return new ScanReport($pages, $this->sorted($grouped), $unreadable, $skipped);
     }
 
     /**

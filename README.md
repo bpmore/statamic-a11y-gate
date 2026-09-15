@@ -154,6 +154,12 @@ save would leave behind:
   broken as one published broken.
 - If the page cannot be rendered, the save is refused and says so. A check that
   could not run is not a check that passed.
+- A page that answers with a redirect is not checked, and is not refused. A
+  page for signed-in visitors sends the gate, which is not signed in, to the
+  login page: the page did what it was written to do, and there is nothing to
+  fix. The panel and the site scan both list it as not checked, because what a
+  signed-in visitor sees is real and nobody has looked at it. A redirect back
+  to the page itself is a loop, and that is still refused.
 
 ## What it does
 
