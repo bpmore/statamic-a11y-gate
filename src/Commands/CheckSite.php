@@ -74,6 +74,7 @@ class CheckSite extends Command
 
         if ($report->findings === [] && $report->unreadable === []) {
             $this->info('Nothing found.');
+            $this->skipped($report);
             $this->closing();
 
             return;
@@ -94,7 +95,29 @@ class CheckSite extends Command
             $this->line('');
         }
 
+        $this->skipped($report);
         $this->closing();
+    }
+
+    /**
+     * Pages that answered with a redirect. Not a failure and not a pass: they
+     * are listed so that "Nothing found" is never read as "every page seen".
+     */
+    private function skipped(ScanReport $report): void
+    {
+        if ($report->skipped === []) {
+            return;
+        }
+
+        $this->line('<options=bold>Not checked</>');
+        $this->line('');
+
+        foreach ($report->skipped as $url => $reason) {
+            $this->line("  {$url}");
+            $this->line("    <fg=gray>{$reason}</>");
+        }
+
+        $this->line('');
     }
 
     /**

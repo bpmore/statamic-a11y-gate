@@ -23,11 +23,13 @@ final class ScanReport
     /**
      * @param  array<int, ScannedFinding>  $findings  most widespread first
      * @param  array<string, string>  $unreadable  page URL => why it could not be checked
+     * @param  array<string, string>  $skipped  page URL => why there was nothing to check
      */
     public function __construct(
         public readonly int $pagesChecked,
         public readonly array $findings,
         public readonly array $unreadable = [],
+        public readonly array $skipped = [],
     ) {}
 
     /** @return array<int, ScannedFinding> */
@@ -49,6 +51,11 @@ final class ScanReport
      * command exists to be run before something ships, and "we could not look at
      * four of your pages" is not a pass. It is the same fail-closed rule the
      * publish gate follows.
+     *
+     * A skipped page does not count. It answered with a redirect, which is the
+     * page saying it has nothing for a visitor who is not signed in, and the
+     * gate lets that save for the same reason. It is still listed, because the
+     * page a signed-in visitor sees is real and nobody has looked at it.
      */
     public function shouldFail(): bool
     {

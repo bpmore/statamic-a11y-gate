@@ -65,6 +65,12 @@ final class PublishGate
     {
         try {
             $html = $this->renderer->render($entry);
+        } catch (PageSendsVisitorsElsewhere $e) {
+            // The page answered with a redirect: a sign-in wall, most often.
+            // Not refused, because the page did what it was written to do and
+            // the author has nothing to fix. Said in full, because the page a
+            // signed-in visitor sees is real and nobody has looked at it.
+            return GateResult::notApplicable("this page sends visitors to {$e->location}, so there was no page to check. Whatever it shows to a visitor it does not send away has not been checked");
         } catch (PageHasNoAddressYet) {
             // A page that exists but has no address yet, which on a collection
             // routed through the page tree is every entry on its first save. Not

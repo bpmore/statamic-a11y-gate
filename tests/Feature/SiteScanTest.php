@@ -180,14 +180,17 @@ it('names the pages it could not read rather than counting them as clean', funct
     expect($report->shouldFail())->toBeTrue();
 });
 
-it('reports a page that redirects as a status, not as a crash', function () {
+it('lists a page that sends visitors elsewhere as not checked, and does not fail on it', function () {
     // A page for signed-in visitors opens with {{ redirect }} when nobody is,
     // and the scan is nobody. Statamic's tag redirects by throwing the
-    // response, which the renderer was catching with everything else and
-    // reporting as "the page threw while rendering: HttpResponseException".
-    // Nothing threw in any sense the site owner could act on: the page did
-    // exactly what it was written to do. Seen on a learning site's account
-    // page, in the seed of a test bed.
+    // response, which the renderer once caught with everything else and
+    // reported as a crash; then, for one release, as a page that could not be
+    // read, which failed the build. Neither was true: the page did what it was
+    // written to do. Seen on a learning site's account page.
+    //
+    // It is still named. Whatever a signed-in visitor sees has not been
+    // checked, and a report that dropped the page would be claiming coverage
+    // it did not have.
     test()->viewShouldReturnRaw('default', '{{ redirect to="/login" }}<p>{{ body }}</p>');
 
     scanPage('account', '<p>Fine.</p>');
@@ -197,13 +200,35 @@ it('reports a page that redirects as a status, not as a crash', function () {
     );
 
     expect($report->pagesChecked)->toBe(0);
-    expect($report->unreadable)->toHaveCount(1);
+    expect($report->unreadable)->toBe([]);
+    expect($report->skipped)->toHaveCount(1);
+    expect($report->shouldFail())->toBeFalse();
 
-    $reason = $report->unreadable['http://localhost/account'] ?? implode(' ', $report->unreadable);
+    $reason = implode(' ', $report->skipped);
 
-    expect($reason)->toContain('HTTP 302');
     expect($reason)->toContain('/login');
     expect(str_contains($reason, 'threw'))->toBeFalse('a redirect was reported as a crash: '.$reason);
+
+    $this->artisan('statamic:a11y:check')
+        ->expectsOutputToContain('Not checked')
+        ->expectsOutputToContain('/login')
+        ->assertExitCode(0);
+});
+
+it('still fails on a page that sends visitors back to itself', function () {
+    // A loop is a page nobody will ever see, and that is a template fault, not
+    // a sign-in wall. It stays under "could not be checked" and fails the build.
+    test()->viewShouldReturnRaw('default', '{{ redirect to="/account" }}');
+
+    scanPage('account', '<p>Fine.</p>');
+
+    $report = app(Bpmore\A11yGate\Scan\SiteScanner::class)->scan(
+        Entry::query()->where('collection', 'pages')->get()
+    );
+
+    expect($report->unreadable)->toHaveCount(1);
+    expect(implode(' ', $report->unreadable))->toContain('HTTP 302');
+    expect($report->shouldFail())->toBeTrue();
 });
 
 it('fails on errors and passes on warnings alone', function () {

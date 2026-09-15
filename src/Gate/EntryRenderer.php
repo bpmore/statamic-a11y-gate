@@ -196,10 +196,20 @@ final class EntryRenderer
         if ($status !== 200) {
             // Where a redirect went is the whole finding: "302" alone leaves the
             // site owner to work out that the page wanted them signed in.
-            $location = $response->headers->get('Location');
+            $location = (string) $response->headers->get('Location', '');
+
+            // A redirect away from the page is not a failure to render, it is
+            // the page saying it has nothing for this visitor. Not refused, and
+            // not folded into a pass either: `PageSendsVisitorsElsewhere` is
+            // its own type so every caller has to say what it means. A redirect
+            // back to the page's own address is excluded, because that is a
+            // loop nobody gets through, and a loop is a broken template.
+            if ($status >= 300 && $status < 400 && $location !== '' && ! $this->isOwnAddress($location, $request->getUri())) {
+                throw new PageSendsVisitorsElsewhere($location, $status);
+            }
 
             throw new CouldNotRender(
-                $location !== null && $location !== ''
+                $location !== ''
                     ? "the page came back as HTTP {$status}, sending visitors to {$location}"
                     : "the page came back as HTTP {$status}"
             );
@@ -210,5 +220,19 @@ final class EntryRenderer
         }
 
         return $html;
+    }
+
+    /**
+     * Whether a redirect target is the page itself.
+     *
+     * Compared on path alone, because the tag is given "/account" and the
+     * response carries "http://site.test/account", and a query string or a
+     * trailing slash on either side is still the same page.
+     */
+    private function isOwnAddress(string $location, string $url): bool
+    {
+        $path = static fn (string $value): string => rtrim((string) (parse_url($value, PHP_URL_PATH) ?: '/'), '/') ?: '/';
+
+        return $path($location) === $path($url);
     }
 }

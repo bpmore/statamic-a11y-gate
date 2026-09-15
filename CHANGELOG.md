@@ -10,6 +10,32 @@ is the same failure in another file.
 Versions are `MAJOR.MINOR.PATCH`. Before 1.0 a breaking change raises the minor,
 so pin `^0.6` rather than `^0` if that matters to you.
 
+## Unreleased
+
+### Changed
+
+**A page that answers with a redirect is no longer refused.** A page for
+signed-in visitors opens with `{{ redirect }}` when nobody is, and the gate is
+nobody. Since 0.9.2 the gate said so accurately ("the page came back as HTTP
+302, sending visitors to /login") and refused the save anyway, as a check that
+could not run. That made a learning site's account page unpublishable, over a
+page that had done exactly what it was written to do.
+
+The page is now saved, and the panel says "Not checked: this page sends
+visitors to /login, so there was no page to check". The site scan lists it
+under a new "Not checked" heading and does not fail the build on it. In both
+places the wording says what a signed-in visitor sees has not been checked,
+because it has not, and a report that dropped the page would be claiming
+coverage it did not have.
+
+A redirect back to the page's own address is a loop, which is a broken
+template rather than a sign-in wall. That is still refused and still fails the
+build, and has its own test so the two cannot drift into one.
+
+This is a refusal turned into a pass-through, which is the one kind of change
+this addon is most suspicious of. The reasoning and the alternatives turned
+down are in the decision log.
+
 ## 0.9.2 (2026-09-14)
 
 ### Fixed

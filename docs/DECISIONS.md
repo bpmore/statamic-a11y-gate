@@ -12,6 +12,69 @@ more than a file that only ever describes the present.
 
 ---
 
+## 2026-09-14: A page that sends visitors elsewhere is not refused, and is not counted as seen
+
+The entry below this one, from the same day, made the gate say the true thing
+about a page that redirects. This one settles what to do about it, which the
+earlier entry left open on purpose.
+
+The page is a learning site's account page. It opens with
+`{{ redirect to="{lms:url:login}" }}` for anyone not signed in, and the gate is
+never signed in. So every save was refused: "its accessibility checks could
+not run". The author had nothing to fix. The page was doing its job.
+
+The rule this addon is built on is that a check which could not run is not a
+check that passed. That rule is for a page that exists and did not come back:
+a template that threw, a 500, a 404 on something that should be there. A
+redirect is not that. It is the page answering, in the only way a page can,
+that it has nothing to show this visitor. Refusing it does not protect anyone;
+it stops a page nobody can see from being saved, forever, while the page
+signed-in visitors do see goes on unchecked either way.
+
+So `PageSendsVisitorsElsewhere` is thrown for a 3xx with a `Location`, and it
+extends `EntryHasNoPage` for the one answer that matters: the gate lets it
+through. It is its own type because it has to be said differently, and every
+place that reports it now does:
+
+- The panel: "Not checked: this page sends visitors to /login, so there was no
+  page to check. Whatever it shows to a visitor it does not send away has not
+  been checked."
+- The site scan: a new "Not checked" heading, listing the page and the same
+  reason, and no effect on the exit code. `ScanReport` gained a `skipped` list
+  for it, kept apart from `unreadable` so that the fail-closed rule on the
+  latter is untouched.
+
+The condition is deliberately narrow. Any 3xx counts, because a permanent
+redirect means the page moved and there is equally nothing here. A redirect
+with no `Location` does not count, because nothing was said about where to go,
+and that stays a page that did not come back. And a redirect to the page's own
+address does not count, because that is a loop nobody gets through, which is a
+template fault: it stays refused, and has its own test in each file so that a
+change to one half cannot answer for the other.
+
+Alternatives turned down:
+
+- **Keep refusing, and tell people to ungate the collection.** The collection
+  is `pages`. Ungating it to save one account page would uncheck the whole
+  site, which is the opposite of the point.
+- **Keep refusing, and add a per-entry exemption.** A setting somebody has to
+  find, for a page the gate could have recognised on its own. And an exemption
+  is a thing that gets left on after the page changes.
+- **Sign the scan in.** As whom? A credential, a setting, and a promise about
+  what the addon can see once it has them. Out of scope.
+- **Drop redirects from the scan's output altogether.** They are "not
+  applicable", and the scanner already drops those without a word. No: an
+  entry with no page of its own has nothing for anyone, and a page behind a
+  sign-in has something for someone. "Nothing found" over a site whose account
+  pages were never seen is the silent zero this addon exists to refuse.
+
+What this does not settle: whether the scan should, one day, be able to fetch
+a page as a signed-in visitor. That is a different feature with its own
+questions, and it would not change what is decided here, which is that an
+unauthenticated fetch of a sign-in wall is not a failure.
+
+---
+
 ## 2026-09-14: A thrown response is a response, and its status is the finding
 
 Found in the seed of a test bed, on a learning site's account page. The page

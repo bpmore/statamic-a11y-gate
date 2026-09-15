@@ -251,6 +251,41 @@ it('says a page has no address yet rather than pretending it has no page', funct
     expect($result->reason)->toContain('next save');
 });
 
+it('saves a page that sends visitors elsewhere, and says nothing was checked', function () {
+    // A page for signed-in visitors opens with {{ redirect }} when nobody is,
+    // and the gate is nobody. It was refusing every save of such a page as a
+    // check that could not run, which made a learning site's account page
+    // unpublishable. Seen in the seed of a test bed.
+    //
+    // Nothing on the page was checked, and the gate says so. What it does not
+    // do is refuse: the page did what it was written to do, and the author has
+    // nothing to fix.
+    $entry = gatePage('{{ redirect to="/login" }}<img src="/a.jpg">');
+
+    $result = app(\Bpmore\A11yGate\Gate\PublishGate::class)->inspect($entry);
+
+    expect($result->outcome)->toBe('not-applicable');
+    expect($result->shouldRefuse())->toBeFalse();
+    expect($result->reason)->toContain('/login');
+    expect($result->reason)->toContain('not');
+
+    expect($entry->save())->toBeTrue();
+});
+
+it('still refuses a page that sends visitors back to itself', function () {
+    // A redirect to the page's own address is a loop, not a page for somebody
+    // else. Nothing will ever be served there, and that is a template fault
+    // rather than a sign-in wall, so it fails closed like any other page that
+    // did not come back.
+    $entry = gatePage('{{ redirect to="/weir" }}');
+
+    $result = app(\Bpmore\A11yGate\Gate\PublishGate::class)->inspect($entry);
+
+    expect($result->outcome)->toBe('could-not-check');
+    expect($result->shouldRefuse())->toBeTrue();
+    expect($result->reason)->toContain('HTTP 302');
+});
+
 it('still says a routeless collection has no page of its own', function () {
     // The other half, kept separate so a fix to one cannot silently answer for
     // the other. This collection has no route at all: there is no page, and there
