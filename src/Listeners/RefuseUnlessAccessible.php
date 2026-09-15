@@ -94,7 +94,7 @@ final class RefuseUnlessAccessible
             // half wrong, claiming the entry was not saved immediately before
             // saving it.
             $this->log->warning(
-                'Accessibility Gate would have refused this entry. It was saved because the mode is set to report. '
+                'A11y Gate would have refused this entry. It was saved because the mode is set to report. '
                 .$this->problem($result),
                 [
                     'entry' => $event->entry->id(),
@@ -162,7 +162,7 @@ final class RefuseUnlessAccessible
      *
      * The verdict belongs to the caller, because only the caller knows the
      * mode. This used to return the verdict too, and the log line in warn mode
-     * read "Accessibility Gate would have refused this entry: This entry was
+     * read "A11y Gate would have refused this entry: This entry was
      * not saved." about an entry that is saved on the next line of execution.
      * It contradicted its own first clause, and warn mode's log line is warn
      * mode's entire output.

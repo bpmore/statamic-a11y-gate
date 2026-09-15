@@ -10,6 +10,17 @@ is the same failure in another file.
 Versions are `MAJOR.MINOR.PATCH`. Before 1.0 a breaking change raises the minor,
 so pin `^0.6` rather than `^0` if that matters to you.
 
+## 0.10.1 (2026-09-15)
+
+### Changed, in the control panel only
+
+**The addon is "A11y Gate" everywhere it names itself.** The Addons page,
+the Tools nav, the utility page header, the report-mode message and the
+settings copy said "Accessibility Gate", while the Marketplace listing, the
+README and A11y Docs beside it in the same list already said "A11y". One name
+now. Handles, permissions, config keys and the package name are unchanged, so
+nothing has to be edited and nobody loses access.
+
 ## 0.10.0 (2026-09-14)
 
 ### Changed

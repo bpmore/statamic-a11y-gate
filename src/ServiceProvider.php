@@ -55,8 +55,8 @@ class ServiceProvider extends AddonServiceProvider
     {
         Utility::extend(fn () => Utility::register(
             Utility::make('a11y-gate')
-                ->title('Accessibility Gate')
-                ->navTitle('Accessibility Gate')
+                ->title('A11y Gate')
+                ->navTitle('A11y Gate')
                 ->icon('clipboard-check')
                 ->description('What this checks before a publish, and what it cannot.')
                 ->view('a11y-gate::utilities.gate')

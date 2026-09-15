@@ -7,7 +7,7 @@
 # contract, that is where a setting goes to die.
 #
 # Statamic gives this screen for free: this file is the whole implementation,
-# and it appears at Addons, Accessibility Gate, Settings.
+# and it appears at Addons, A11y Gate, Settings.
 #
 # Every instruction here is written for that person. No handles, no file paths,
 # no words like "blueprint" where "form" will do.

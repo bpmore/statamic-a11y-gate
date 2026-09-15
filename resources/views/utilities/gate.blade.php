@@ -22,7 +22,7 @@
     than a Blade one, so it shows up as a blank page instead of an exception.
 --}}
 
-<ui-header title="Accessibility Gate" icon="clipboard-check" />
+<ui-header title="A11y Gate" icon="clipboard-check" />
 
 <div class="space-y-6">
 
@@ -35,7 +35,7 @@
             </p>
             <p>
                 That is what a new site does. A site can set this to report instead,
-                under Addons, Accessibility Gate, Settings, and then the same findings
+                under Addons, A11y Gate, Settings, and then the same findings
                 go to the log and the save goes through. Reporting is meant for the
                 first few weeks on a site with a backlog, not as somewhere to stay.
             </p>
@@ -139,7 +139,7 @@
             <p>
                 It is a field, so it shows up wherever somebody has added it to
                 an entry form. There is also a setting that adds it to every
-                checked collection for you, under Addons, Accessibility Gate,
+                checked collection for you, under Addons, A11y Gate,
                 Settings.
             </p>
             <p>
@@ -154,7 +154,7 @@
             <p>
                 Both need the site's templates to mark something up, because
                 neither leaves a trace in the finished page. They are listed in
-                the addon's settings, under Addons, Accessibility Gate.
+                the addon's settings, under Addons, A11y Gate.
             </p>
             <ul class="list-disc space-y-2 ps-5">
                 <li>Links pointing at a page that has not been published yet.</li>

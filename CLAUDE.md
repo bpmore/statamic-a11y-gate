@@ -75,7 +75,7 @@ an auditor will all read it, because once this is listed they can.
   by the same author. A permissive licence would give that engine away. Free to
   use is the intent. Free to take is not.
 - **The other product is never named here.** Not in copy, not in a comment, not
-  in an attribute a site owner has to type. It is listed as "Accessibility Gate"
+  in an attribute a site owner has to type. It is listed as "A11y Gate"
   under the author's own name, and somebody evaluating it should not need to know
   anything else exists. The only exception is `docs/DECISIONS.md`, which is a
   record rather than a pitch.
