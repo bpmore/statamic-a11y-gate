@@ -203,5 +203,48 @@ for (const [what, re] of [
     console.log(`${ok ? 'ok  ' : 'FAIL'} ${what} is drawn as text`);
 }
 
+// A refused save takes the author to the panel. Below the width where the
+// sidebar becomes a tab, a refusal was landing on a tab the author was not
+// looking at, and the only sign of it was Statamic's toast in the corner. The
+// panel asks Statamic's own reveal for the switch, on its own root, guarded so
+// a build without `$reveal` still draws the alert where it always did.
+// The watcher's own body, and an uncommented line in it: the first version of
+// this check matched `// reveal();` and passed with the call switched off.
+const refusalWatcher = /Vue\.watch\(refusal, \(lines\) => \{([\s\S]*?)\n {12}\}\);/.exec(src);
+const revealOnRefusal = refusalWatcher !== null && /^\s*reveal\(\);$/m.test(refusalWatcher[1]);
+if (!revealOnRefusal) bad++;
+console.log(`${revealOnRefusal ? 'ok  ' : 'FAIL'} a refusal asks for the reveal`);
+
+const rootRef = /<div ref="root" class="space-y-3">/.test(src) && /return \{ root,/.test(src);
+if (!rootRef) bad++;
+console.log(`${rootRef ? 'ok  ' : 'FAIL'} the panel's root is a ref the reveal can hand to Statamic`);
+
+const revealFn = /function reveal\(\) \{[\s\S]*?\n {12}\}/.exec(src);
+if (!revealFn) bad++;
+console.log(`${revealFn ? 'ok  ' : 'FAIL'} the panel has a reveal function`);
+
+if (revealFn) {
+    // `Vue.nextTick` runs the callback at once here, so the call can be seen.
+    const run = new Function('root', 'window', 'Vue', revealFn[0] + '; reveal();');
+
+    for (const [label, root, statamic, want] of [
+        ['hands its root to Statamic\'s reveal', { value: 'EL' }, { $reveal: { element: (el) => calls.push(el) } }, ['EL']],
+        ['does nothing before the panel is mounted', { value: null }, { $reveal: { element: (el) => calls.push(el) } }, []],
+        ['does nothing on a build without $reveal', { value: 'EL' }, {}, []],
+        ['does nothing on a build without Statamic at all', { value: 'EL' }, undefined, []],
+    ]) {
+        var calls = [];
+        let threw = null;
+        try {
+            run(root, { Statamic: statamic }, { nextTick: (fn) => fn() });
+        } catch (e) {
+            threw = e;
+        }
+        const ok = threw === null && JSON.stringify(calls) === JSON.stringify(want);
+        if (!ok) bad++;
+        console.log(`${ok ? 'ok  ' : 'FAIL'} the reveal ${label}${threw ? ` (threw: ${threw.message})` : ''}`);
+    }
+}
+
 console.log(bad === 0 ? '\nall passed' : `\n${bad} FAILED`);
 process.exit(bad === 0 ? 0 : 1);

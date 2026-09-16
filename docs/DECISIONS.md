@@ -12,6 +12,76 @@ more than a file that only ever describes the present.
 
 ---
 
+## 2026-09-16: A refusal takes the author to the panel, and the error key stays `a11y_gate`
+
+Statamic's marketplace review skill, run against `v0.10.1` with a browser
+open, found the refusal failing at one width. Below the point where the
+sidebar becomes a tab (seen at 1120px, a tablet or a small laptop), an author
+on the Main tab who pressed Save & Publish got Statamic's toast, "The given
+data was invalid", in the corner, and nothing else. The Sidebar tab carried
+no marker. The refusal was drawn, in full, on a tab they were not looking at.
+This is the failure the panel exists to prevent, back again at one width.
+
+**How Statamic does it for its own fields, read from the build.** On every
+422 the save pipeline calls `reveal.invalid()`, which finds the first field
+wearing `data-ui-field-has-errors`, walks up the DOM calling each tab
+wrapper's callback (`onRevealed` sets that tab active) and scrolls the field
+into view. Tab labels turn red through `tabsWithErrors`, which maps each
+error key to a field by taking the key up to its first dot. All of it is keyed
+on the field's own handle. The gate keys its lines `a11y_gate`, and no field
+is called that, so none of it fired.
+
+**Turned down: keying the refusal by the field's handle.** It would have
+switched on everything above for free, and it was the first thing tried on
+paper. Two things stopped it. Statamic's field wrapper draws whatever sits
+under a field's handle as its own `ErrorMessage` lines, so the refusal would
+be drawn twice: once by the panel, and once by Statamic under the field,
+below whatever the panel drew, including another addon's block. And
+`ErrorMessage` renders its text through `innerHTML`, which is no place for a
+finding's pointer, since a pointer is text off the page (link text, an image
+path) and the page is written by authors. The key is also a public shape: a
+deploy script that saves entries outside the control panel reads the
+exception's `errors()['a11y_gate']`, and renaming it is a breaking change
+for a docs-sized fix.
+
+**Turned down: a dotted key such as `a11y_panel.refusal`.** It would turn the
+tab label red without triggering the field wrapper, because the wrapper
+matches the exact path and the tab map takes the first segment. It would not
+switch the tab or scroll, and it still renames the public key.
+
+**Chosen: the panel asks for the reveal itself.** On a refusal the panel
+hands its own root element to `Statamic.$reveal.element()`, the same call
+the save pipeline makes, which walks up to the tab and switches to it, then
+scrolls the panel into view. The key is unchanged, nothing is drawn twice,
+and the alert keeps its `role` and `aria-live`. Inactive tabs are `hidden`
+rather than unmounted, so the panel's watcher runs while the author is on
+another tab; that was checked, because a `v-if` there would have made this a
+no-op exactly when it matters. `$reveal` sits on the global beside `$toast`
+and `$components` but is not documented as public, so the call is guarded
+and a build without it leaves the panel where it always was.
+
+**Checked.** The node harness, with three mutations: the call removed from
+the watcher, the guard removed, and the root ref not returned to the
+template. Each turned the harness red. In a live control panel on
+`statamic/cms v6.31.0`, with `Statamic.$reveal.element` wrapped in a spy: a
+refused save drew the alert and handed the panel's root to the reveal, on a
+genuine first submission after a fresh load. The full suite, unchanged.
+
+**Not checked.** The tab actually switching, at a narrow width, with eyes on
+it. The browser session would not resize, so the switch rests on the walk-up
+and `onRevealed` as read in the build rather than as watched. A first thing
+to look at when this ships.
+
+**Found on the way, and not fixed here.** `ui-description` and the `text` of
+`ui-alert` also render through `innerHTML`, and the panel hands both of them
+page text: a finding's pointer, and the refusal lines that carry one. Link
+text typed as `<img src=x onerror=...>` in a content field, escaped correctly
+on the page, comes back decoded in the pointer and is drawn as markup in the
+control panel of whoever presses Check or is refused. Confirmed against the
+checker with such a page. That is its own branch, before this one ships.
+
+---
+
 ## 2026-09-16: The panel draws page text as text, through the slot and never the prop
 
 Found while fixing something else. `ui-description` renders its `text` prop
