@@ -24,6 +24,37 @@ reports without a test going red.
 
 Every result says how much of the page it could see.
 
+## Installing
+
+```
+composer require bpmore/statamic-a11y-gate
+```
+
+That is the whole install. There is no key to enter, no build step, and no
+blueprint to edit. The gate is on for every collection from the moment the
+package is installed, and the panel appears in the sidebar of every collection
+that has pages.
+
+It needs Statamic 6.27 or newer and PHP 8.2 or newer. `ext-intl` is worth
+having and not required: with it, accented and full-width link text
+("Ｃｌｉｃｋ ｈｅｒｅ") is folded before it is compared, so it is caught the
+same as "click here". Without it, that link passes. Everything else it needs
+(`dom`, `libxml`, `mbstring`) ships with PHP.
+
+To keep the settings in a file rather than the control panel, publish the
+config:
+
+```
+php artisan vendor:publish --tag=statamic-a11y-gate-config
+```
+
+Removing the addon takes the gate, the panel and the command with it. The
+panel is added to blueprints as they load rather than written into them, and
+it stores nothing in the entry, so no content changes. Two files can remain if
+they were ever created: the published config above, and
+`resources/addons/statamic-a11y-gate.yaml`, which is where the settings screen
+saves. Both are safe to delete.
+
 ## What the first hour looks like
 
 Two things surprise people. Both are the addon doing its job.
@@ -209,6 +240,23 @@ the markup is checked whether or not the setting mentions it.
 
 A browser pass with axe catches more than any of this. Better you read that
 here than discover it later.
+
+## Support
+
+Report a problem, or ask a question, at
+https://github.com/bpmore/statamic-a11y-gate/issues. That is the one support
+channel, and it is public on purpose: a refusal that is wrong on your site is
+wrong on somebody else's too, and they should be able to find the answer.
+
+It is answered by one person, in their own time, with no response-time promise.
+There is no paid tier that changes that, because there is no paid tier.
+
+A report about a refusal is most useful with three things in it: the text the
+panel showed, the rendered HTML of the page it refused (view source on the
+live page, or the draft in Live Preview), and what you think it should have
+said. A report about a page it let through is welcome too, and is the more
+important of the two. The corpus in `corpus/` is what pins each rule, so a
+case that shows a rule wrong is what gets it changed.
 
 ## Licence
 
