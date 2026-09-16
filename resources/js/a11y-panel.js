@@ -279,6 +279,25 @@
         // need the eye dragged to it, and an alert for good news would train
         // somebody to ignore the ones that matter.
         //
+        // **Text goes into `ui-description` and `ui-alert` through the slot,
+        // never the `text` prop.** Both render that prop with `innerHTML`, read
+        // in the build (`Description.vue`; an alert's text is a Description).
+        // A finding's pointer is text off the page: link text, an image path,
+        // whatever the check found. Link text typed into a content field as
+        // an image tag with an onerror handler is escaped on the page, as it
+        // should be, and comes back decoded in the pointer, because that is
+        // what the text of that link is. Through the prop it was drawn as
+        // markup in the control panel of whoever pressed Check or was refused
+        // on that entry, which is an author with edit rights reaching an
+        // admin's browser. Confirmed against the checker with exactly that
+        // page. The slot is interpolated by Vue and escaped, so the same
+        // string is drawn as the characters it is. `ui-heading`, `ui-button`
+        // and `ui-badge` escape their prop already and keep it.
+        //
+        // Every string is treated the same, addon copy included, so the rule
+        // is "no `:text` on those two components" and needs no list of which
+        // strings are trusted. The harness enforces it.
+        //
         // The badge says what it checked, because another addon's block may sit
         // directly under it saying the opposite. This gate reads the rendered
         // HTML; it cannot open a linked PDF, so A11y Docs can be reporting an
@@ -287,12 +306,10 @@
         // which one is about what.
         template: `
             <div class="space-y-3">
-                <ui-alert
-                    v-if="showRefusal"
-                    variant="error"
-                    :heading="refusal[0]"
-                    :text="refusal.slice(1).join(' ')"
-                />
+                <ui-alert v-if="showRefusal" variant="error">
+                    <ui-heading :text="refusal[0]" />
+                    <ui-description>{{ refusal.slice(1).join(' ') }}</ui-description>
+                </ui-alert>
 
                 <div>
                     <ui-button
@@ -305,31 +322,24 @@
 
                 <ui-skeleton v-if="state.checking" class="h-16 w-full" />
 
-                <ui-alert
-                    v-else-if="state.failed"
-                    :variant="state.notYet ? 'warning' : 'error'"
-                    :text="state.failed"
-                />
+                <ui-alert v-else-if="state.failed" :variant="state.notYet ? 'warning' : 'error'">
+                    <ui-description>{{ state.failed }}</ui-description>
+                </ui-alert>
 
                 <template v-else-if="state.result">
-                    <ui-alert
-                        v-if="state.result.outcome === 'could-not-check'"
-                        variant="error"
-                        :text="'The checks could not run: ' + state.result.reason + '. Nothing is known about this page either way.'"
-                    />
+                    <ui-alert v-if="state.result.outcome === 'could-not-check'" variant="error">
+                        <ui-description>The checks could not run: {{ state.result.reason }}. Nothing is known about this page either way.</ui-description>
+                    </ui-alert>
 
-                    <ui-description
-                        v-else-if="state.result.outcome === 'not-applicable'"
-                        :text="'Not checked: ' + state.result.reason + '.'"
-                    />
+                    <ui-description v-else-if="state.result.outcome === 'not-applicable'">Not checked: {{ state.result.reason }}.</ui-description>
 
                     <template v-else>
                         <div v-if="state.result.errors.length" class="space-y-3">
                             <div><ui-badge color="red" :text="state.result.errors.length === 1 ? '1 to fix' : state.result.errors.length + ' to fix'" /></div>
                             <div v-for="(finding, i) in state.result.errors" :key="'e' + i">
                                 <ui-heading size="sm" :text="finding.cta" />
-                                <ui-description :text="finding.message" />
-                                <ui-description v-if="finding.pointer" :text="finding.pointer" />
+                                <ui-description>{{ finding.message }}</ui-description>
+                                <ui-description v-if="finding.pointer">{{ finding.pointer }}</ui-description>
                                 <a v-if="finding.reference" :href="finding.reference.url" target="_blank" rel="noopener" class="text-xs underline underline-offset-2 text-blue-700 dark:text-blue-300 focus:focus-outline rounded-sm">WCAG {{ finding.reference.number }} {{ finding.reference.name }}<span class="sr-only"> (the W3C's explanation, opens in a new tab)</span></a>
                             </div>
                         </div>
@@ -340,14 +350,14 @@
                             <div><ui-badge color="amber" :text="state.result.warnings.length === 1 ? '1 to look at' : state.result.warnings.length + ' to look at'" /></div>
                             <div v-for="(finding, i) in state.result.warnings" :key="'w' + i">
                                 <ui-heading size="sm" :text="finding.cta" />
-                                <ui-description :text="finding.message" />
+                                <ui-description>{{ finding.message }}</ui-description>
                                 <a v-if="finding.reference" :href="finding.reference.url" target="_blank" rel="noopener" class="text-xs underline underline-offset-2 text-blue-700 dark:text-blue-300 focus:focus-outline rounded-sm">WCAG {{ finding.reference.number }} {{ finding.reference.name }}<span class="sr-only"> (the W3C's explanation, opens in a new tab)</span></a>
                             </div>
                         </div>
                     </template>
 
                     <div v-if="state.result.notices.length" class="space-y-2">
-                        <ui-description v-for="(notice, i) in state.result.notices" :key="'n' + i" :text="notice" />
+                        <ui-description v-for="(notice, i) in state.result.notices" :key="'n' + i">{{ notice }}</ui-description>
                     </div>
 
                 </template>
@@ -358,12 +368,18 @@
                 />
 
                 <div v-for="(ext, i) in (meta?.extensions ?? [])" :key="'x' + i" class="space-y-2">
-                    <ui-alert v-if="refusalFor(ext).length" variant="error" :heading="ext.heading" :text="refusalFor(ext).join(' ')" />
-                    <ui-alert v-else-if="ext.tone !== 'default'" :variant="ext.tone" :heading="ext.heading" :text="ext.lines.join(' ')" />
+                    <ui-alert v-if="refusalFor(ext).length" variant="error">
+                        <ui-heading v-if="ext.heading" :text="ext.heading" />
+                        <ui-description>{{ refusalFor(ext).join(' ') }}</ui-description>
+                    </ui-alert>
+                    <ui-alert v-else-if="ext.tone !== 'default'" :variant="ext.tone">
+                        <ui-heading v-if="ext.heading" :text="ext.heading" />
+                        <ui-description>{{ ext.lines.join(' ') }}</ui-description>
+                    </ui-alert>
                     <template v-else>
                         <img v-if="ext.mark" :src="ext.mark.url" :alt="ext.mark.alt" class="h-6 w-auto max-w-full object-contain" />
                         <ui-heading size="sm" :text="ext.heading" />
-                        <ui-description v-for="(line, j) in ext.lines" :key="'x' + i + 'l' + j" :text="line" />
+                        <ui-description v-for="(line, j) in ext.lines" :key="'x' + i + 'l' + j">{{ line }}</ui-description>
                     </template>
                     <div v-if="ext.link"><ui-button size="sm" :href="ext.link.url" :text="ext.link.text" /></div>
                 </div>
