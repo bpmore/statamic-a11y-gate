@@ -37,6 +37,9 @@
         setup(props) {
             const container = injectPublishContext();
 
+            // The panel's own root element, for the reveal below.
+            const root = Vue.ref(null);
+
             const state = Vue.reactive({
                 checking: false,
                 result: null,
@@ -147,8 +150,55 @@
                 if (lines.length > 0) {
                     state.result = null;
                     state.failed = null;
+                    reveal();
                 }
             });
+
+            // A refused save takes the author to the panel, the way Statamic
+            // takes them to any field that failed validation.
+            //
+            // Below the width where the sidebar becomes a tab, the refusal was
+            // landing on a tab the author was not looking at. On the Main tab
+            // they got Statamic's toast, "The given data was invalid", in the
+            // corner, and nothing else: no marker on the Sidebar tab, no hint
+            // that the panel had anything to say. Seen at 1120px, which is a
+            // tablet or a small laptop rather than an edge case, and it is the
+            // failure this panel exists to prevent, back again at one width.
+            //
+            // Statamic's own answer is `reveal.invalid()`: on every 422 it
+            // finds the first field wearing `data-ui-field-has-errors`, walks
+            // up to the tab that holds it and switches to it, then scrolls the
+            // field into view. That attribute is set only when the errors are
+            // keyed by the field's own handle, and keying the refusal that way
+            // was the obvious fix and the wrong one. Statamic would then also
+            // draw every line a second time as its own `ErrorMessage` under the
+            // field, below whatever the panel drew, and through `innerHTML`,
+            // which is no place for text that came off a page. So the key
+            // stays `a11y_gate`, which nothing in Statamic renders, and the
+            // panel asks for the reveal itself, on its own root, through the
+            // same `Statamic.$reveal` the save pipeline uses. `element()` walks
+            // up from the node it is given, and the tab wrapper's callback is
+            // what switches the tab. Read out of the control panel's build
+            // rather than assumed, like everything else in this file.
+            //
+            // Inactive tabs are `hidden`, not unmounted, so this watcher runs
+            // while the author is on another tab. Checked, because a v-if
+            // there would have made this a no-op exactly when it matters.
+            //
+            // Guarded, because `$reveal` sits on the global beside `$toast`
+            // and `$components` but is not documented as public. A build
+            // without it leaves the panel where it is, and the alert still
+            // draws.
+            function reveal() {
+                const el = root.value;
+                const api = window.Statamic?.$reveal;
+
+                if (! el || typeof api?.element !== 'function') {
+                    return;
+                }
+
+                Vue.nextTick(() => api.element(el));
+            }
 
             const showRefusal = Vue.computed(
                 () => refusal.value.length > 0 && ! state.result && ! state.failed && ! state.checking
@@ -173,7 +223,7 @@
                 return Array.isArray(lines) ? lines : [];
             }
 
-            return { state, refusal, showRefusal, check, refusalFor };
+            return { root, state, refusal, showRefusal, check, refusalFor };
         },
 
         // No panel or header of its own. A field is already drawn inside the
@@ -305,7 +355,7 @@
         // that is two verdicts on one page, and the author has no way to tell
         // which one is about what.
         template: `
-            <div class="space-y-3">
+            <div ref="root" class="space-y-3">
                 <ui-alert v-if="showRefusal" variant="error">
                     <ui-heading :text="refusal[0]" />
                     <ui-description>{{ refusal.slice(1).join(' ') }}</ui-description>
