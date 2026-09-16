@@ -17,6 +17,10 @@
             "url": "https://buymeacoffee.com/bpmore"
         }
     ],
+    "support": {
+        "issues": "https://github.com/bpmore/statamic-a11y-gate/issues",
+        "source": "https://github.com/bpmore/statamic-a11y-gate"
+    },
     "require": {
         "php": "^8.2",
         "ext-dom": "*",

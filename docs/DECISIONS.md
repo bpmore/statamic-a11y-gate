@@ -12,6 +12,53 @@ more than a file that only ever describes the present.
 
 ---
 
+## 2026-09-16: Support is a public issue tracker, and the README says how to install
+
+Statamic published marketplace submission guidelines on 2026-09-14, with a
+review skill beside them. Run against this repository, the skill found one
+thing missing that a customer would feel: the README never said `composer
+require`, never named the Statamic or PHP floor where a first reader would
+look, and nothing anywhere said where to go when something is wrong. The
+repository has issues enabled, so the channel existed. It was not named, and a
+channel nobody is pointed at is a channel that does not exist.
+
+**GitHub issues, and nothing else.** One channel, public, named in the README
+and in the manifest's `support` key so Packagist and the Marketplace show it
+too. Public on purpose: a refusal that is wrong on one site is wrong on every
+site with the same markup, and the person who hits it second should be able to
+find the first report. The README says out loud that it is one person, in
+their own time, with no response-time promise, because the guidelines allow
+community support when it is stated and forbid support that is advertised and
+not provided. Stating the limit is cheaper than being held to a promise nobody
+made.
+
+Turned down: an email address, which is private, which means every answer is
+given once and lost; and a Discord or forum, which is a second place to watch
+for a project with one maintainer and a handful of installs. Also turned down:
+saying nothing, which is where it was, and which the review read correctly as
+no support path at all.
+
+**What the install section admits.** Removing the addon is not quite clean: a
+published config file and `resources/addons/statamic-a11y-gate.yaml`, which
+the settings screen writes, both survive an uninstall if they were ever
+created. The README said "leaves nothing behind" about the panel field, which
+is true of the field and was one sentence from being read as true of the
+addon. The install section names both files. A tool whose product is honest
+claims does not get to round its own footprint down.
+
+**Checked.** `composer validate --strict` on the manifest. The publish tag
+(`statamic-a11y-gate-config`) read from `AddonServiceProvider::bootConfig()`,
+and the settings path from `Addons\FileSettings::path()`, both in
+`statamic/cms v6.31.0`. That the repository is public with issues enabled. The
+suite, unchanged, still passes.
+
+**Not checked.** Whether the Marketplace listing surfaces the `support` key;
+Packagist does. A fresh install from Packagist following the new section word
+for word, which is the test that would prove the section rather than the
+manifest.
+
+---
+
 ## 2026-09-14: A page that sends visitors elsewhere is not refused, and is not counted as seen
 
 The entry below this one, from the same day, made the gate say the true thing
