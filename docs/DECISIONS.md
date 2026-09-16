@@ -12,6 +12,57 @@ more than a file that only ever describes the present.
 
 ---
 
+## 2026-09-16: Every class the addon writes is checked against the control panel's build
+
+Four small things from the marketplace review's interface pass, and one of
+them settles a question.
+
+**A class the build does not have draws nothing, and now a test says so.**
+The control panel ships a compiled Tailwind stylesheet. A class it does not
+contain is dropped without a word: no error, no warning, just the styling
+that class was meant to give, missing. The Tools page carried `list-disc` on
+four lists and drew every one of them without bullets, for as long as the
+class was there. The panel once shipped a link looking like plain text the
+same way, under `max-w-32`, and the fix then was to read the built
+stylesheet by hand before choosing a class. Reading by hand is what missed
+`list-disc`. So `BuiltStylesheetTest` reads the build out of `vendor` and
+looks up every class token in the two files that carry classes, and fails
+with the class's name. Turned down: a curated list of known-good classes in
+the test, which is the same hand-reading with a file in front of it; and
+dropping the bullets rather than drawing them, which would have made the
+markup honest and the page slightly worse to scan. The bullets are an inline
+`list-style-type` now, because no utility in the build draws one and
+`.prose` would restyle the whole card.
+
+**The sentence that overclaimed.** The Tools page said "Anything that would
+fail WCAG 2.2 AA stops the publish", and two paragraphs down said colour
+contrast is not checked at all. Read alone, the first is the completeness
+claim this addon refuses to make everywhere else. It is "Anything it finds"
+now, and the guide test pins those words.
+
+**The doubled full stop.** Laravel's messages end in one ("View [x] not
+found.") and every sentence that quotes a render failure adds its own, so
+the panel and the refusal both read "not found..". The renderer trims it
+where the message is quoted, and a missing partial, which is the one template
+error the test harness will throw on, pins it.
+
+**The empty column.** A field with no `listable` is offered as a column on
+the entries listing, and the panel stores nothing, so picking it gave an
+empty column with a heading. The auto-placed field says `listable: false`,
+the README's hand-placement snippet says the same, and the blueprint test
+checks `isListable()`.
+
+**Checked.** Each of the four with its own mutation: the class back on the
+view, the trim removed, `listable` removed, the old sentence restored. Each
+turned exactly its test red. The Tools page in a live control panel on
+`statamic/cms v6.31.0`: the addon's lists compute to `disc`, and the new
+sentence is on the page. The full suite.
+
+**Not checked.** The column menu itself, with eyes on it. `isListable()` is
+what Statamic's listing reads, and the test reads the same method.
+
+---
+
 ## 2026-09-16: A refusal takes the author to the panel, and the error key stays `a11y_gate`
 
 Statamic's marketplace review skill, run against `v0.10.1` with a browser

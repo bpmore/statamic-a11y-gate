@@ -166,7 +166,14 @@ final class EntryRenderer
             // the test harness renders an undefined tag to an empty string rather
             // than throwing, so nothing in it produces a message-less throw. This
             // was seen on a real control panel and fixed from there.
-            $reason = $e->getMessage() !== '' ? $e->getMessage() : $e::class;
+            //
+            // Trimmed of its full stop, because everything that shows the reason
+            // quotes it mid-sentence and adds its own: "could not run: <reason>.
+            // Nothing is known about this page either way." Laravel's messages
+            // end in one ("View [x] not found."), so the panel and the refusal
+            // both read "not found.." until somebody looked.
+            $message = rtrim($e->getMessage(), '. ');
+            $reason = $message !== '' ? $message : $e::class;
 
             throw new CouldNotRender('the page threw while rendering: '.$reason, previous: $e);
         } finally {

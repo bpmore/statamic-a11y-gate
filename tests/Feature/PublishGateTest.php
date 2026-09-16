@@ -174,6 +174,24 @@ it('refuses a page that could not be rendered, rather than passing it', function
     }
 });
 
+it('quotes a template error without doubling its full stop', function () {
+    // Laravel's own messages end in one ("View [x] not found."), and every
+    // sentence that quotes the reason puts its own after it. The panel and the
+    // refusal both read "not found.." until somebody looked. A missing partial
+    // is the one template error the test harness will actually throw on.
+    $entry = gatePage('{{ partial:does_not_exist }}');
+
+    try {
+        $entry->save();
+        $this->fail('the gate allowed an entry whose page did not render');
+    } catch (ValidationException $e) {
+        $line = $e->errors()['a11y_gate'][0];
+
+        expect($line)->toContain('View [does_not_exist] not found.');
+        expect(str_contains($line, '..'))->toBeFalse("a doubled full stop in: {$line}");
+    }
+});
+
 it('warns instead of refusing when the site asks it to', function () {
     config()->set('statamic-a11y-gate.mode', 'warn');
 

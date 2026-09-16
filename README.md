@@ -114,10 +114,12 @@ To place it yourself, put it wherever it belongs in a blueprint:
   field:
     type: accessibility_panel
     display: Accessibility
+    listable: false
 ```
 
 Your placement wins. A blueprint that already has the field does not get a
-second copy.
+second copy. `listable: false` keeps it out of the column menu on the entries
+listing, where a field that stores nothing would be an empty column.
 
 The field stores nothing in the entry. Findings change every time the page
 does, so a copy of them in the content directory would be stale by the next
