@@ -12,6 +12,66 @@ more than a file that only ever describes the present.
 
 ---
 
+## 2026-09-16: The panel draws page text as text, through the slot and never the prop
+
+Found while fixing something else. `ui-description` renders its `text` prop
+with `innerHTML`, and so does the `text` of `ui-alert`, because an alert's
+body is a Description. Read in the build (`Description.vue`,
+`ErrorMessage.vue`; `Heading`, `Button` and `Badge` escape theirs). The
+panel handed both of them text that came off the page: a finding's pointer,
+which is link text or an image path, and the refusal lines, which carry the
+pointer in brackets.
+
+**What that meant.** Link text typed into a content field as an image tag
+with an `onerror` handler is escaped on the page, as it should be. The
+checker reads the DOM, so the pointer comes back decoded, because that is
+what the text of that link is. Confirmed against the checker with such a
+page, and then in a live control panel on `statamic/cms v6.31.0` at
+`v0.10.1`: pressing Check on an unsaved blog entry with that link injected
+a broken image into the panel and ran the handler. Anyone who can edit an
+entry in a gated collection can plant it, and it fires in the browser of
+whoever presses Check on that entry or is refused a save of it, which is an
+author reaching an admin. Stored, cross-user, in the control panel. It
+would also have fired on the refusal alert, and on another addon's block
+whose lines quote a page.
+
+**The fix.** Every `ui-description` and every `ui-alert` body takes its
+text through the default slot, as `{{ }}` interpolation, which Vue escapes.
+The alert's heading stays a prop, because `Heading` escapes. Every string is
+treated the same, addon copy included, so the rule is "no `:text` on those
+two components" and needs no list of which strings are trusted. That is
+what the harness checks: every such tag in the file, not a list of the risky
+ones, so the next addition has to answer for itself. The look is unchanged:
+the slot content is the same two components the alert would have drawn
+itself, and the alert styles its descendants by attribute.
+
+**Turned down.** *Escaping in JavaScript before the prop*, which keeps the
+templates as they were and fights the component: the slot is the escape
+hatch Statamic provides, and a hand-written escaper is one more thing to
+get wrong. *Escaping on the server*, in the controller and the listener,
+which would have put HTML entities into the log line, the exception a deploy
+script reads, and the console scan. The panel is the only renderer, so the
+panel escapes. *A list of trusted expressions* left on the prop, which would
+have been correct today and wrong the first time a rule's copy quoted the
+page.
+
+**Checked.** The harness, with three mutations: the pointer back on the
+prop, the refusal back on the alert's prop, and a new alert added with a
+bound `text`. Each turned it red. The live control panel, twice: the
+`v0.10.1` script injected the image and ran the handler; this branch drew
+the same pointer as the characters it is, with no element injected and the
+handler never run. The full suite, unchanged.
+
+**Not checked.** Whether any other consumer of the check endpoint's JSON
+renders a pointer through `innerHTML`. A11y Report is the one known, and
+its panel block was drawn by this panel, so it is covered here. Its own
+screens are its own.
+
+**What this changes about the release.** This is a security fix and the
+next release note leads with it, above whatever else is in the release.
+
+---
+
 ## 2026-09-16: Support is a public issue tracker, and the README says how to install
 
 Statamic published marketplace submission guidelines on 2026-09-14, with a

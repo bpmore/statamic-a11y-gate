@@ -11,7 +11,9 @@ const notYetExpr = src.match(/state\.notYet = (e\.response.+);/)[1];
 // Anchored on the alert bound to `state.failed`, not the first :variant in the
 // file: the panel draws a second alert for a gate that could not render, and
 // the button above both has a :text of its own. Matching loosely passed nothing.
-const alert = src.match(/<ui-alert\s+v-else-if="state\.failed"([\s\S]*?)\/>/)[0];
+// The opening tag only: the alert's text now lives in its slot, so the tag
+// is no longer self-closing and `[\s\S]*?\/>` would run on to the next one.
+const alert = src.match(/<ui-alert\s+v-else-if="state\.failed"([^>]*)>/)[0];
 const variantExpr = alert.match(/:variant="(.+?)"/)[1];
 
 const decide = new Function('e', `
@@ -169,6 +171,36 @@ for (const [what, re] of [
     const ok = re.test(extBlock);
     if (!ok) bad++;
     console.log(`${ok ? 'ok  ' : 'FAIL'} an extension block ${what}`);
+}
+
+// Text reaches `ui-description` and `ui-alert` through the slot, never the
+// `text` prop. Both render that prop with innerHTML, and a finding's pointer
+// is text off the page: link text typed as `<img src=x onerror=...>` came back
+// decoded in the pointer and was drawn as markup in the control panel of
+// whoever pressed Check. Every tag is checked, not a list of the risky ones,
+// so the next addition has to answer for itself too.
+const tags = src.match(/<ui-(?:description|alert)\b[^>]*>/g) ?? [];
+const boundText = tags.filter((tag) => /:text=/.test(tag));
+if (tags.length === 0 || boundText.length > 0) bad++;
+console.log(`${tags.length > 0 && boundText.length === 0 ? 'ok  ' : 'FAIL'} no description or alert binds :text (${tags.length} tags, ${boundText.length} bound)`);
+for (const tag of boundText) {
+    console.log(`     ${tag.slice(0, 80)}`);
+}
+
+// And each string that comes off the page is in a slot, as interpolation.
+for (const [what, re] of [
+    ['a finding\'s pointer', /<ui-description v-if="finding\.pointer">\{\{ finding\.pointer \}\}<\/ui-description>/],
+    ['the refusal\'s lines', /<ui-description>\{\{ refusal\.slice\(1\)\.join\(' '\) \}\}<\/ui-description>/],
+    ['a render that could not run', /\{\{ state\.result\.reason \}\}\. Nothing is known/],
+    ['a page that was not checked', /Not checked: \{\{ state\.result\.reason \}\}\./],
+    ['a failed request', /<ui-description>\{\{ state\.failed \}\}<\/ui-description>/],
+    ['another addon\'s lines', /<ui-description v-for="\(line, j\) in ext\.lines"[^>]*>\{\{ line \}\}<\/ui-description>/],
+    ['another addon\'s refusal', /<ui-description>\{\{ refusalFor\(ext\)\.join\(' '\) \}\}<\/ui-description>/],
+    ['another addon\'s alert', /<ui-description>\{\{ ext\.lines\.join\(' '\) \}\}<\/ui-description>/],
+]) {
+    const ok = re.test(src);
+    if (!ok) bad++;
+    console.log(`${ok ? 'ok  ' : 'FAIL'} ${what} is drawn as text`);
 }
 
 console.log(bad === 0 ? '\nall passed' : `\n${bad} FAILED`);
