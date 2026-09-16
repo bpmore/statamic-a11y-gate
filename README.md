@@ -59,10 +59,12 @@ saves. Both are safe to delete.
 
 Two things surprise people. Both are the addon doing its job.
 
-A stock Statamic site cannot re-save its own home page. The default starter
-template has no `h1`, so the gate refuses with "Add a heading". That is a real
-finding about a real page, in a template you did not write. Fix the template,
-or switch to reporting while you clear the ground.
+A site started before August 2026 cannot re-save its own home page. The
+welcome template the Statamic skeleton shipped until `statamic/statamic` 6.5
+has no `h1`, so the gate refuses with "Add a heading". That is a real finding
+about a real page, in a template you did not write. Fix the template, or
+switch to reporting while you clear the ground. A site started from 6.5 or
+later has a heading on that page, and the gate finds nothing there.
 
 The first save of a new page is not checked. On a collection that routes
 through the page tree, an entry has no address until it is saved, so there is

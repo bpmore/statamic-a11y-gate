@@ -128,7 +128,12 @@ left out, and so is an address that is not a path, an `http` or `https` URL,
 or a `data:image/` value. A block reporting a problem wears no mark.
 
 **What to do about it:** republish the addon's assets if your deploy does
-not (`php artisan vendor:publish --tag=laravel-assets --force`).
+not (`php artisan vendor:publish --tag=statamic-a11y-gate --force`, or
+`php artisan statamic:install`, which the standard skeleton runs after every
+`composer update`). Until 2026-09-16 this note said `--tag=laravel-assets`,
+which is not a tag this addon publishes under: it prints "No publishable
+resources" and leaves the old file in place. Found by following the note on
+a fresh site.
 
 ## 0.7.0 (2026-09-02)
 

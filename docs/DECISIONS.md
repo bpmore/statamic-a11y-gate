@@ -12,6 +12,55 @@ more than a file that only ever describes the present.
 
 ---
 
+## 2026-09-16: The release was installed from Packagist into a fresh site, and two instructions were wrong
+
+The marketplace review's Rule 06 pass (ship an installable, compatible
+release), done the only way it can be: a fresh `statamic/statamic` site in a
+scratch directory, `composer require bpmore/statamic-a11y-gate` from Packagist
+at v0.10.1, and then every claim the README and changelog make about
+installing, followed word for word. The entry below this one had left exactly
+that unchecked.
+
+**What held.** The one-line install is the whole install: the skeleton runs
+`statamic:install` after composer, and that publishes the panel script under
+the addon's slug. The command, the routes, the utility, the settings screen,
+the merged config, the fieldtype and the blueprint field are all there
+afterwards, and `a11y:check` runs end to end. The config publish tag and the
+settings file path in the README are right. Config keys, settings handles and
+the field handle are identical at every tag from 0.7.0 to 0.10.1, and the
+addon writes nothing to disk, so an upgrade has nothing to lose. This was on
+`statamic/cms v6.33.0`, newer than any version the suite, the live site or
+the workbench had seen.
+
+**What did not.** The 0.8.0 changelog told people to republish with
+`--tag=laravel-assets`. That is the tag Laravel's skeleton publishes on every
+update, and it was assumed to cover addon scripts. It does not: Statamic
+registers them under the addon's slug, so the command prints "No publishable
+resources" and leaves the old file where it was. Corrected in place, with the
+date, because a changelog that keeps a wrong instruction for the record is a
+changelog somebody will follow. And the README said a stock site cannot
+re-save its own home page because the starter template has no `h1`. It had
+none until `statamic/statamic` 6.5 (August 2026) redesigned the welcome page,
+and it has one since. The sentence now says which sites it is true of.
+
+**Turned down.** A `.gitattributes` to keep `tests/`, `corpus/`, `docs/` and
+`CLAUDE.md` out of the dist zip. It would save half a megabyte in every
+customer's `vendor`, and it would also take the corpus out of the one place a
+customer can read it without leaving their project. The README points a
+reporter at the corpus, so it stays in the box.
+
+**Checked.** Everything under "what held", on the fresh site. The wrong
+publish tag, by deleting the published script and running the command the
+note named; then the corrected commands, the same way. The skeleton commit
+that added the `h1` (`statamic/statamic` 62f612b) and the first tag carrying
+it (v6.5.0), by asking GitHub.
+
+**Not checked.** The control panel in a browser on the fresh site. The
+interface pass did that on the workbench, and nothing about the install
+changes what the panel draws.
+
+---
+
 ## 2026-09-16: Every class the addon writes is checked against the control panel's build
 
 Four small things from the marketplace review's interface pass, and one of
