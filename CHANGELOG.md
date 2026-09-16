@@ -10,6 +10,74 @@ is the same failure in another file.
 Versions are `MAJOR.MINOR.PATCH`. Before 1.0 a breaking change raises the minor,
 so pin `^0.6` rather than `^0` if that matters to you.
 
+## 0.10.2 (2026-09-16)
+
+### Security
+
+**A finding's pointer was drawn as HTML in the control panel, and a heading
+could carry a script.** Every finding names the part of the page to go and
+fix: a duplicate heading's text, an image's `src`, a link's words. That is
+page content, and the panel drew it with a component that renders through
+`innerHTML`. A heading written on a page as `<img src=/x.png onerror=...>` is
+escaped on the front end and was never a risk there, but it reaches the panel
+decoded, and the panel ran it in the control panel of whoever pressed Check on
+that entry or was refused a save of it. Anyone who can put a heading on a
+gated entry could plant it, and it fired for an admin. Confirmed on a live
+control panel, not reasoned from the code. Every string the panel draws now
+goes through Vue's escaping, page-derived or not, so the same heading draws as
+the characters it is.
+
+**What to do about it:** upgrade, and republish the addon's assets if your
+deploy does not (`php artisan vendor:publish --tag=statamic-a11y-gate
+--force`, or `php artisan statamic:install`). 0.10.1 and earlier are affected.
+
+### Fixed
+
+**A refused save now takes the author to the panel.** Below the width where
+Statamic folds the sidebar into its own tab (tablets and small laptops), an
+author who pressed Save & Publish on the main tab got only the corner toast
+"The given data was invalid", while the refusal itself was drawn in full on a
+tab they were not looking at. The panel now asks Statamic's own reveal to
+switch to it and scroll it into view, the same call the save pipeline makes.
+Guarded, so a build without the reveal draws the alert exactly where it did
+before.
+
+**The Tools page drew its lists without bullets.** It carried `list-disc`, and
+the control panel's compiled stylesheet does not contain that class, so it was
+dropped without a word and the lists drew flat. The bullets are an inline
+style now, and a test reads the build and checks every class the addon writes
+against it, so a class the panel cannot draw fails before it ships.
+
+**Two instructions that were wrong when followed.** The 0.8.0 note to
+republish assets named `--tag=laravel-assets`, which publishes nothing for
+this addon; it names the addon's own tag now. And the README said a stock site
+cannot re-save its home page for want of an `h1`, which stopped being true
+when `statamic/statamic` 6.5 redesigned the welcome page; it now says which
+sites it is about.
+
+### Changed
+
+**The Tools page no longer says "Anything that would fail WCAG 2.2 AA stops
+the publish".** Read on its own that is the completeness claim this addon
+refuses to make everywhere else, two paragraphs above the line saying colour
+contrast is not checked. It says "Anything it finds" now. Render-failure
+messages no longer read "not found..": Laravel's own message ends in a full
+stop and every quote added its own.
+
+**The auto-placed Accessibility panel is no longer offered as a column on the
+entries listing.** The field stores nothing, so the column could only ever be
+empty. It says `listable: false` now.
+
+### Added
+
+**The README says how to install the addon and where to report a problem.** An
+`## Installing` section with the `composer require` line, the Statamic and PHP
+floors, what `ext-intl` adds, the config publish tag, and the two files an
+uninstall can leave behind; and a `## Support` section naming the public issue
+tracker as the one channel, answered by one person with no response-time
+promise. A `support` key in `composer.json` so Packagist and the Marketplace
+show the same.
+
 ## 0.10.1 (2026-09-15)
 
 ### Changed, in the control panel only
