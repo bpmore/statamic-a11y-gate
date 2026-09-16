@@ -6,6 +6,24 @@ published.
 No "here's a report". The publish is refused, in the control panel, with
 plain language about what is wrong and what to do about it.
 
+## Screenshots
+
+The gate refusing a publish, with the reason attached where the author is
+already looking:
+
+![A refused Save & Publish. The Accessibility panel shows a red alert reading "This entry was not saved. 2 accessibility problems have to be fixed first", followed by the problems in plain language.](art/refusal.png)
+
+The same panel checking a page on demand, before publish, so the problems can
+be fixed first. Each finding links to the W3C's explanation of the criterion
+it cites:
+
+![The Accessibility panel in an entry's sidebar, showing a "2 to fix" badge over two findings: "Use descriptive link text" and "Add a description", each with a plain-language explanation and a WCAG link.](art/panel-check.png)
+
+The one page under Tools that says what the gate checks, what it cannot, and
+what a clean result does not mean:
+
+![The A11y Gate utility page under Tools, explaining what happens on publish, the four exceptions that warn rather than refuse, and what the gate checks on every page.](art/tools-page.png)
+
 ## Status
 
 The gate works and the panel is built. Install the addon and a save that would
