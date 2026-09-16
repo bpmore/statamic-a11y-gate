@@ -33,6 +33,16 @@ it('puts the panel in a gated collection without being asked', function () {
     expect($field->type())->toBe('accessibility_panel');
 });
 
+it('does not offer the panel as a column on the entries listing', function () {
+    // A field with no `listable` is offered as a column, and this one stores
+    // nothing: picking "Accessibility" from the column menu gave an empty
+    // column with a heading. Statamic reads a missing `listable` as true, so
+    // the field has to say no itself.
+    $field = Collection::find('pages')->entryBlueprint()->field('a11y_panel');
+
+    expect($field->isListable())->toBeFalse('the panel field is offered as a listing column');
+});
+
 it('leaves the form alone for a site that switches the panel off', function () {
     // Still supported, and still reasonable for a site that places the field by
     // hand. What it must not do is fail quietly, which is why the config comment

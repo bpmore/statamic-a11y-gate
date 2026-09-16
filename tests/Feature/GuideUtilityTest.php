@@ -61,7 +61,11 @@ it('says why each warning is a warning rather than that warnings do not matter',
         ->get(cp_route('utilities.index').'/a11y-gate')
         ->getContent());
 
-    expect($body)->toContain('WCAG 2.2 AA stops the publish');
+    // "Anything it finds", not "anything". The page said "Anything that would
+    // fail WCAG 2.2 AA stops the publish", which read on its own is the
+    // completeness claim the rest of this page is careful not to make: two
+    // paragraphs down it says colour contrast is not checked at all.
+    expect($body)->toContain('Anything it finds that would fail WCAG 2.2 AA stops the publish');
     expect($body)->toContain('neither can ever go live');
     expect($body)->toContain('blocking on a guess');
 });

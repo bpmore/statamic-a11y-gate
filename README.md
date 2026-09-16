@@ -59,10 +59,12 @@ saves. Both are safe to delete.
 
 Two things surprise people. Both are the addon doing its job.
 
-A stock Statamic site cannot re-save its own home page. The default starter
-template has no `h1`, so the gate refuses with "Add a heading". That is a real
-finding about a real page, in a template you did not write. Fix the template,
-or switch to reporting while you clear the ground.
+A site started before August 2026 cannot re-save its own home page. The
+welcome template the Statamic skeleton shipped until `statamic/statamic` 6.5
+has no `h1`, so the gate refuses with "Add a heading". That is a real finding
+about a real page, in a template you did not write. Fix the template, or
+switch to reporting while you clear the ground. A site started from 6.5 or
+later has a heading on that page, and the gate finds nothing there.
 
 The first save of a new page is not checked. On a collection that routes
 through the page tree, an entry has no address until it is saved, so there is
@@ -114,10 +116,12 @@ To place it yourself, put it wherever it belongs in a blueprint:
   field:
     type: accessibility_panel
     display: Accessibility
+    listable: false
 ```
 
 Your placement wins. A blueprint that already has the field does not get a
-second copy.
+second copy. `listable: false` keeps it out of the column menu on the entries
+listing, where a field that stores nothing would be an empty column.
 
 The field stores nothing in the entry. Findings change every time the page
 does, so a copy of them in the content directory would be stale by the next

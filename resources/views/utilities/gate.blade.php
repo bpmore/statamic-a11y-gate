@@ -20,6 +20,12 @@
     Vue's `{{ }}` are the same characters, so neither is used: every word here is
     static text. And an unclosed tag is a Vue compile error at runtime rather
     than a Blade one, so it shows up as a blank page instead of an exception.
+
+    Every class here has to exist in the control panel's built stylesheet, and
+    a test reads that stylesheet to check. `list-disc` did not, so the lists on
+    this page drew with no bullets for as long as it was here, and nothing said
+    so: a class the build does not know is dropped without a word. The bullets
+    are an inline style now, because no utility in the build draws one.
 --}}
 
 <ui-header title="A11y Gate" icon="clipboard-check" />
@@ -40,11 +46,11 @@
                 first few weeks on a site with a backlog, not as somewhere to stay.
             </p>
             <p>
-                Anything that would fail WCAG 2.2 AA stops the publish. There are
-                four exceptions, and each one is an exception for a reason rather
-                than a softening.
+                Anything it finds that would fail WCAG 2.2 AA stops the publish.
+                There are four exceptions, and each one is an exception for a
+                reason rather than a softening.
             </p>
-            <ul class="list-disc space-y-2 ps-5">
+            <ul class="space-y-2 ps-5" style="list-style-type: disc">
                 <li>
                     <strong>A link that goes nowhere.</strong> Broken, and no
                     accessibility standard covers it, and a page half-written usually
@@ -74,7 +80,7 @@
     </ui-card-panel>
 
     <ui-card-panel heading="What it checks on every page">
-        <ul class="list-disc space-y-2 ps-5">
+        <ul class="space-y-2 ps-5" style="list-style-type: disc">
             <li>
                 <strong>Headings.</strong> That the page has one main heading and
                 that the headings below it do not skip a level. Screen reader users
@@ -109,7 +115,7 @@
                 not enough for everything, and the gaps are worth knowing rather than
                 guessing at.
             </p>
-            <ul class="list-disc space-y-2 ps-5">
+            <ul class="space-y-2 ps-5" style="list-style-type: disc">
                 <li>
                     <strong>Anything your theme decides.</strong> Sizes and colours
                     set in the site's stylesheet are invisible here. Colour contrast
@@ -156,7 +162,7 @@
                 neither leaves a trace in the finished page. They are listed in
                 the addon's settings, under Addons, A11y Gate.
             </p>
-            <ul class="list-disc space-y-2 ps-5">
+            <ul class="space-y-2 ps-5" style="list-style-type: disc">
                 <li>Links pointing at a page that has not been published yet.</li>
                 <li>The reading grade of a plain-language summary.</li>
             </ul>

@@ -78,11 +78,18 @@ final class AddPanelToBlueprints
         // also keeps its own config, which means a hand-placed field has no
         // collection stamped on it and falls back to asking for a save. That is
         // the honest outcome rather than this addon guessing.
+        //
+        // Not listable, because a field with no `listable` is offered as a
+        // column on the collection's entries listing, and this one stores
+        // nothing: an author who picked "Accessibility" from the column menu
+        // got an empty column with a heading. Seen in the listing's own JSON,
+        // where the field sat beside title and slug with `listable: true`.
         $event->blueprint->ensureField(
             'a11y_panel',
             [
                 'type' => 'accessibility_panel',
                 'display' => 'Accessibility',
+                'listable' => false,
                 'collection' => $handle,
                 'blueprint' => $event->blueprint->handle(),
             ],
