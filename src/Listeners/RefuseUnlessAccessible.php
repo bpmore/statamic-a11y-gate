@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace Bpmore\A11yGate\Listeners;
 
+use Bpmore\A11yGate\Contracts\GateContributor;
 use Bpmore\A11yGate\Gate\GateResult;
 use Bpmore\A11yGate\Gate\GateSettings;
 use Bpmore\A11yGate\Gate\PublishGate;
 use Illuminate\Validation\ValidationException;
 use Psr\Log\LoggerInterface;
+use Statamic\Contracts\Entries\Entry;
 use Statamic\Events\EntrySaving;
+use Throwable;
 
 /**
  * The gate. Statamic binds this to `EntrySaving` from the type hint on `handle`,
@@ -44,6 +47,10 @@ use Statamic\Events\EntrySaving;
  * useful summary, and the first is still written to stand alone in case
  * something else ever surfaces it.
  *
+ * Other addons sign up to be asked in the same save (Contracts\GateContributor).
+ * Their lines go into the same exception under their own keys, so the author
+ * is refused once, with everything, and each addon's panel draws its part.
+ *
  * The cost of throwing is that the refusal is an exception in every context,
  * including a script or an import that saves entries outside the control panel.
  * That is accepted: a gate that fails loudly outside the interface is doing its
@@ -61,11 +68,23 @@ final class RefuseUnlessAccessible
      */
     private static bool $checking = false;
 
+    /** @var list<GateContributor> */
+    private readonly array $contributors;
+
+    /**
+     * @param  iterable<GateContributor>  $contributors  other addons' checks, tagged `a11y-gate.contributors`
+     */
     public function __construct(
         private readonly PublishGate $gate,
         private readonly GateSettings $settings,
         private readonly LoggerInterface $log,
-    ) {}
+        iterable $contributors = [],
+    ) {
+        $this->contributors = array_values(array_filter(
+            is_array($contributors) ? $contributors : iterator_to_array($contributors, false),
+            static fn (mixed $c): bool => $c instanceof GateContributor,
+        ));
+    }
 
     public function handle(EntrySaving $event): void
     {
@@ -77,15 +96,18 @@ final class RefuseUnlessAccessible
 
         try {
             $result = $this->gate->inspect($event->entry);
+            $contributed = $this->contributed($event->entry);
         } finally {
             self::$checking = false;
         }
 
-        if (! $result->shouldRefuse()) {
-            return;
+        $messages = $contributed;
+
+        if ($result->shouldRefuse() && $this->settings->refuses()) {
+            $messages = ['a11y_gate' => $this->lines($result)] + $messages;
         }
 
-        if (! $this->settings->refuses()) {
+        if ($result->shouldRefuse() && ! $this->settings->refuses()) {
             // Warn mode still says what it found. A mode that stayed quiet would
             // be indistinguishable from the addon not being installed.
             //
@@ -102,13 +124,44 @@ final class RefuseUnlessAccessible
                     'reason' => $result->reason,
                 ]
             );
-
-            return;
         }
 
-        throw ValidationException::withMessages([
-            'a11y_gate' => $this->lines($result),
-        ])->status(422);
+        // One refusal, with every list in it, each under its own key.
+        if ($messages !== []) {
+            throw ValidationException::withMessages($messages)->status(422);
+        }
+    }
+
+    /**
+     * What every signed-up addon says about this save, keyed as each will
+     * be refused under: only the ones that block. One that throws is
+     * logged and left out, never the reason a site cannot publish.
+     *
+     * @return array<string, list<string>>
+     */
+    private function contributed(Entry $entry): array
+    {
+        $messages = [];
+
+        foreach ($this->contributors as $contributor) {
+            try {
+                $answer = $contributor->inspect($entry);
+                $key = $contributor->key();
+            } catch (Throwable $e) {
+                $this->log->error(
+                    'A11y Gate asked another addon\'s check about this entry, and it failed, so its check was left out: '.$e->getMessage(),
+                    ['entry' => $entry->id(), 'contributor' => $contributor::class],
+                );
+
+                continue;
+            }
+
+            if ($answer->blocks && $key !== 'a11y_gate') {
+                $messages[$key] = $answer->lines === [] ? [$contributor->label().' stopped this save.'] : $answer->lines;
+            }
+        }
+
+        return $messages;
     }
 
     /**

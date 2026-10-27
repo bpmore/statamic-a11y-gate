@@ -10,6 +10,20 @@ is the same failure in another file.
 Versions are `MAJOR.MINOR.PATCH`. Before 1.0 a breaking change raises the minor,
 so pin `^0.6` rather than `^0` if that matters to you.
 
+## 0.11.0 (unreleased)
+
+### Added
+
+**Other addons can be asked in the same publish.** An addon that also stops a
+publish implements `Contracts\GateContributor` and tags itself
+`a11y-gate.contributors`. The gate asks each one during the save and refuses
+once, with every list, each under its addon's own key. A contributor that
+throws is logged and left out; `warn` mode applies to this addon's own checks
+only. Nothing changes for a site with no contributors.
+
+**What to do about it:** nothing. Copydesk signs up on its own when both are
+installed.
+
 ## 0.10.2 (2026-09-16)
 
 ### Security

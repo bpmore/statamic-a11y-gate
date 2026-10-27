@@ -214,6 +214,26 @@ save would leave behind:
   signed-in visitor sees is real and nobody has looked at it. A redirect back
   to the page itself is a loop, and that is still refused.
 
+## Other addons in the same publish
+
+An addon that also stops a publish (Copydesk does, for house style) can sign
+up to be asked during the same save, so an author is refused once, with every
+list, rather than fixing one list only to meet the next. The addon implements
+`Bpmore\A11yGate\Contracts\GateContributor` and tags itself
+`a11y-gate.contributors`, by name, so it never has to require this addon:
+
+```php
+if (interface_exists(\Bpmore\A11yGate\Contracts\GateContributor::class)) {
+    $this->app->tag(MyContributor::class, 'a11y-gate.contributors');
+}
+```
+
+Each contributor's lines come back under its own key (`copydesk`), next to
+this addon's `a11y_gate`, so each panel draws its own part. A contributor
+decides its own rules, including whether anyone may publish past it. One that
+throws is logged and left out. `warn` mode covers this addon's checks only: a
+contributor that blocks still blocks.
+
 ## What it does
 
 - Renders the entry through the site's own templates and checks the HTML.
