@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Bpmore\A11yGate;
 
+use Bpmore\A11yGate\Contracts\GateContributor;
+use Bpmore\A11yGate\Listeners\RefuseUnlessAccessible;
 use Bpmore\A11yGate\Accessibility\StaticAccessibilityChecker;
 use Bpmore\A11yGate\Gate\EntryRenderer;
 use Bpmore\A11yGate\Gate\GateSettings;
@@ -66,6 +68,12 @@ class ServiceProvider extends AddonServiceProvider
     public function register()
     {
         parent::register();
+
+        // Other addons' checks, run in the same publish (Contracts\GateContributor).
+        // They sign up by tag; the gate gets every one, or none.
+        $this->app->when(RefuseUnlessAccessible::class)
+            ->needs('$contributors')
+            ->giveTagged(GateContributor::TAG);
 
         // Resolved lazily, because the addon's config is merged during boot and
         // this runs before that.
