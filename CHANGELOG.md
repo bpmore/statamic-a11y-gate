@@ -10,7 +10,7 @@ is the same failure in another file.
 Versions are `MAJOR.MINOR.PATCH`. Before 1.0 a breaking change raises the minor,
 so pin `^0.6` rather than `^0` if that matters to you.
 
-## 0.11.0 (unreleased)
+## 0.11.0 (2026-10-27)
 
 ### Added
 
@@ -23,6 +23,10 @@ only. Nothing changes for a site with no contributors.
 
 **What to do about it:** nothing. Copydesk signs up on its own when both are
 installed.
+
+**The README shows the control panel.** Three screenshots: the panel after a
+check, the refusal an author sees, and the Tools page. They are left out of
+the package download.
 
 ## 0.10.2 (2026-09-16)
 
